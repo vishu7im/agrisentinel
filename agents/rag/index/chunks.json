@@ -1,0 +1,534 @@
+{
+  "n_docs": 10,
+  "chunks": [
+    {
+      "id": "doc_01#p1",
+      "doc_id": "doc_01",
+      "doc": "Tomato Early Blight — Identification and Management",
+      "page": 1,
+      "heading": "Identification",
+      "text": "Early blight is caused by Alternaria solani and is recognised by dark brown to black lesions carrying concentric rings, giving a target-board appearance, usually surrounded by a yellow halo. Unlike late blight it begins on the oldest, lowest leaves and works upward, and the lesions are dry and firm rather than water-soaked. Severe infection causes progressive defoliation from the base of the plant, which exposes fruit to sunscald and reduces yield even where the fruit itself is never infected.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_01#p2",
+      "doc_id": "doc_01",
+      "doc": "Tomato Early Blight — Identification and Management",
+      "page": 2,
+      "heading": "Conditions that drive an outbreak",
+      "text": "The pathogen favours warm temperatures between 24 and 29 degrees Celsius with alternating wet and dry periods, so it is often more damaging in a season of intermittent showers than in continuous rain. It survives on crop debris and on solanaceous weeds between seasons. Plants under stress from nitrogen deficiency or heavy fruit load are markedly more susceptible, which is why a nutrition check belongs in the response alongside any spray decision.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_01#p3",
+      "doc_id": "doc_01",
+      "doc": "Tomato Early Blight — Identification and Management",
+      "page": 3,
+      "heading": "First response when infection is confirmed",
+      "text": "Remove and destroy the lowest affected leaves, which both removes inoculum and improves air movement at the base of the canopy. Confirm that the crop is not nitrogen deficient, since correcting nutrition slows the disease measurably in a way no fungicide substitutes for. Mulching reduces rain splash from soil-borne debris onto lower foliage and is worth doing before the first application rather than after.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_01#p4",
+      "doc_id": "doc_01",
+      "doc": "Tomato Early Blight — Identification and Management",
+      "page": 4,
+      "heading": "Chemical control",
+      "text": "Mancozeb 75 percent WP at 2.0 to 2.5 grams per litre of water is the standard protectant and is applied at the first appearance of lesions, repeated at 7 to 10 day intervals while conditions remain favourable. Where defoliation is already advanced, difenoconazole 25 percent EC at 0.5 millilitres per litre or azoxystrobin 23 percent SC at 1.0 millilitre per litre provides systemic control, limited to two applications per season each. Chlorothalonil 75 percent WP at 2.0 grams per litre is an alternative protectant for rotation.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_01#p5",
+      "doc_id": "doc_01",
+      "doc": "Tomato Early Blight — Identification and Management",
+      "page": 5,
+      "heading": "Follow-up",
+      "text": "Re-inspect after 7 days and record whether new lesions have appeared above the treated tier of foliage. Upward progression despite treatment usually indicates that coverage did not reach the leaf underside rather than that the product failed. Early blight rarely justifies more than three or four applications in a season; if the crop is approaching harvest and the upper canopy is intact, further spraying adds cost without protecting yield.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_02#p1",
+      "doc_id": "doc_02",
+      "doc": "Tomato Bacterial Spot — Identification and Management",
+      "page": 1,
+      "heading": "Identification",
+      "text": "Bacterial spot is caused by Xanthomonas species and produces small, dark, water-soaked spots on leaves that later dry to an angular brown lesion with a narrow yellow border. On fruit the spots are raised and scabby, which is what makes the disease a marketability problem rather than only a yield problem. Held against the light, young lesions look greasy and translucent — the feature that separates bacterial spot from the dry, ringed lesions of early blight, which is the misidentification that most often leads to a wasted fungicide programme.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_02#p2",
+      "doc_id": "doc_02",
+      "doc": "Tomato Bacterial Spot — Identification and Management",
+      "page": 2,
+      "heading": "Conditions that drive an outbreak",
+      "text": "The bacterium spreads in water: rain splash, overhead irrigation, and handling of wet foliage during staking or pruning. Warm and wet weather above 24 degrees Celsius with sustained leaf wetness is the driver. It is frequently seed-borne and seedling-borne, so an outbreak that appears simultaneously across an entire field, rather than spreading from a focus, points to infected transplants rather than field spread.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_02#p3",
+      "doc_id": "doc_02",
+      "doc": "Tomato Bacterial Spot — Identification and Management",
+      "page": 3,
+      "heading": "First response when infection is confirmed",
+      "text": "Stop all handling of the crop while foliage is wet, and stop overhead irrigation immediately. Do not remove large amounts of foliage: unlike fungal diseases, aggressive pruning of a bacterial infection creates wounds that are direct entry points and typically accelerates spread. Remove only severely affected plants, whole, and destroy them away from the field.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_02#p4",
+      "doc_id": "doc_02",
+      "doc": "Tomato Bacterial Spot — Identification and Management",
+      "page": 4,
+      "heading": "Chemical control",
+      "text": "Bacterial spot cannot be cured by any product available to a grower, and fungicides intended for fungal foliar disease have no effect on it. Copper oxychloride 50 percent WP at 3.0 grams per litre suppresses further spread by protecting uninfected tissue, applied at 7 day intervals while conditions remain wet, and is more effective when tank-mixed with mancozeb 75 percent WP at 2.0 grams per litre. Expect suppression, not elimination, and set the grower's expectations accordingly.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_02#p5",
+      "doc_id": "doc_02",
+      "doc": "Tomato Bacterial Spot — Identification and Management",
+      "page": 5,
+      "heading": "Prevention for the following season",
+      "text": "Use certified disease-free seed, or treat seed in hot water at 50 degrees Celsius for 25 minutes before sowing. Rotate away from solanaceous crops for two years, since the bacterium survives on infected debris. Raise transplants away from production fields, and discard any tray showing symptoms rather than transplanting from it, because a single infected tray can seed an entire field.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_03#p1",
+      "doc_id": "doc_03",
+      "doc": "Tomato Septoria Leaf Spot and Leaf Mold",
+      "page": 1,
+      "heading": "Septoria leaf spot — identification",
+      "text": "Septoria lycopersici produces numerous small circular spots, 2 to 4 millimetres across, with a pale grey or tan centre and a dark brown margin. The distinguishing feature is the tiny black fruiting bodies visible in the centre of an older lesion under a hand lens. Spots are far more numerous and much smaller than early blight lesions and carry no concentric rings. Infection begins on the lowest leaves after fruit set and moves upward, and heavy infection defoliates a plant from the base within two to three weeks.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_03#p2",
+      "doc_id": "doc_03",
+      "doc": "Tomato Septoria Leaf Spot and Leaf Mold",
+      "page": 2,
+      "heading": "Leaf mold — identification",
+      "text": "Leaf mold, caused by Passalora fulva, shows as pale green to yellow patches on the upper leaf surface with no defined margin, and an olive-green to grey-brown velvety growth on the corresponding underside. It is overwhelmingly a protected-cultivation disease: greenhouse and polyhouse tomatoes with high humidity and poor air movement are where it appears, and it is uncommon in open field crops with free air movement. Turning a leaf over is diagnostic, since nothing else on tomato produces that velvet underside.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_03#p3",
+      "doc_id": "doc_03",
+      "doc": "Tomato Septoria Leaf Spot and Leaf Mold",
+      "page": 3,
+      "heading": "Conditions and cultural response",
+      "text": "Both diseases require extended leaf wetness. Septoria is driven by rain splash and overhead irrigation at 20 to 25 degrees Celsius; leaf mold needs relative humidity above 85 percent and is halted by ventilation more reliably than by any spray. For leaf mold, increasing air movement, reducing plant density and venting at night to prevent condensation on the canopy are the primary controls, and a spray programme applied without correcting humidity will not hold. For septoria, mulching and removing the lowest infected leaves reduces the inoculum reaching new foliage.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_03#p4",
+      "doc_id": "doc_03",
+      "doc": "Tomato Septoria Leaf Spot and Leaf Mold",
+      "page": 4,
+      "heading": "Chemical control",
+      "text": "For septoria leaf spot, apply mancozeb 75 percent WP at 2.0 to 2.5 grams per litre or chlorothalonil 75 percent WP at 2.0 grams per litre at first symptom, repeated at 7 to 10 day intervals. For leaf mold, chlorothalonil 75 percent WP at 2.0 grams per litre is the protectant of choice, and difenoconazole 25 percent EC at 0.5 millilitres per litre may be used where infection is established, to a maximum of two applications per season. Coverage of the leaf underside is essential for both, and is the usual reason a leaf mold programme fails.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_03#p5",
+      "doc_id": "doc_03",
+      "doc": "Tomato Septoria Leaf Spot and Leaf Mold",
+      "page": 5,
+      "heading": "Follow-up",
+      "text": "Re-inspect after 7 days, counting the highest tier of foliage showing new lesions rather than the total number of spots, since the height of the infection front is what predicts defoliation. Remove and destroy stripped lower leaves rather than leaving them on the ground, as both pathogens survive on debris and on infected stakes and trellis wire, which should be disinfected between seasons.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_04#p1",
+      "doc_id": "doc_04",
+      "doc": "Tomato Late Blight - Field Identification and Management",
+      "page": 1,
+      "heading": "Identification",
+      "text": "Late blight, caused by Phytophthora infestans, appears first as water-soaked grey-green lesions on older leaves, often at the leaf margin. Under cool, humid conditions the lesions expand rapidly and a white sporulating growth becomes visible on the underside. Because spores travel on wind and splash, infection typically advances as an expanding front rather than uniformly across a field. A grower who finds lesions on only one edge of a plot should assume the rest of the plot is already exposed and inspect downwind rows the same day.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_04#p2",
+      "doc_id": "doc_04",
+      "doc": "Tomato Late Blight - Field Identification and Management",
+      "page": 2,
+      "heading": "Conditions that drive an outbreak",
+      "text": "The pathogen needs leaf wetness and moderate temperature. Night temperatures between 10 and 20 degrees Celsius with relative humidity above 90 percent, or two consecutive overcast days with rain, are enough to take a field from a few lesions to visible collapse within a week. Dense canopies, overhead irrigation and low-lying waterlogged patches all extend the hours of leaf wetness and should be treated as higher risk during scouting.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_04#p3",
+      "doc_id": "doc_04",
+      "doc": "Tomato Late Blight - Field Identification and Management",
+      "page": 3,
+      "heading": "First response when infection is confirmed",
+      "text": "Act within 48 hours of confirming late blight. Remove and destroy visibly infected foliage and any fallen fruit from the affected zone before spraying, because treated surfaces are recontaminated by sporulating tissue left in place. Stop overhead irrigation in the affected block and switch to furrow or drip watering where the layout allows. If more than a quarter of the field is affected and wet weather is forecast to continue, prioritise protecting the unaffected area over treating the worst rows.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_04#p4",
+      "doc_id": "doc_04",
+      "doc": "Tomato Late Blight - Field Identification and Management",
+      "page": 4,
+      "heading": "Chemical control",
+      "text": "Where infection is limited to identifiable clusters, a protectant is sufficient: mancozeb 75 percent WP at 2.0 to 2.5 grams per litre of water, or chlorothalonil 75 percent WP at 2.0 grams per litre, applied to the cluster and a buffer of at least two rows. Where infection exceeds roughly 25 percent of the scanned area or wet weather is continuing, a systemic combination such as cymoxanil 8 percent plus mancozeb 64 percent WP at 3.0 grams per litre gives curative action on tissue already infected. Do not apply a systemic product more than twice in one season.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_04#p5",
+      "doc_id": "doc_04",
+      "doc": "Tomato Late Blight - Field Identification and Management",
+      "page": 5,
+      "heading": "Follow-up and re-inspection",
+      "text": "Re-inspect the field seven days after the first application. Compare the proportion of affected plants against the original assessment: a stable or falling proportion means the protectant is holding and the same product may be repeated, while a rising proportion means the treatment is not keeping pace and a systemic product with a different mode of action is warranted. Harvest intervals must be respected, and fruit from treated rows should not be picked before the interval printed on the product label has elapsed.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_06#p1",
+      "doc_id": "doc_06",
+      "doc": "Tomato Yellow Leaf Curl Virus and Whitefly Vector Management",
+      "page": 1,
+      "heading": "Identification",
+      "text": "Tomato yellow leaf curl virus produces upward cupping and curling of leaflets, marked yellowing of leaf margins, a reduction in leaf size, and severe stunting with shortened internodes that gives infected plants a bushy appearance. Flowers drop and fruit set collapses; a plant infected early may set no marketable fruit at all. Symptoms appear two to three weeks after the plant is fed on by a viruliferous whitefly, so the distribution of symptoms today reflects where the vector was a fortnight ago.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_06#p2",
+      "doc_id": "doc_06",
+      "doc": "Tomato Yellow Leaf Curl Virus and Whitefly Vector Management",
+      "page": 2,
+      "heading": "There is no cure for an infected plant",
+      "text": "This is a virus, and no fungicide, bactericide or foliar nutrient will cure an infected plant. Any recommendation to spray an infected plant back to health is wrong and should be refused. The entire management programme is therefore directed at two things: removing infected plants as sources of further virus, and controlling the whitefly vector Bemisia tabaci that moves it. A plan that treats this disease like a fungal infection will cost the grower money and the field its crop.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_06#p3",
+      "doc_id": "doc_06",
+      "doc": "Tomato Yellow Leaf Curl Virus and Whitefly Vector Management",
+      "page": 3,
+      "heading": "Roguing infected plants",
+      "text": "Remove symptomatic plants promptly and completely, including the root, and carry them out of the field in a closed bag rather than dragging them between rows, since disturbed whiteflies fly to neighbouring plants. Destroy them by burning or deep burial. Rogue in the early morning when whiteflies are least active. Where infection is scattered at low incidence, roguing plus vector control can save the crop; where it is widespread and the crop is young, replanting with resistant varieties is usually the better economic decision.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_06#p4",
+      "doc_id": "doc_06",
+      "doc": "Tomato Yellow Leaf Curl Virus and Whitefly Vector Management",
+      "page": 4,
+      "heading": "Vector control",
+      "text": "Control whitefly rather than the virus. Imidacloprid 17.8 percent SL at 0.3 millilitres per litre of water, or thiamethoxam 25 percent WG at 0.3 grams per litre, applied to the underside of foliage where the nymphs sit, are the standard options; rotate between them and do not use the same insecticide group for more than two consecutive applications. Yellow sticky traps at 10 to 12 per acre both monitor and reduce the adult population. Neem oil at 5 millilitres per litre is a lower-impact option for light populations and is compatible with natural enemies.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_06#p5",
+      "doc_id": "doc_06",
+      "doc": "Tomato Yellow Leaf Curl Virus and Whitefly Vector Management",
+      "page": 5,
+      "heading": "Prevention for the following season",
+      "text": "Raise seedlings under 40-mesh insect-proof netting, since most field infection traces back to seedlings already infected in the nursery. Use resistant or tolerant varieties where available, as this removes more risk than any spray programme. Remove solanaceous weeds and volunteer tomato plants from field margins, which host both the virus and the vector between crops, and avoid planting a new tomato crop adjacent to an old one that is being cleared.",
+      "crops": [
+        "tomato"
+      ]
+    },
+    {
+      "id": "doc_07#p1",
+      "doc_id": "doc_07",
+      "doc": "Fungicide Application Practice Note",
+      "page": 1,
+      "heading": "Coverage and water volume",
+      "text": "Most spray failures are coverage failures, not product failures. A foliar fungicide only protects the tissue it physically reaches, so the target is run-off-point wetting of both leaf surfaces including the underside, where the majority of spores germinate. For a staked tomato or potato crop at full canopy, plan on 400 to 500 litres of spray solution per acre; a young crop with an open canopy needs 200 to 250 litres. Mixing at the correct concentration and then applying too little volume is the most common way a correctly chosen product fails.",
+      "crops": []
+    },
+    {
+      "id": "doc_07#p2",
+      "doc_id": "doc_07",
+      "doc": "Fungicide Application Practice Note",
+      "page": 2,
+      "heading": "Timing",
+      "text": "Spray in the early morning or late evening so the leaf surface stays wet long enough for the product to bind. Application in the middle of a hot day dries the droplet before the active ingredient is taken up and can scorch treated foliage. Do not spray if rain is expected within four hours, because an unbound protectant washes off and the application is wasted; if rain falls within that window the application should be repeated once the canopy has dried. Wind above roughly 10 kilometres per hour causes drift and uneven coverage and is a reason to postpone.",
+      "crops": []
+    },
+    {
+      "id": "doc_07#p3",
+      "doc_id": "doc_07",
+      "doc": "Fungicide Application Practice Note",
+      "page": 3,
+      "heading": "Equipment and calibration",
+      "text": "Calibrate the sprayer before the first application of the season by spraying water over a measured area and checking the volume used against the intended rate. Use a hollow-cone nozzle for foliar disease work and replace nozzles that show a widened or distorted pattern, since a worn nozzle silently increases delivered volume and effective dose. Agitate the tank during application, as wettable powders such as mancozeb settle out within minutes of standing and the last rows then receive a concentration far above the intended one.",
+      "crops": []
+    },
+    {
+      "id": "doc_07#p4",
+      "doc_id": "doc_07",
+      "doc": "Fungicide Application Practice Note",
+      "page": 4,
+      "heading": "Operator safety and intervals",
+      "text": "Wear gloves, a mask and full-sleeved clothing while mixing and spraying, and mix in the open rather than in an enclosed store. Do not re-enter a treated block until the foliage is dry, and observe the pre-harvest interval printed on the product label before picking from treated rows. Empty containers should be triple-rinsed and punctured, never reused for water or food storage.",
+      "crops": []
+    },
+    {
+      "id": "doc_08#p1",
+      "doc_id": "doc_08",
+      "doc": "Potato Late Blight and Early Blight — Field Management",
+      "page": 1,
+      "heading": "Potato late blight — identification",
+      "text": "Potato late blight is caused by the same pathogen as tomato late blight, Phytophthora infestans, and the two crops infect each other, so a nearby infected tomato plot is a live source for a potato crop and the reverse. Lesions begin as water-soaked dark green patches at leaf tips and margins, expand rapidly, and develop a white sporulating ring on the underside in humid conditions. A field can go from first lesion to complete haulm destruction in seven to ten days under cool wet weather, which is why this disease is treated as an emergency and others are not.",
+      "crops": [
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_08#p2",
+      "doc_id": "doc_08",
+      "doc": "Potato Late Blight and Early Blight — Field Management",
+      "page": 2,
+      "heading": "Potato late blight — tuber protection",
+      "text": "The yield loss that matters is in the tubers, not the foliage. Spores wash from infected leaves into the soil and infect tubers through lenticels and wounds, producing a firm brown rot that continues to develop in storage and can destroy a stored crop weeks after harvest. Earthing up to give a deeper soil covering over developing tubers is a direct and effective protection. Where infection is severe, cutting and removing the haulm two to three weeks before harvest deprives the tubers of an inoculum source and is often worth more than an additional spray.",
+      "crops": [
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_08#p3",
+      "doc_id": "doc_08",
+      "doc": "Potato Late Blight and Early Blight — Field Management",
+      "page": 3,
+      "heading": "Potato late blight — chemical control",
+      "text": "Apply mancozeb 75 percent WP at 2.0 to 2.5 grams per litre of water as a protectant on first detection or ahead of forecast wet weather, and repeat at 7 day intervals while conditions remain favourable. Where infection is established or the weather is continuing wet, use a systemic combination — cymoxanil 8 percent plus mancozeb 64 percent WP at 3.0 grams per litre, or metalaxyl 8 percent plus mancozeb 64 percent WP at 2.5 grams per litre — limited to two applications per season, alternated with a protectant.",
+      "crops": [
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_08#p4",
+      "doc_id": "doc_08",
+      "doc": "Potato Late Blight and Early Blight — Field Management",
+      "page": 4,
+      "heading": "Potato early blight — identification and control",
+      "text": "Potato early blight, caused by Alternaria solani, shows the same concentric-ringed dark lesions as on tomato, beginning on the oldest lower leaves and progressing upward. It is a slower disease than late blight and rarely warrants the same urgency. Mancozeb 75 percent WP at 2.0 to 2.5 grams per litre at first symptom, repeated at 10 day intervals, is normally sufficient; azoxystrobin 23 percent SC at 1.0 millilitre per litre is available where defoliation is advanced. Adequate nitrogen and potassium nutrition measurably reduces susceptibility.",
+      "crops": [
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_08#p5",
+      "doc_id": "doc_08",
+      "doc": "Potato Late Blight and Early Blight — Field Management",
+      "page": 5,
+      "heading": "Follow-up and seed for next season",
+      "text": "Re-inspect seven days after any application, and for late blight inspect after four days if wet weather has continued, since the disease can outrun a weekly cycle. Do not save seed tubers from an infected field. Cull and destroy volunteer potatoes and cull piles before the next season, as these are the most common route by which late blight survives the interval between crops.",
+      "crops": [
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_10#p1",
+      "doc_id": "doc_10",
+      "doc": "Corn Foliar Diseases — Common Rust, Northern Leaf Blight and Gray Leaf Spot",
+      "page": 1,
+      "heading": "Common rust — identification",
+      "text": "Common rust of maize, caused by Puccinia sorghi, produces small oval to elongated pustules scattered on both upper and lower leaf surfaces. Fresh pustules rupture the leaf surface and release a cinnamon-brown powder that rubs off onto a finger, which is the quickest field confirmation available. Pustules appear on both surfaces of the leaf, unlike southern rust which is largely confined to the upper surface. The pathogen does not overwinter in most temperate maize areas; it arrives on wind currents, so an outbreak is not evidence of a mistake made in the previous season.",
+      "crops": [
+        "corn"
+      ]
+    },
+    {
+      "id": "doc_10#p2",
+      "doc_id": "doc_10",
+      "doc": "Corn Foliar Diseases — Common Rust, Northern Leaf Blight and Gray Leaf Spot",
+      "page": 2,
+      "heading": "Northern leaf blight — identification",
+      "text": "Northern leaf blight, caused by Exserohilum turcicum, produces long cigar-shaped grey-green to tan lesions, typically 3 to 15 centimetres in length, running parallel with the leaf veins. Lesions begin on lower leaves and progress upward. The damage that matters is loss of green leaf area above the ear during grain fill, and infection that reaches the ear leaf before silking can cost a substantial share of yield. Cool, moist conditions between 18 and 27 degrees Celsius with prolonged dew favour the disease.",
+      "crops": [
+        "corn"
+      ]
+    },
+    {
+      "id": "doc_10#p3",
+      "doc_id": "doc_10",
+      "doc": "Corn Foliar Diseases — Common Rust, Northern Leaf Blight and Gray Leaf Spot",
+      "page": 3,
+      "heading": "Gray leaf spot — identification",
+      "text": "Gray leaf spot, caused by Cercospora zeae-maydis, produces narrow rectangular lesions sharply bounded by the leaf veins, which gives them a distinctive blocky appearance quite unlike the tapered ends of northern leaf blight. Lesions are tan to grey and may join to blight an entire leaf. The pathogen survives on maize residue, so continuous maize under reduced or no tillage carries the highest risk, and the disease is favoured by warm humid weather with extended dew periods.",
+      "crops": [
+        "corn"
+      ]
+    },
+    {
+      "id": "doc_10#p4",
+      "doc_id": "doc_10",
+      "doc": "Corn Foliar Diseases — Common Rust, Northern Leaf Blight and Gray Leaf Spot",
+      "page": 4,
+      "heading": "Chemical control for all three",
+      "text": "The decision to spray maize is economic and depends on growth stage: a foliar fungicide is generally justified when disease reaches the ear leaf before or around tasselling on a susceptible hybrid, and is rarely justified once grain fill is well advanced. Propiconazole 25 percent EC at 1.0 millilitre per litre of water, tebuconazole 25.9 percent EC at 1.0 millilitre per litre, or pyraclostrobin 20 percent WG at 1.0 gram per litre are the standard options, applied once at tasselling with a second application 14 to 21 days later only if disease continues to advance. Mancozeb 75 percent WP at 2.0 to 2.5 grams per litre is an option for rust in seed and nursery plots.",
+      "crops": [
+        "corn"
+      ]
+    },
+    {
+      "id": "doc_10#p5",
+      "doc_id": "doc_10",
+      "doc": "Corn Foliar Diseases — Common Rust, Northern Leaf Blight and Gray Leaf Spot",
+      "page": 5,
+      "heading": "Cultural control and prevention",
+      "text": "Hybrid resistance is the primary control for all three diseases and is chosen at planting, not after symptoms appear. For northern leaf blight and gray leaf spot, which survive on residue, rotate out of maize for one season and incorporate residue by tillage where the field allows it. Common rust does not survive on residue, so rotation does not help against it and only hybrid selection and timely fungicide do. Avoid excessive plant density, which extends dew periods within the canopy.",
+      "crops": [
+        "corn"
+      ]
+    },
+    {
+      "id": "doc_12#p1",
+      "doc_id": "doc_12",
+      "doc": "Integrated Disease Management for Solanaceous Crops",
+      "page": 1,
+      "heading": "Scope",
+      "text": "This note covers practice common to tomato, potato and other solanaceous crops, independent of which disease has been identified. Chemical control is the last of four steps, not the first: field hygiene, scouting, and cultural adjustment together decide whether a spray programme works or merely delays a loss. A plan that begins with a product name has skipped the part that determines the outcome.",
+      "crops": [
+        "tomato",
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_12#p2",
+      "doc_id": "doc_12",
+      "doc": "Integrated Disease Management for Solanaceous Crops",
+      "page": 2,
+      "heading": "Scouting and assessment",
+      "text": "Walk the field in a W pattern and inspect the underside of leaves at three heights on each plant, because most foliar pathogens establish on shaded lower foliage before they are visible from the path. Record the proportion of plants showing symptoms rather than a general impression, and note whether affected plants are clustered or scattered. Clustered symptoms indicate a spreading focus and justify treating a buffer around the cluster; scattered single plants across a whole field more often indicate seed-borne or systemic infection, which a foliar spray will not correct.",
+      "crops": [
+        "tomato",
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_12#p3",
+      "doc_id": "doc_12",
+      "doc": "Integrated Disease Management for Solanaceous Crops",
+      "page": 3,
+      "heading": "Sanitation",
+      "text": "Sanitation is the first control step. Infected foliage and fruit should be removed from the field and destroyed by burning or deep burial; leaving residue on field margins or in compost heaps allows the pathogen to survive and re-infect. Sanitation should be completed before fungicide application so that treated surfaces are not immediately recontaminated. Tools and hands should be cleaned between the affected block and clean blocks, and workers should move from clean rows to infected rows rather than the reverse.",
+      "crops": [
+        "tomato",
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_12#p4",
+      "doc_id": "doc_12",
+      "doc": "Integrated Disease Management for Solanaceous Crops",
+      "page": 4,
+      "heading": "Protectant fungicides",
+      "text": "Protectant fungicides based on mancozeb are applied at 2.0 to 2.5 grams per litre of water and act on the leaf surface, so complete coverage of both leaf surfaces is essential. Treat the affected zone plus a buffer of at least two rows, as neighbouring plants are usually already exposed even when they show no symptoms. A protectant cannot cure tissue that is already infected; its value is in stopping new infections, which is why it is applied early and repeated rather than applied heavily once. Copper oxychloride 50 percent WP at 3.0 grams per litre is an alternative protectant where a copper-tolerant programme is wanted.",
+      "crops": [
+        "tomato",
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_12#p5",
+      "doc_id": "doc_12",
+      "doc": "Integrated Disease Management for Solanaceous Crops",
+      "page": 5,
+      "heading": "Cultural practice and prevention",
+      "text": "On a field with no symptoms, preventive practice is the whole programme and no spray is warranted. Rotate solanaceous crops with cereals or legumes on a minimum two-year cycle, stake and prune to open the canopy, avoid overhead irrigation in the evening, and remove volunteer plants and solanaceous weeds from field margins where pathogens overwinter. Certified disease-free seed and resistant varieties remove more risk than any spray programme adds.",
+      "crops": [
+        "tomato",
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_12#p6",
+      "doc_id": "doc_12",
+      "doc": "Integrated Disease Management for Solanaceous Crops",
+      "page": 6,
+      "heading": "Records",
+      "text": "Keep a dated record of every application: product, active ingredient, concentration, area covered, and the weather that day. This is what makes the next season's decisions better than this season's, and it is also what a resistance-management rotation depends on, since a rotation cannot be planned without knowing what was used and when.",
+      "crops": [
+        "tomato",
+        "potato"
+      ]
+    },
+    {
+      "id": "doc_19#p1",
+      "doc_id": "doc_19",
+      "doc": "Fungicide Resistance Management Guidelines",
+      "page": 1,
+      "heading": "Why rotation matters",
+      "text": "Repeated use of a single mode of action drives resistance. A fungal population carries rare individuals insensitive to a given chemistry; every application of that chemistry removes their competition, and within a few seasons the insensitive individuals are the population. The visible symptom is a product that worked last year and does nothing this year, at the same dose, against the same disease. Rotation of modes of action is the only practical defence available to a grower, and it costs nothing to plan.",
+      "crops": []
+    },
+    {
+      "id": "doc_19#p2",
+      "doc_id": "doc_19",
+      "doc": "Fungicide Resistance Management Guidelines",
+      "page": 2,
+      "heading": "How to rotate",
+      "text": "Alternate between chemical groups rather than between brand names, because several products sold under different names share one active ingredient and rotating among them is not a rotation at all. Multi-site protectants such as mancozeb and chlorothalonil are at low risk of resistance and can anchor a programme. Single-site systemics — the strobilurins such as azoxystrobin and pyraclostrobin, and the triazoles such as difenoconazole, propiconazole and tebuconazole — are at higher risk and should be limited to two applications per season each, never applied consecutively.",
+      "crops": []
+    },
+    {
+      "id": "doc_19#p3",
+      "doc_id": "doc_19",
+      "doc": "Fungicide Resistance Management Guidelines",
+      "page": 3,
+      "heading": "Dose and interval discipline",
+      "text": "Do not reduce the label dose to stretch a product. A sub-lethal dose is the ideal condition for selecting resistant individuals, since it kills the sensitive population without controlling the insensitive one. Equally, do not shorten the interval between applications below the label minimum in the hope of faster control; excess frequency increases selection pressure without improving the outcome. Where a systemic is used, pairing it with a multi-site protectant in the same application reduces selection pressure on the systemic component.",
+      "crops": []
+    },
+    {
+      "id": "doc_19#p4",
+      "doc_id": "doc_19",
+      "doc": "Fungicide Resistance Management Guidelines",
+      "page": 4,
+      "heading": "Signs a programme is failing",
+      "text": "Treat a lack of response as a diagnostic result, not a reason to increase the dose. If disease continues to advance seven days after a correctly applied and correctly timed application, the likely explanations are, in order: incomplete spray coverage, a misidentified disease, and resistance. Check the first two before concluding the third, and change the mode of action rather than the rate.",
+      "crops": []
+    }
+  ]
+}
