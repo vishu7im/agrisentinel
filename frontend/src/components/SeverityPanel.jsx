@@ -65,7 +65,7 @@ export default function SeverityPanel({ loading, spread }) {
           label="Mapping field severity"
         >
           {['affected area', 'infection clusters', 'spread direction', 'yield impact'].map((label) => (
-            <div className="min-h-32 rounded-xl border border-field-border bg-black/20 p-4" key={label}>
+            <div className="min-h-28 rounded-xl border border-field-border bg-black/20 p-3 sm:min-h-32 sm:p-4" key={label}>
               <SkeletonBlock className="h-2.5 w-24" />
               <SkeletonBlock className="mt-6 h-10 w-20" />
             </div>
@@ -121,9 +121,9 @@ export default function SeverityPanel({ loading, spread }) {
 
 function StatCard({ children, label }) {
   return (
-    <article className="min-h-32 rounded-xl border border-field-border bg-black/20 p-4">
+    <article className="min-h-28 rounded-xl border border-field-border bg-black/20 p-3 sm:min-h-32 sm:p-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">{label}</p>
-      <p className="mt-5 text-4xl font-bold tabular-nums tracking-tight text-white sm:text-5xl">{children}</p>
+      <p className="mt-5 text-3xl font-bold tabular-nums tracking-tight text-white sm:text-5xl">{children}</p>
     </article>
   )
 }

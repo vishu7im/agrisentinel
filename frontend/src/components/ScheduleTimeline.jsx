@@ -44,9 +44,54 @@ export default function ScheduleTimeline({ costEstimate, rescanDate, schedule })
 
   return (
     <div className="result-enter mt-6">
-      <div className="overflow-x-auto pb-2">
+      <div className="space-y-3 sm:hidden" aria-label="Action schedule">
+        {groups.map(([dayOffset, items], groupIndex) => (
+          <div className="relative pl-9" key={dayOffset}>
+            {groupIndex < groups.length - 1 && (
+              <span className="absolute bottom-[-0.9rem] left-[0.86rem] top-7 w-px bg-gradient-to-b from-emerald-400/60 to-field-border" />
+            )}
+            <span className={`absolute left-0 top-1 grid size-7 place-items-center rounded-full border text-[10px] font-black ${dayOffset === 0 ? 'border-emerald-300 bg-emerald-400 text-emerald-950' : 'border-emerald-400/50 bg-field-panel text-emerald-300'}`}>
+              {dayOffset}
+            </span>
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+              Day {dayOffset}{dayOffset === 0 ? ' · Today' : ''}
+            </p>
+            <div className="space-y-2">
+              {items.map((item) => {
+                const active = item.key === selected?.key
+                const rescan = item.kind === 'rescan'
+                return (
+                  <button
+                    aria-expanded={active}
+                    className={`flex min-h-12 w-full items-start gap-3 rounded-xl border px-3 py-2.5 text-left transition ${rescan ? 'border-amber-400/30 bg-amber-400/10' : active ? 'border-emerald-400/50 bg-emerald-400/10' : 'border-field-border bg-black/15'} ${active ? 'ring-2 ring-emerald-400/10' : ''}`}
+                    key={item.key}
+                    onClick={() => setSelectedKey(item.key)}
+                    type="button"
+                  >
+                    <span aria-hidden="true" className={`grid size-8 shrink-0 place-items-center rounded-full ${rescan ? 'bg-amber-400/15 text-amber-200' : 'bg-emerald-400/15 text-emerald-300'}`}>
+                      {rescan ? '↻' : '✓'}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold leading-5 text-white">{item.action}</span>
+                      {active && (
+                        <span className="mt-1.5 block text-xs font-normal leading-5 text-slate-300">
+                          {item.note}
+                          {rescan && rescanDate && <span className="mt-1 block font-semibold text-amber-200">Re-scan: {formatDate(rescanDate)}</span>}
+                        </span>
+                      )}
+                    </span>
+                    <span aria-hidden="true" className="pt-1 text-slate-500">{active ? '⌄' : '›'}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto pb-2 sm:block">
         <div className="relative min-w-[38rem] px-4 pt-1">
-          <div className="absolute left-12 right-12 top-[3.7rem] h-px bg-gradient-to-r from-emerald-400/70 via-emerald-400/35 to-amber-400/70" />
+          <div className="absolute left-12 right-12 top-[4rem] h-px bg-gradient-to-r from-emerald-400/70 via-emerald-400/35 to-amber-400/70" />
           <div className="relative grid gap-6" style={{ gridTemplateColumns: `repeat(${groups.length}, minmax(0, 1fr))` }}>
             {groups.map(([dayOffset, items]) => (
               <div className="text-center" key={dayOffset}>
@@ -62,7 +107,7 @@ export default function ScheduleTimeline({ costEstimate, rescanDate, schedule })
                       <button
                         aria-expanded={active}
                         aria-label={`Day ${dayOffset}: ${item.action}`}
-                        className={`group relative grid size-9 place-items-center rounded-full border-2 transition ${rescan ? 'border-amber-300 bg-amber-400/20 text-amber-200' : active ? 'border-emerald-300 bg-emerald-400 text-emerald-950' : 'border-emerald-400/60 bg-field-panel text-emerald-300 hover:border-emerald-300'} ${active ? 'ring-4 ring-emerald-400/10' : ''}`}
+                        className={`group relative grid size-11 place-items-center rounded-full border-2 transition ${rescan ? 'border-amber-300 bg-amber-400/20 text-amber-200' : active ? 'border-emerald-300 bg-emerald-400 text-emerald-950' : 'border-emerald-400/60 bg-field-panel text-emerald-300 hover:border-emerald-300'} ${active ? 'ring-4 ring-emerald-400/10' : ''}`}
                         key={item.key}
                         onClick={() => setSelectedKey(item.key)}
                         type="button"
@@ -82,7 +127,7 @@ export default function ScheduleTimeline({ costEstimate, rescanDate, schedule })
       </div>
 
       {selected && (
-        <div className={`result-enter mt-4 rounded-xl border p-4 ${selected.kind === 'rescan' ? 'border-amber-400/30 bg-amber-400/10' : 'border-field-border bg-black/15'}`} key={selected.key}>
+        <div className={`result-enter mt-4 hidden rounded-xl border p-4 sm:block ${selected.kind === 'rescan' ? 'border-amber-400/30 bg-amber-400/10' : 'border-field-border bg-black/15'}`} key={selected.key}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="font-semibold text-white">{selected.action}</p>
             <span className="text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">Day {selected.day_offset}</span>

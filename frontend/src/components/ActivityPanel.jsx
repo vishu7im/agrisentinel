@@ -3,7 +3,7 @@ import EventLog from './EventLog.jsx'
 
 export default function ActivityPanel({ events, phase, runId, startedAt, streamStatus, tileCount }) {
   return (
-    <aside className="rounded-2xl border border-field-border bg-field-panel p-5 shadow-2xl shadow-black/20">
+    <aside className="rounded-2xl border border-field-border bg-field-panel p-4 shadow-2xl shadow-black/20 sm:p-5" id="agent-activity">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">Agent pipeline</p>

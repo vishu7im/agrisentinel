@@ -70,7 +70,7 @@ export default function EventLog({ events, phase, startedAt, streamStatus, tileC
         </div>
       </div>
 
-      <div className="mt-3 h-56 space-y-2 overflow-y-auto pr-1" ref={viewportRef} aria-live="polite">
+      <div className="mt-3 h-44 space-y-2 overflow-y-auto overscroll-contain pr-1 sm:h-56" ref={viewportRef} aria-live="polite">
         {entries.length === 0 && (
           <div className="grid h-full place-items-center rounded-xl border border-dashed border-field-border text-center text-xs text-slate-600">
             Agent events will appear here

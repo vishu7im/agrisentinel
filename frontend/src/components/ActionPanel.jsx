@@ -19,8 +19,8 @@ export default function ActionPanel({
       : 'The dated action plan appears after verification.'
 
   return (
-    <section className="grid gap-5 lg:col-span-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(20rem,0.75fr)]">
-      <div className="rounded-2xl border border-field-border bg-field-panel p-5 shadow-2xl shadow-black/20 sm:p-6">
+    <section className="order-3 grid gap-4 sm:gap-5 lg:order-none lg:col-span-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(20rem,0.75fr)]" id="field-actions">
+      <div className="rounded-2xl border border-field-border bg-field-panel p-4 shadow-2xl shadow-black/20 sm:p-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">Action schedule</p>
           <h2 className="mt-1 text-xl font-semibold text-white">What to do next</h2>
@@ -37,7 +37,7 @@ export default function ActionPanel({
             className="mt-5 min-h-40 rounded-xl border border-field-border bg-black/10 p-5"
             label="Preparing action schedule"
           >
-            <div className="flex items-center justify-between gap-5">
+            <div className="grid grid-cols-2 gap-5 sm:flex sm:items-center sm:justify-between">
               {[0, 1, 2, 3].map((step) => (
                 <div className="flex flex-1 flex-col items-center" key={step}>
                   <SkeletonBlock className="h-3 w-12" />

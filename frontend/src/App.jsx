@@ -3,8 +3,17 @@ import ActionPanel from './components/ActionPanel.jsx'
 import ActivityPanel from './components/ActivityPanel.jsx'
 import DemoControls from './components/DemoControls.jsx'
 import FieldPanel from './components/FieldPanel.jsx'
+import MobileFieldNav from './components/MobileFieldNav.jsx'
 import PlanPanel from './components/PlanPanel.jsx'
 import { useRunScan } from './hooks/useRunScan.js'
+
+const MOBILE_STATUS = {
+  complete: 'Result ready',
+  error: 'Needs attention',
+  idle: 'Ready to scan',
+  scanning: 'Scanning',
+  uploading: 'Uploading',
+}
 
 export default function App() {
   const [previewUrl, setPreviewUrl] = useState(null)
@@ -58,21 +67,28 @@ export default function App() {
   }
 
   return (
-    <main className="min-h-screen bg-field-bg">
-      <header className="border-b border-field-border bg-field-panel/80 px-5 py-4 backdrop-blur sm:px-8">
+    <main className="min-h-dvh bg-field-bg pb-24 lg:pb-0">
+      <header className="app-header sticky top-0 z-40 border-b border-field-border bg-field-panel/90 backdrop-blur lg:static">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-xl border border-emerald-400/30 bg-emerald-400/10 text-xl">
+          <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+            <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-emerald-400/30 bg-emerald-400/10 text-lg sm:size-10 sm:text-xl">
               ◈
             </div>
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-semibold tracking-tight text-white sm:text-2xl">
                 AgriSentinel
               </h1>
-              <p className="text-xs uppercase tracking-[0.18em] text-emerald-300/70">
+              <p className="truncate text-[9px] uppercase tracking-[0.14em] text-emerald-300/70 sm:text-xs sm:tracking-[0.18em]">
                 Autonomous field health
               </p>
             </div>
+          </div>
+          <div
+            aria-live="polite"
+            className="flex min-h-10 shrink-0 items-center gap-2 rounded-full border border-field-border bg-black/20 px-3 text-[11px] font-semibold text-slate-200 sm:hidden"
+          >
+            <span className={`size-2 rounded-full ${scan.phase === 'error' ? 'bg-red-400' : scanActive ? 'animate-pulse bg-cyan-300' : scan.phase === 'complete' ? 'bg-emerald-400' : 'bg-slate-500'}`} />
+            {MOBILE_STATUS[scan.phase] ?? 'Ready'}
           </div>
           <div className="hidden items-center gap-2 text-sm text-slate-400 sm:flex">
             <span className={`size-2 rounded-full ${demoMode ? 'bg-amber-300 shadow-[0_0_12px_#fcd34d]' : 'bg-emerald-400 shadow-[0_0_12px_#4ade80]'}`} />
@@ -89,7 +105,7 @@ export default function App() {
         />
       )}
 
-      <div className="mx-auto grid max-w-[1600px] gap-5 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="app-content mx-auto grid max-w-[1600px] gap-4 py-4 sm:gap-5 sm:py-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <FieldPanel
           error={scan.error}
           fileName={visibleFileName}
@@ -129,6 +145,7 @@ export default function App() {
           scheduleLoading={scanActive && !scheduleReady && !hasBlock}
         />
       </div>
+      <MobileFieldNav phase={scan.phase} />
     </main>
   )
 }

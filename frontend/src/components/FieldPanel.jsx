@@ -18,19 +18,19 @@ export default function FieldPanel({
   const hasImage = Boolean(previewUrl)
 
   return (
-    <section className="min-w-0 rounded-2xl border border-field-border bg-field-panel p-4 shadow-2xl shadow-black/20 sm:p-5">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div>
+    <section className="min-w-0 scroll-mt-24 rounded-2xl border border-field-border bg-field-panel p-4 shadow-2xl shadow-black/20 sm:p-5" id="field-scan">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">
             Field scan
           </p>
-          <h2 className="mt-1 text-lg font-semibold text-white">
+          <h2 className="mt-1 truncate text-lg font-semibold text-white" title={hasImage ? fileName : undefined}>
             {hasImage ? fileName : 'Awaiting imagery'}
           </h2>
         </div>
         {hasImage && (
-          <label className="cursor-pointer rounded-lg border border-field-border px-3 py-2 text-xs font-medium text-slate-300 transition hover:border-emerald-400/50 hover:text-white">
-            Replace image
+          <label className="flex min-h-11 shrink-0 cursor-pointer items-center rounded-lg border border-field-border px-3 py-2 text-xs font-medium text-slate-300 transition hover:border-emerald-400/50 hover:text-white">
+            <span className="sm:hidden">Replace</span><span className="hidden sm:inline">Replace image</span>
             <input
               accept="image/jpeg,image/png"
               className="sr-only"
@@ -47,7 +47,7 @@ export default function FieldPanel({
       ) : (
         <>
           <div className="relative overflow-hidden rounded-xl border border-field-border bg-black">
-            <img alt="Uploaded field selected for disease analysis" className="block w-full" src={previewUrl} />
+            <img alt="Uploaded field selected for disease analysis" className="block max-h-[70dvh] w-full object-contain sm:max-h-none" src={previewUrl} />
             <HeatmapOverlay diagnosedTileIds={visibleTileIds} tiles={runState?.tiles ?? []} />
             {(phase === 'uploading' || phase === 'scanning') && (
               <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/80 px-3 py-2 text-xs font-semibold text-white backdrop-blur">

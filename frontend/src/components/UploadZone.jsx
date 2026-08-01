@@ -26,7 +26,7 @@ export default function UploadZone({ disabled, error, onImage }) {
   return (
     <div>
       <button
-        className={`group flex min-h-72 w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition ${
+        className={`group flex min-h-60 w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-8 text-center transition sm:min-h-72 sm:px-6 sm:py-12 ${
           dragging
             ? 'border-emerald-300 bg-emerald-400/10'
             : 'border-field-border bg-black/10 hover:border-emerald-400/50 hover:bg-emerald-400/5'
@@ -42,14 +42,14 @@ export default function UploadZone({ disabled, error, onImage }) {
         onDrop={handleDrop}
         type="button"
       >
-        <span className="grid size-16 place-items-center rounded-2xl border border-emerald-300/20 bg-emerald-400/10 text-3xl text-emerald-300 transition group-hover:scale-105">
+        <span className="grid size-14 place-items-center rounded-2xl border border-emerald-300/20 bg-emerald-400/10 text-3xl text-emerald-300 transition group-hover:scale-105 sm:size-16">
           ↥
         </span>
-        <span className="mt-5 text-lg font-semibold text-white">Drop a field image here</span>
+        <span className="mt-4 text-lg font-semibold text-white sm:mt-5"><span className="sm:hidden">Choose a field image</span><span className="hidden sm:inline">Drop a field image here</span></span>
         <span className="mt-2 max-w-sm text-sm leading-6 text-slate-400">
           Upload a drone mosaic or crop photo. Scanning starts automatically.
         </span>
-        <span className="mt-5 rounded-full border border-field-border px-4 py-2 text-xs font-medium uppercase tracking-widest text-slate-300">
+        <span className="mt-5 inline-flex min-h-11 items-center rounded-full border border-field-border px-4 py-2 text-xs font-medium uppercase tracking-widest text-slate-300">
           Browse JPEG or PNG
         </span>
       </button>

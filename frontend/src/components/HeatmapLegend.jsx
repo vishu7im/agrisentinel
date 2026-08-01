@@ -6,7 +6,7 @@ const items = [
 
 export default function HeatmapLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-400">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-slate-400 sm:gap-x-5 sm:text-xs">
       {items.map((item) => (
         <span className="flex items-center gap-2" key={item.label}>
           <span className={`size-3 rounded-sm ${item.swatch}`} />
@@ -17,7 +17,7 @@ export default function HeatmapLegend() {
         <span className="size-3 rounded-sm border border-dashed border-white" />
         Second opinion
       </span>
-      <span className="ml-auto text-slate-500">Opacity indicates confidence</span>
+      <span className="w-full text-slate-500 sm:ml-auto sm:w-auto">Tap a tile for detail · opacity shows confidence</span>
     </div>
   )
 }

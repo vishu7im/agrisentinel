@@ -5,12 +5,14 @@
 @layer base {
   html {
     color-scheme: dark;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-field-bg text-slate-200 antialiased;
     min-width: 320px;
     min-height: 100vh;
+    min-height: 100dvh;
   }
 
   button,
@@ -68,6 +70,43 @@
 }
 
 @layer utilities {
+  .app-header {
+    padding: max(0.75rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.75rem max(1rem, env(safe-area-inset-left));
+  }
+
+  .app-content,
+  .page-gutter {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .mobile-field-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    border-top: 1px solid rgb(36 51 41 / 0.95);
+    background: rgb(20 29 23 / 0.94);
+    padding: 0.25rem max(0.75rem, env(safe-area-inset-right)) max(0.25rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+    box-shadow: 0 -12px 30px rgb(0 0 0 / 0.3);
+    backdrop-filter: blur(16px);
+  }
+
+  .drawer-panel {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  #agent-activity,
+  #field-actions,
+  #field-scan,
+  #treatment-plan {
+    scroll-margin-top: 5.5rem;
+  }
+
   .agent-event-enter {
     animation: agent-event-in 280ms ease-out both;
   }
@@ -108,6 +147,22 @@
     content: '';
     background-image: linear-gradient(90deg, transparent, rgb(148 163 184 / 0.15), transparent);
     animation: skeleton-sweep 1.5s ease-in-out infinite;
+  }
+}
+
+@media (min-width: 640px) {
+  .app-header {
+    padding: 1rem max(2rem, env(safe-area-inset-right)) 1rem max(2rem, env(safe-area-inset-left));
+  }
+
+  .app-content,
+  .page-gutter {
+    padding-left: max(2rem, env(safe-area-inset-left));
+    padding-right: max(2rem, env(safe-area-inset-right));
+  }
+
+  .drawer-panel {
+    padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) 1.5rem;
   }
 }
 

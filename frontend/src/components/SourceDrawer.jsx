@@ -20,7 +20,7 @@ export default function SourceDrawer({ onClose, source, sourceNumber }) {
       <aside
         aria-labelledby="source-title"
         aria-modal="true"
-        className="drawer-enter absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-field-border bg-field-panel p-6 shadow-2xl shadow-black/60"
+        className="drawer-panel drawer-enter absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-field-border bg-field-panel p-4 shadow-2xl shadow-black/60 sm:p-6"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-5">
@@ -30,7 +30,7 @@ export default function SourceDrawer({ onClose, source, sourceNumber }) {
           </div>
           <button
             autoFocus
-            className="grid size-10 shrink-0 place-items-center rounded-full border border-field-border text-xl text-slate-400 transition hover:border-slate-500 hover:text-white"
+            className="grid size-11 shrink-0 place-items-center rounded-full border border-field-border text-xl text-slate-400 transition hover:border-slate-500 hover:text-white"
             onClick={onClose}
             type="button"
           >
@@ -44,7 +44,7 @@ export default function SourceDrawer({ onClose, source, sourceNumber }) {
           <span className="font-mono text-slate-600">{source.id}</span>
         </div>
 
-        <div className="mt-6 overflow-y-auto rounded-xl border border-field-border bg-black/20 p-5">
+        <div className="mt-6 overflow-y-auto overscroll-contain rounded-xl border border-field-border bg-black/20 p-4 sm:p-5">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Retrieved evidence</p>
           <blockquote className="mt-4 border-l-2 border-emerald-400/50 pl-4 text-base leading-7 text-slate-200">
             {source.text}

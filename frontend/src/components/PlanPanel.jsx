@@ -23,7 +23,7 @@ export default function PlanPanel({ diagnosisSummary, loading, phase, plan, veri
   }
 
   return (
-    <section className="rounded-2xl border border-field-border bg-field-panel p-5 shadow-2xl shadow-black/20 lg:col-span-2 sm:p-6">
+    <section className="order-4 rounded-2xl border border-field-border bg-field-panel p-4 shadow-2xl shadow-black/20 sm:p-6 lg:order-none lg:col-span-2" id="treatment-plan">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">Verified treatment plan</p>

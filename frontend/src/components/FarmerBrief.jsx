@@ -11,8 +11,8 @@ export default function FarmerBrief({ loading, phase, report }) {
   const hasBrief = report?.en || report?.hi
 
   return (
-    <article className="rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/10 to-field-panel p-5 shadow-2xl shadow-black/20 sm:p-6">
-      <div className="flex items-start justify-between gap-4">
+    <article className="order-first rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/10 to-field-panel p-4 shadow-2xl shadow-black/20 sm:p-6 xl:order-none">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">Farmer brief</p>
           <h2 className="mt-1 text-xl font-semibold text-white">Field result in plain words</h2>
@@ -22,7 +22,7 @@ export default function FarmerBrief({ loading, phase, report }) {
             <button
               aria-label={`Show brief in ${option.name}`}
               aria-pressed={language === option.code}
-              className={`min-w-10 rounded-md px-2.5 py-1.5 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${language === option.code ? 'bg-emerald-400 text-emerald-950' : 'text-slate-400 hover:text-white'}`}
+              className={`min-h-11 min-w-12 rounded-md px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${language === option.code ? 'bg-emerald-400 text-emerald-950' : 'text-slate-400 hover:text-white'}`}
               disabled={!hasBrief}
               key={option.code}
               onClick={() => setLanguage(option.code)}
@@ -34,7 +34,7 @@ export default function FarmerBrief({ loading, phase, report }) {
         </div>
       </div>
 
-      <div className="mt-5 min-h-52 rounded-xl border border-white/10 bg-black/15 p-5 sm:p-6">
+      <div className="mt-5 min-h-52 rounded-xl border border-white/10 bg-black/15 p-4 sm:p-6">
         {hasBrief ? (
           <div className="result-enter grid">
             {LANGUAGES.map((option) => (
