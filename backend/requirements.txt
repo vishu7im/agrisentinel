@@ -6,3 +6,20 @@ python-multipart==0.0.32
 
 # Used by contract/validate.py to check API responses against the frozen schema.
 jsonschema==4.26.0
+
+# --- A5: the backend now imports /agents, so the agents' own deps come with it -------------
+# Nothing new to the project — every line below was already installed via ml/requirements.txt
+# and is pinned here to the version this backend was actually tested against. The point of
+# listing them is that a fresh clone can install the *backend* alone and run the pipeline,
+# without pulling torch and torchvision in from the training tree.
+#
+# onnxruntime is the CPU build on purpose: venue GPUs cannot be relied on, and a 40-tile scan
+# is 0.2 s of inference on a laptop core.
+numpy==2.3.5
+pillow==12.1.0
+onnxruntime==1.24.1
+
+# One DBSCAN call in agents/spread.py, on at most a few dozen integer points, and it drags
+# scipy along. If install weight ever matters more than it does now, the equivalent is
+# connected components over the 8-neighbourhood in about fifteen lines — see agents/README.md.
+scikit-learn==1.7.2

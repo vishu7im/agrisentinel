@@ -1,7 +1,26 @@
 # backend — Dev A
 
-FastAPI app serving the four endpoints in `contract/endpoints.md`.
-As of Phase 0 only `/api/health` is implemented; the rest lands in **A5**.
+FastAPI app serving the four endpoints in `contract/endpoints.md`. **All four are live as of
+A5**, plus `GET /api/run/{id}/image` for the heatmap backing image.
+
+| file | what it is |
+|---|---|
+| `app/main.py` | The endpoints, and nothing else. Meant to read like `endpoints.md`. |
+| `app/pipeline.py` | Model singleton and the background job. Adds the repo root to `sys.path`. |
+| `app/store.py` | Live runs in a dict, finished runs in SQLite, uploads on disk. |
+
+`POST /api/run` returns `202` with a `run_id` before the work starts, then the scan runs in
+Starlette's worker threadpool. `GET /api/run/{id}/events` replays `events[]` from index 0 —
+so a reconnecting or late-opening tab sees the whole run, not the tail — and closes on
+`run.complete` or `run.error`.
+
+The ONNX session is built once at startup and shared across threads. If `ml/artifacts/model.onnx`
+is missing the app still starts and `/api/health` still answers; `POST /api/run` returns `503`
+with the reason. "Backend down" and "model not exported" send you to different places, and an
+app that refuses to boot tells you neither.
+
+Uploads and the SQLite file live in `backend/uploads/`, which is gitignored. Delete it to
+reset; it is rebuilt on startup.
 
 ## Setup
 
@@ -36,11 +55,13 @@ changes.
 
 ## Checking the contract still holds
 
-After A5, every response must match the frozen schema:
+Every response must match the frozen schema:
 
 ```bash
-RID=$(curl -s -X POST localhost:8000/api/run -F "image=@demo/field_photos/field_01.jpg" | jq -r .run_id)
-curl -s localhost:8000/api/run/$RID | ../.venv/bin/python ../contract/validate.py -
+RID=$(curl -s -X POST localhost:8000/api/run \
+        -F "image=@agents/testdata/field_tomato_heavy.jpg" -F "crop=tomato" | jq -r .run_id)
+curl -sN localhost:8000/api/run/$RID/events        # watch it happen, closes on run.complete
+curl -s  localhost:8000/api/run/$RID | .venv/bin/python contract/validate.py -
 ```
 
 That validator also diffs top-level keys against `contract/mock_run.json`, which is what
