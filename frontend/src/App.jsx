@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import ActivityPanel from './components/ActivityPanel.jsx'
 import FieldPanel from './components/FieldPanel.jsx'
-import PlanPlaceholder from './components/PlanPlaceholder.jsx'
+import PlanPanel from './components/PlanPanel.jsx'
 import { useRunScan } from './hooks/useRunScan.js'
 
 export default function App() {
@@ -9,6 +9,7 @@ export default function App() {
   const [fileName, setFileName] = useState('')
   const previewRef = useRef(null)
   const scan = useRunScan()
+  const planReady = scan.events.includes('verify.pass') || scan.phase === 'complete'
 
   useEffect(
     () => () => {
@@ -69,7 +70,12 @@ export default function App() {
           streamStatus={scan.streamStatus}
           tileCount={scan.runState?.tiles?.length ?? 0}
         />
-        <PlanPlaceholder phase={scan.phase} />
+        <PlanPanel
+          key={scan.runId ?? 'empty-plan'}
+          phase={scan.phase}
+          plan={planReady ? scan.runState?.plan_draft : null}
+          verification={planReady ? scan.runState?.verification : null}
+        />
       </div>
     </main>
   )
