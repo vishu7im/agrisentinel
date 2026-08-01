@@ -58,6 +58,7 @@ export default function App() {
           phase={scan.phase}
           previewUrl={previewUrl}
           runState={scan.runState}
+          spread={scan.events.includes('spread.done') ? scan.runState?.spread : null}
           visibleTileIds={scan.visibleTileIds}
         />
         <ActivityPanel

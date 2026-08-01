@@ -58,6 +58,7 @@ export function useRunScan() {
         refreshState()
       }
       if (eventName === 'diagnose.done') refreshState(true)
+      if (eventName === 'spread.done') refreshState()
       if (eventName === 'run.complete') {
         setPhase('complete')
         refreshState(true)
