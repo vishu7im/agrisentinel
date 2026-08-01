@@ -35,6 +35,7 @@ export function getRun(runId) {
 
 export function openRunEvents(runId, handlers = {}) {
   const source = new EventSource(apiUrl(`/api/run/${encodeURIComponent(runId)}/events`))
+  source.onopen = () => handlers.onOpen?.(source)
   source.onmessage = (event) => handlers.onEvent?.(event.data)
   source.onerror = (event) => handlers.onError?.(event, source)
   return source

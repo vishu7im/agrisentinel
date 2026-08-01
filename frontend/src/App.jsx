@@ -61,11 +61,12 @@ export default function App() {
           visibleTileIds={scan.visibleTileIds}
         />
         <ActivityPanel
-          currentEvent={scan.currentEvent}
+          events={scan.events}
           phase={scan.phase}
           runId={scan.runId}
+          startedAt={scan.startedAt}
+          streamStatus={scan.streamStatus}
           tileCount={scan.runState?.tiles?.length ?? 0}
-          visibleCount={scan.visibleTileIds.length}
         />
         <PlanPlaceholder phase={scan.phase} />
       </div>

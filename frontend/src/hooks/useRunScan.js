@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getRun, openRunEvents, startRun } from '../api/client.js'
+import { getRun, startRun } from '../api/client.js'
+import { useEventStream } from './useEventStream.js'
 
 const DIAGNOSE_PREFIX = 'diagnose.tile.'
 
@@ -8,29 +9,77 @@ export function useRunScan() {
   const [runId, setRunId] = useState(null)
   const [runState, setRunState] = useState(null)
   const [visibleTileIds, setVisibleTileIds] = useState([])
-  const [currentEvent, setCurrentEvent] = useState(null)
   const [error, setError] = useState(null)
-  const sourceRef = useRef(null)
+  const [startedAt, setStartedAt] = useState(null)
   const requestRef = useRef(0)
+  const processedRef = useRef({ runId: null, count: 0 })
   const refreshTimerRef = useRef(null)
+  const runStateRef = useRef(null)
+  const stream = useEventStream(runId)
 
-  const closeStream = useCallback(() => {
-    sourceRef.current?.close()
-    sourceRef.current = null
+  const clearRefresh = useCallback(() => {
     clearTimeout(refreshTimerRef.current)
   }, [])
 
-  useEffect(() => closeStream, [closeStream])
+  useEffect(() => clearRefresh, [clearRefresh])
+
+  const refreshState = useCallback((revealAll = false) => {
+    clearTimeout(refreshTimerRef.current)
+    refreshTimerRef.current = setTimeout(async () => {
+      try {
+        const nextState = await getRun(runId)
+        if (runId !== processedRef.current.runId) return
+        runStateRef.current = nextState
+        setRunState(nextState)
+        if (revealAll) setVisibleTileIds(nextState.tiles.map((tile) => tile.id))
+      } catch {
+        // The stream remains authoritative; a later event schedules another refresh.
+      }
+    }, 80)
+  }, [runId])
+
+  useEffect(() => {
+    if (!runId) return
+    if (processedRef.current.runId !== runId) {
+      processedRef.current = { runId, count: 0 }
+    }
+
+    const pendingEvents = stream.events.slice(processedRef.current.count)
+    pendingEvents.forEach((eventName) => {
+      if (eventName === 'scout.done') {
+        const skipped = (runStateRef.current?.tiles ?? [])
+          .filter((tile) => tile.label.startsWith('skipped'))
+          .map((tile) => tile.id)
+        setVisibleTileIds((current) => [...new Set([...current, ...skipped])])
+      }
+      if (eventName.startsWith(DIAGNOSE_PREFIX)) {
+        const tileId = eventName.slice(DIAGNOSE_PREFIX.length)
+        setVisibleTileIds((current) => current.includes(tileId) ? current : [...current, tileId])
+        refreshState()
+      }
+      if (eventName === 'diagnose.done') refreshState(true)
+      if (eventName === 'run.complete') {
+        setPhase('complete')
+        refreshState(true)
+      }
+      if (eventName === 'run.error') {
+        setPhase('error')
+        setError('The field analysis could not be completed.')
+      }
+    })
+    processedRef.current.count = stream.events.length
+  }, [refreshState, runId, stream.events])
 
   const start = useCallback(async (image) => {
     const requestId = ++requestRef.current
-    closeStream()
+    clearRefresh()
     setPhase('uploading')
     setRunId(null)
     setRunState(null)
+    runStateRef.current = null
     setVisibleTileIds([])
-    setCurrentEvent(null)
     setError(null)
+    setStartedAt(Date.now())
 
     try {
       const created = await startRun(image)
@@ -40,69 +89,25 @@ export function useRunScan() {
 
       const initialState = await getRun(created.run_id)
       if (requestId !== requestRef.current) return
+      runStateRef.current = initialState
       setRunState(initialState)
-
-      let terminal = false
-      const refreshState = (revealAll = false) => {
-        clearTimeout(refreshTimerRef.current)
-        refreshTimerRef.current = setTimeout(async () => {
-          try {
-            const nextState = await getRun(created.run_id)
-            if (requestId !== requestRef.current) return
-            setRunState(nextState)
-            if (revealAll) setVisibleTileIds(nextState.tiles.map((tile) => tile.id))
-          } catch {
-            // SSE remains authoritative; a later event will schedule another refresh.
-          }
-        }, 80)
-      }
-
-      sourceRef.current = openRunEvents(created.run_id, {
-        onEvent(eventName) {
-          if (requestId !== requestRef.current) return
-          setCurrentEvent(eventName)
-          if (eventName === 'scout.done') {
-            const skipped = initialState.tiles
-              .filter((tile) => tile.label.startsWith('skipped'))
-              .map((tile) => tile.id)
-            setVisibleTileIds(skipped)
-          }
-          if (eventName.startsWith(DIAGNOSE_PREFIX)) {
-            const tileId = eventName.slice(DIAGNOSE_PREFIX.length)
-            setVisibleTileIds((current) =>
-              current.includes(tileId) ? current : [...current, tileId],
-            )
-            refreshState()
-          }
-          if (eventName === 'diagnose.done') refreshState(true)
-          if (eventName === 'run.complete') {
-            terminal = true
-            setPhase('complete')
-            refreshState(true)
-            sourceRef.current?.close()
-            sourceRef.current = null
-          }
-          if (eventName === 'run.error') {
-            terminal = true
-            setPhase('error')
-            setError('The field analysis could not be completed.')
-            sourceRef.current?.close()
-            sourceRef.current = null
-          }
-        },
-        onError(_event, source) {
-          if (!terminal && source.readyState === EventSource.CLOSED) {
-            setPhase('error')
-            setError('The live analysis stream disconnected. Drop the image to retry.')
-          }
-        },
-      })
     } catch (caught) {
       if (requestId !== requestRef.current) return
       setPhase('error')
       setError(caught instanceof Error ? caught.message : 'Upload failed. Please try again.')
     }
-  }, [closeStream])
+  }, [clearRefresh])
 
-  return { currentEvent, error, phase, runId, runState, start, visibleTileIds }
+  return {
+    currentEvent: stream.events.at(-1) ?? null,
+    error,
+    events: stream.events,
+    phase,
+    runId,
+    runState,
+    start,
+    startedAt,
+    streamStatus: stream.status,
+    visibleTileIds,
+  }
 }

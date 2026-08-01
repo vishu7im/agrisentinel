@@ -19,3 +19,26 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+@keyframes agent-event-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  .agent-event-enter {
+    animation: agent-event-in 280ms ease-out both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-event-enter {
+    animation: none;
+  }
+}
