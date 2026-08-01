@@ -6,6 +6,7 @@ import FieldPanel from './components/FieldPanel.jsx'
 import MobileFieldNav from './components/MobileFieldNav.jsx'
 import PlanPanel from './components/PlanPanel.jsx'
 import { useRunScan } from './hooks/useRunScan.js'
+import { useScanHistory } from './hooks/useScanHistory.js'
 
 const MOBILE_STATUS = {
   complete: 'Result ready',
@@ -34,6 +35,16 @@ export default function App() {
   const { demoCases, demoMode, startDemo } = scan
   const visiblePreviewUrl = scan.demoMode ? scan.demoPreviewUrl : previewUrl
   const visibleFileName = scan.demoMode ? scan.demoFileName : fileName
+  const storedPreviousScan = useScanHistory({
+    crop: scan.runState?.crop,
+    enabled: !scan.demoMode,
+    fileName: visibleFileName,
+    phase: scan.phase,
+    runId: scan.runId,
+    spread: scan.runState?.spread,
+    verificationStatus: scan.runState?.verification?.status,
+  })
+  const previousScan = scan.demoMode ? scan.demoPreviousScan : storedPreviousScan
 
   useEffect(
     () => () => {
@@ -112,6 +123,7 @@ export default function App() {
           onImage={handleImage}
           phase={scan.phase}
           previewUrl={visiblePreviewUrl}
+          previousScan={previousScan}
           runState={scan.runState}
           spread={scan.events.includes('spread.done') ? scan.runState?.spread : null}
           spreadLoading={scanActive && !scan.events.includes('spread.done')}

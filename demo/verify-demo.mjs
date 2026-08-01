@@ -58,6 +58,15 @@ for (const recording of recordings) {
   if (state.status === 'blocked') {
     assert(state.plan_draft === null && state.schedule === null, `${recording.id}: BLOCK leaked actions`)
     assert(state.verification.status === 'BLOCK', `${recording.id}: blocked run lacks BLOCK verdict`)
+    assert(!recording.previous_scan, `${recording.id}: BLOCK must not expose a trend baseline`)
+  } else {
+    const previous = recording.previous_scan
+    assert(previous?.age_days > 0, `${recording.id}: missing previous scan age`)
+    assert(previous?.file_name === recording.file_name, `${recording.id}: baseline field filename changed`)
+    assert(Number.isFinite(previous?.spread?.pct_affected), `${recording.id}: invalid previous affected area`)
+    assert(Number.isFinite(previous?.spread?.clusters), `${recording.id}: invalid previous clusters`)
+    assert(typeof previous?.spread?.direction === 'string', `${recording.id}: invalid previous direction`)
+    assert(Number.isFinite(previous?.spread?.est_yield_loss_pct), `${recording.id}: invalid previous yield loss`)
   }
 
   await replay(recording)

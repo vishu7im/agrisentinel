@@ -149,6 +149,7 @@ export function useRunScan() {
     demoCases: DEMO_CASE_SUMMARIES,
     demoFileName: activeDemoCase?.file_name ?? '',
     demoMode: DEMO_MODE,
+    demoPreviousScan: activeDemoCase?.previousScan ?? null,
     demoPreviewUrl: activeDemoCase?.previewUrl ?? null,
     error,
     events: stream.events,

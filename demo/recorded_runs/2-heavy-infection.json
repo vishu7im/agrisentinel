@@ -5,6 +5,16 @@
   "file_name": "heavy-tomato-field.svg",
   "image": "heavy-infection.svg",
   "event_interval_ms": 80,
+  "previous_scan": {
+    "age_days": 7,
+    "file_name": "heavy-tomato-field.svg",
+    "spread": {
+      "pct_affected": 31.6,
+      "clusters": 2,
+      "direction": "E",
+      "est_yield_loss_pct": 18.7
+    }
+  },
   "diagnosis_label": "late_blight",
   "infected_tile_ids": [
     "t_03_00", "t_04_00", "t_05_00", "t_06_00", "t_07_00",

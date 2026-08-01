@@ -50,6 +50,9 @@ function hydrateRecording(recording) {
 
   return {
     ...recording,
+    previousScan: recording.previous_scan
+      ? { ...recording.previous_scan, source: 'synthetic_demo' }
+      : null,
     previewUrl: findImage(recording.image),
     runState: state,
   }

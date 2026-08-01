@@ -17,7 +17,7 @@ Demo mode imports `demo/recorded_runs/*.json` at build time and replays each eve
 | `2` | Heavy tomato late blight | REWRITE then PASS, severe severity, action plan |
 | `3` | Clean basil field | BLOCK because basil is outside the supported corpus |
 
-The replay JSON files are compact recordings: each stores its event log, tile classification inputs, and final-state overrides on top of the frozen `contract/mock_run.json`. Run `npm run verify:demo` from `frontend/` after every edit.
+The replay JSON files are compact recordings: each stores its event log, tile classification inputs, and final-state overrides on top of the frozen `contract/mock_run.json`. The two supported tomato cases also include an explicitly synthetic seven-day comparison baseline; it demonstrates the trend view without claiming real longitudinal field evidence. Run `npm run verify:demo` from `frontend/` after every edit.
 
 ## Honest asset boundary
 
