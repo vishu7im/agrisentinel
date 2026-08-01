@@ -1,0 +1,39 @@
+{
+  "class_keys": [
+    "corn__common_rust",
+    "corn__gray_leaf_spot",
+    "corn__healthy",
+    "corn__northern_leaf_blight",
+    "potato__early_blight",
+    "potato__healthy",
+    "potato__late_blight",
+    "tomato__bacterial_spot",
+    "tomato__early_blight",
+    "tomato__healthy",
+    "tomato__late_blight",
+    "tomato__leaf_mold",
+    "tomato__septoria_leaf_spot",
+    "tomato__yellow_leaf_curl_virus"
+  ],
+  "img_size": 224,
+  "normalize": {
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "preprocess": {
+    "1_resize": "scale so the SHORT side is 255px, long side = int(short_target * long / short)  [truncate], PIL BILINEAR",
+    "2_center_crop": "224x224, offset = int(round((n - 224) / 2.0))  [round, NOT floor]",
+    "3_to_tensor": "float32, transpose HWC->CHW, divide by 255.0",
+    "4_normalize": "(x - mean) / std, per channel, using the values above",
+    "reference": "ml/data/augment.py:build_eval_transform",
+    "verified": "a pure PIL+numpy implementation of these four steps is bit-identical to build_eval_transform on 280 test images"
+  }
+}
