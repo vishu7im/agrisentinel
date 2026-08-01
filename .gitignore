@@ -1,0 +1,55 @@
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Node ---
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-error.log*
+
+# --- Secrets / env ---
+# .env.example IS committed; .env is not. LLM API keys live in .env.
+.env
+.env.*
+!.env.example
+
+# --- Datasets: huge, re-downloadable, never commit ---
+ml/data/raw/
+ml/data/processed/
+ml/data/PlantVillage/
+*.tar.gz
+*.zip
+
+# --- Training run output ---
+ml/checkpoints/
+ml/runs/
+*.pth
+*.pt
+*.ckpt
+
+# NOTE: ml/artifacts/ is deliberately NOT ignored — the confusion matrix, metrics.json and
+# the lab-vs-field chart go on the judging slides, so they must survive a fresh clone.
+# NOTE: *.onnx is deliberately NOT ignored either — the exported model is what makes the
+# demo run on a laptop with no GPU. Commit it.
+
+# --- Runtime state ---
+*.db
+*.sqlite3
+backend/uploads/
+qdrant_storage/
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+~$*
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp

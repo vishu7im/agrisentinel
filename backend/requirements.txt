@@ -1,0 +1,8 @@
+# Phase 0 baseline. Pinned deliberately — a surprise upgrade at hour 9 of a hackathon is
+# not a debugging session anyone wants. Add ML/agent deps in their own phases.
+fastapi==0.141.1
+uvicorn[standard]==0.52.0
+python-multipart==0.0.32
+
+# Used by contract/validate.py to check API responses against the frozen schema.
+jsonschema==4.26.0

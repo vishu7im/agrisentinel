@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agrisentinel.local/contract/run_state.schema.json",
+  "title": "AgriSentinel RunState",
+  "description": "The single event-sourced object every agent reads and writes. FROZEN after Phase 0 — changing it breaks both devs at once. Agents never call each other directly; they only mutate this.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "crop",
+    "status",
+    "tiles",
+    "spread",
+    "plan_draft",
+    "verification",
+    "schedule",
+    "report",
+    "events"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "UUID4 assigned by POST /api/run.",
+      "examples": ["7f3c1e88-9a24-4b6d-b0e1-2c5f9d84a013"]
+    },
+    "crop": {
+      "type": "string",
+      "description": "Crop under inspection. Prototype scope: tomato, potato, corn.",
+      "examples": ["tomato"]
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle of the run. 'complete' = pipeline finished and shipped advice. 'blocked' = pipeline finished but the Verifier withheld the treatment plan; diagnosis and severity are still valid and must still be shown. 'error' = the pipeline itself failed. A blocked run is not an error.",
+      "enum": ["queued", "running", "complete", "blocked", "error"]
+    },
+    "image_url": {
+      "type": ["string", "null"],
+      "description": "Path the frontend can GET to render the field image under the heatmap. Backend-served; demo-mode replay relies on this because it has no uploaded File object.",
+      "examples": ["/api/run/7f3c1e88-9a24-4b6d-b0e1-2c5f9d84a013/image"]
+    },
+    "started_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 UTC. Drives the elapsed-run timer in the UI so it survives an SSE reconnect."
+    },
+    "finished_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "ISO 8601 UTC. Null while the run is in flight."
+    },
+
+    "tiles": {
+      "type": "array",
+      "description": "One entry per grid cell, including skipped ones. Grid dimensions are derived by the UI from max x and max y — there is no separate rows/cols field.",
+      "items": {
+        "type": "object",
+        "required": ["id", "x", "y", "label", "confidence", "escalated"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^t_[0-9]{2}_[0-9]{2}$",
+            "description": "t_<xx>_<yy>, zero-padded, matching this tile's x and y.",
+            "examples": ["t_04_11"]
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Column index, 0-based, increasing east."
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Row index, 0-based, increasing SOUTH (image convention: y=0 is the top/north edge). Compass bearings must account for this."
+          },
+          "label": {
+            "type": "string",
+            "description": "'healthy', a disease class name, or a 'skipped_*' value when the Scout's green-mask filter rejected the tile as soil/sky. The UI colours any label starting with 'skipped' as inactive grey.",
+            "examples": ["healthy", "late_blight", "skipped_soil", "skipped_sky"]
+          },
+          "confidence": {
+            "type": ["number", "null"],
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Softmax confidence for the label. Null for skipped tiles — they were never scored."
+          },
+          "escalated": {
+            "type": "boolean",
+            "description": "True if this tile fell below the confidence gate and was re-scored by the Second-Opinion agent. The confidence shown is the post-TTA value."
+          }
+        }
+      }
+    },
+
+    "spread": {
+      "type": ["object", "null"],
+      "description": "Populated by the Spread Analyst. Null until it runs.",
+      "required": ["pct_affected", "clusters", "direction", "est_yield_loss_pct"],
+      "additionalProperties": false,
+      "properties": {
+        "pct_affected": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Infected tiles as a percentage of SCORED tiles (skipped tiles are excluded from the denominator)."
+        },
+        "clusters": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Distinct infection clusters found by DBSCAN over infected tile coordinates."
+        },
+        "direction": {
+          "type": ["string", "null"],
+          "enum": ["N", "NE", "E", "SE", "S", "SW", "W", "NW", null],
+          "description": "Compass bearing from the field centroid to the infection-weighted centroid. Null when there is nothing infected to point at."
+        },
+        "est_yield_loss_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "pct_affected multiplied by a per-disease severity weight. A rough published-range estimate, NOT a clinical figure — the weights table carries that caveat."
+        },
+        "cluster_centroids": {
+          "type": "array",
+          "description": "Optional. Centroid of each cluster in tile coordinates, for future overlay work.",
+          "items": {
+            "type": "object",
+            "required": ["x", "y", "size"],
+            "additionalProperties": false,
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "size": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+
+    "plan_draft": {
+      "type": ["string", "null"],
+      "description": "Markdown treatment plan from the Agronomist. Every sentence ends with a source marker like [doc_12#p3] whose id MUST exist in verification.sources. Null before the Agronomist runs, and on a BLOCK outcome.",
+      "examples": ["## Immediate action\nApply a protectant fungicide within 48 hours. [doc_12#p3]"]
+    },
+
+    "verification": {
+      "type": ["object", "null"],
+      "description": "The Verifier's ruling. It has veto power — the orchestrator obeys this, not the Agronomist.",
+      "required": ["status", "unsupported_claims", "sources"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "REWRITE", "BLOCK"],
+          "description": "PASS: every claim grounded. REWRITE: sent back to the Agronomist (max 2 retries, then the offending sentences are stripped and it PASSes with unsupported_claims still populated). BLOCK: an allowlist or dosage violation — no treatment advice ships at all."
+        },
+        "unsupported_claims": {
+          "type": "array",
+          "description": "Sentences that could not be traced to a retrieved chunk. Non-empty alongside a PASS means the plan was revised — the UI shows a 'plan revised for accuracy' note.",
+          "items": { "type": "string" }
+        },
+        "sources": {
+          "type": "array",
+          "description": "Retrieved chunks backing the plan. Objects, not bare ids, because the UI renders a source drawer with the actual text. Supersedes the bare-string sketch in the architecture doc.",
+          "items": {
+            "type": "object",
+            "required": ["id", "doc", "page", "text"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^doc_[0-9]+#p[0-9]+$",
+                "description": "The marker used inline in plan_draft.",
+                "examples": ["doc_12#p3"]
+              },
+              "doc": {
+                "type": "string",
+                "description": "Human-readable document title for the drawer header."
+              },
+              "page": { "type": "integer", "minimum": 1 },
+              "text": {
+                "type": "string",
+                "description": "The retrieved chunk verbatim. This is what makes the grounding checkable on screen."
+              }
+            }
+          }
+        },
+        "block_reason": {
+          "type": ["string", "null"],
+          "description": "Present only when status is BLOCK. Plain language, shown on the refusal card."
+        }
+      }
+    },
+
+    "schedule": {
+      "type": ["array", "null"],
+      "description": "Action Planner output, ordered by day_offset. Null or empty on a BLOCK.",
+      "items": {
+        "type": "object",
+        "required": ["day_offset", "action", "note"],
+        "additionalProperties": false,
+        "properties": {
+          "day_offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Days from the scan date. 0 is today — the UI puts its 'today' marker here."
+          },
+          "action": { "type": "string", "description": "Short imperative label for the timeline node." },
+          "note": { "type": "string", "description": "Detail revealed when the node is expanded." },
+          "kind": {
+            "type": "string",
+            "enum": ["spray", "monitor", "rescan", "other"],
+            "description": "Optional. Lets the UI style the re-scan node distinctly."
+          }
+        }
+      }
+    },
+
+    "cost_estimate": {
+      "type": ["object", "null"],
+      "description": "Rough treatment cost from a small lookup table. A band, deliberately not a single number.",
+      "required": ["currency", "low", "high"],
+      "additionalProperties": false,
+      "properties": {
+        "currency": { "type": "string", "examples": ["INR"] },
+        "low": { "type": "number", "minimum": 0 },
+        "high": { "type": "number", "minimum": 0 },
+        "note": { "type": ["string", "null"], "description": "Basis of the estimate, e.g. per-acre assumption." }
+      }
+    },
+
+    "rescan_date": {
+      "type": ["string", "null"],
+      "format": "date",
+      "description": "ISO date (YYYY-MM-DD) for the follow-up scan. Highlighted on the timeline."
+    },
+
+    "report": {
+      "type": ["object", "null"],
+      "description": "Farmer-facing brief. Max ~6 short sentences per language, plain words, no jargon.",
+      "required": ["en", "hi"],
+      "additionalProperties": false,
+      "properties": {
+        "en": { "type": ["string", "null"], "description": "English brief." },
+        "hi": { "type": ["string", "null"], "description": "Hindi brief, Devanagari." }
+      }
+    },
+
+    "events": {
+      "type": "array",
+      "description": "Append-only agent event log, oldest first. Rendered live in the UI — this is what makes the orchestration visible. Dotted namespace: <agent>.<event>[.<detail>]. Known prefixes: run.start, scout.done, diagnose.tile.<tile_id>, diagnose.done, orchestrator.escalate.<n>_tiles, second_opinion.done, spread.done, agronomist.done, verify.pass, verify.rewrite, verify.block, planner.done, reporter.done, run.complete, run.error. The UI falls back to a neutral style for anything unrecognised, so new events are safe to add.",
+      "items": { "type": "string" }
+    }
+  }
+}

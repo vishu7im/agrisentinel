@@ -1,0 +1,489 @@
+{
+  "run_id": "7f3c1e88-9a24-4b6d-b0e1-2c5f9d84a013",
+  "crop": "tomato",
+  "status": "complete",
+  "image_url": "/api/run/7f3c1e88-9a24-4b6d-b0e1-2c5f9d84a013/image",
+  "started_at": "2026-08-01T09:14:22Z",
+  "finished_at": "2026-08-01T09:15:04Z",
+  "tiles": [
+    {
+      "id": "t_00_00",
+      "x": 0,
+      "y": 0,
+      "label": "healthy",
+      "confidence": 0.93,
+      "escalated": false
+    },
+    {
+      "id": "t_01_00",
+      "x": 1,
+      "y": 0,
+      "label": "healthy",
+      "confidence": 0.96,
+      "escalated": false
+    },
+    {
+      "id": "t_02_00",
+      "x": 2,
+      "y": 0,
+      "label": "healthy",
+      "confidence": 0.9,
+      "escalated": false
+    },
+    {
+      "id": "t_03_00",
+      "x": 3,
+      "y": 0,
+      "label": "healthy",
+      "confidence": 0.94,
+      "escalated": false
+    },
+    {
+      "id": "t_04_00",
+      "x": 4,
+      "y": 0,
+      "label": "healthy",
+      "confidence": 0.89,
+      "escalated": false
+    },
+    {
+      "id": "t_05_00",
+      "x": 5,
+      "y": 0,
+      "label": "late_blight",
+      "confidence": 0.87,
+      "escalated": false
+    },
+    {
+      "id": "t_06_00",
+      "x": 6,
+      "y": 0,
+      "label": "late_blight",
+      "confidence": 0.88,
+      "escalated": false
+    },
+    {
+      "id": "t_07_00",
+      "x": 7,
+      "y": 0,
+      "label": "healthy",
+      "confidence": 0.91,
+      "escalated": false
+    },
+    {
+      "id": "t_00_01",
+      "x": 0,
+      "y": 1,
+      "label": "healthy",
+      "confidence": 0.93,
+      "escalated": false
+    },
+    {
+      "id": "t_01_01",
+      "x": 1,
+      "y": 1,
+      "label": "healthy",
+      "confidence": 0.89,
+      "escalated": false
+    },
+    {
+      "id": "t_02_01",
+      "x": 2,
+      "y": 1,
+      "label": "late_blight",
+      "confidence": 0.91,
+      "escalated": false
+    },
+    {
+      "id": "t_03_01",
+      "x": 3,
+      "y": 1,
+      "label": "late_blight",
+      "confidence": 0.83,
+      "escalated": true
+    },
+    {
+      "id": "t_04_01",
+      "x": 4,
+      "y": 1,
+      "label": "healthy",
+      "confidence": 0.9,
+      "escalated": false
+    },
+    {
+      "id": "t_05_01",
+      "x": 5,
+      "y": 1,
+      "label": "healthy",
+      "confidence": 0.93,
+      "escalated": false
+    },
+    {
+      "id": "t_06_01",
+      "x": 6,
+      "y": 1,
+      "label": "late_blight",
+      "confidence": 0.82,
+      "escalated": true
+    },
+    {
+      "id": "t_07_01",
+      "x": 7,
+      "y": 1,
+      "label": "healthy",
+      "confidence": 0.91,
+      "escalated": false
+    },
+    {
+      "id": "t_00_02",
+      "x": 0,
+      "y": 2,
+      "label": "healthy",
+      "confidence": 0.91,
+      "escalated": false
+    },
+    {
+      "id": "t_01_02",
+      "x": 1,
+      "y": 2,
+      "label": "healthy",
+      "confidence": 0.95,
+      "escalated": false
+    },
+    {
+      "id": "t_02_02",
+      "x": 2,
+      "y": 2,
+      "label": "healthy",
+      "confidence": 0.89,
+      "escalated": false
+    },
+    {
+      "id": "t_03_02",
+      "x": 3,
+      "y": 2,
+      "label": "healthy",
+      "confidence": 0.91,
+      "escalated": false
+    },
+    {
+      "id": "t_04_02",
+      "x": 4,
+      "y": 2,
+      "label": "healthy",
+      "confidence": 0.84,
+      "escalated": true
+    },
+    {
+      "id": "t_05_02",
+      "x": 5,
+      "y": 2,
+      "label": "healthy",
+      "confidence": 0.95,
+      "escalated": false
+    },
+    {
+      "id": "t_06_02",
+      "x": 6,
+      "y": 2,
+      "label": "healthy",
+      "confidence": 0.94,
+      "escalated": false
+    },
+    {
+      "id": "t_07_02",
+      "x": 7,
+      "y": 2,
+      "label": "healthy",
+      "confidence": 0.88,
+      "escalated": false
+    },
+    {
+      "id": "t_00_03",
+      "x": 0,
+      "y": 3,
+      "label": "healthy",
+      "confidence": 0.92,
+      "escalated": false
+    },
+    {
+      "id": "t_01_03",
+      "x": 1,
+      "y": 3,
+      "label": "healthy",
+      "confidence": 0.93,
+      "escalated": false
+    },
+    {
+      "id": "t_02_03",
+      "x": 2,
+      "y": 3,
+      "label": "healthy",
+      "confidence": 0.92,
+      "escalated": false
+    },
+    {
+      "id": "t_03_03",
+      "x": 3,
+      "y": 3,
+      "label": "late_blight",
+      "confidence": 0.87,
+      "escalated": false
+    },
+    {
+      "id": "t_04_03",
+      "x": 4,
+      "y": 3,
+      "label": "late_blight",
+      "confidence": 0.9,
+      "escalated": false
+    },
+    {
+      "id": "t_05_03",
+      "x": 5,
+      "y": 3,
+      "label": "healthy",
+      "confidence": 0.88,
+      "escalated": false
+    },
+    {
+      "id": "t_06_03",
+      "x": 6,
+      "y": 3,
+      "label": "healthy",
+      "confidence": 0.96,
+      "escalated": false
+    },
+    {
+      "id": "t_07_03",
+      "x": 7,
+      "y": 3,
+      "label": "healthy",
+      "confidence": 0.92,
+      "escalated": false
+    },
+    {
+      "id": "t_00_04",
+      "x": 0,
+      "y": 4,
+      "label": "skipped_soil",
+      "confidence": null,
+      "escalated": false
+    },
+    {
+      "id": "t_01_04",
+      "x": 1,
+      "y": 4,
+      "label": "healthy",
+      "confidence": 0.92,
+      "escalated": false
+    },
+    {
+      "id": "t_02_04",
+      "x": 2,
+      "y": 4,
+      "label": "healthy",
+      "confidence": 0.89,
+      "escalated": false
+    },
+    {
+      "id": "t_03_04",
+      "x": 3,
+      "y": 4,
+      "label": "healthy",
+      "confidence": 0.93,
+      "escalated": false
+    },
+    {
+      "id": "t_04_04",
+      "x": 4,
+      "y": 4,
+      "label": "healthy",
+      "confidence": 0.88,
+      "escalated": false
+    },
+    {
+      "id": "t_05_04",
+      "x": 5,
+      "y": 4,
+      "label": "healthy",
+      "confidence": 0.91,
+      "escalated": false
+    },
+    {
+      "id": "t_06_04",
+      "x": 6,
+      "y": 4,
+      "label": "healthy",
+      "confidence": 0.96,
+      "escalated": false
+    },
+    {
+      "id": "t_07_04",
+      "x": 7,
+      "y": 4,
+      "label": "skipped_soil",
+      "confidence": null,
+      "escalated": false
+    }
+  ],
+  "spread": {
+    "pct_affected": 18.4,
+    "clusters": 3,
+    "direction": "NE",
+    "est_yield_loss_pct": 11.2,
+    "cluster_centroids": [
+      {
+        "x": 5.67,
+        "y": 0.33,
+        "size": 3
+      },
+      {
+        "x": 2.5,
+        "y": 1.0,
+        "size": 2
+      },
+      {
+        "x": 3.5,
+        "y": 3.0,
+        "size": 2
+      }
+    ]
+  },
+  "plan_draft": "## Diagnosis summary\n\nLate blight (*Phytophthora infestans*) is present across 18.4% of the scanned field, concentrated in three clusters and trending north-east. [doc_04#p1]\n\n## Immediate action (next 48 hours)\n\nRemove and destroy visibly infected foliage from the three marked clusters before any spray is applied, and do not compost this material on the field margin. [doc_12#p3]\nApply a protectant fungicide containing mancozeb at 2.0-2.5 g per litre of water, covering the infected clusters and a two-row buffer around each. [doc_12#p4]\nSpray in the early morning or late evening so the leaf surface stays wet long enough for the product to bind. [doc_07#p2]\n\n## Follow-up\n\nRepeat the protectant application after 7 days if new lesions appear on the buffer rows. [doc_12#p4]\nSwitch to a systemic product only if wet weather continues for more than three consecutive days, because repeated use of a single mode of action drives resistance. [doc_19#p1]\nRe-scan the field on day 7 and compare the affected percentage against this scan. [doc_04#p1]\n",
+  "verification": {
+    "status": "PASS",
+    "unsupported_claims": [
+      "Adding a foliar micronutrient spray at the same time will speed recovery."
+    ],
+    "sources": [
+      {
+        "id": "doc_04#p1",
+        "doc": "Tomato Late Blight - Field Identification and Management",
+        "page": 1,
+        "text": "Late blight, caused by Phytophthora infestans, appears first as water-soaked grey-green lesions on older leaves, often at the leaf margin. Under cool, humid conditions the lesions expand rapidly and a white sporulating growth becomes visible on the underside. Because spores travel on wind and splash, infection typically advances as an expanding front rather than uniformly across a field."
+      },
+      {
+        "id": "doc_12#p3",
+        "doc": "Integrated Disease Management for Solanaceous Crops",
+        "page": 3,
+        "text": "Sanitation is the first control step. Infected foliage and fruit should be removed from the field and destroyed by burning or deep burial; leaving residue on field margins or in compost heaps allows the pathogen to survive and re-infect. Sanitation should be completed before fungicide application so that treated surfaces are not immediately recontaminated."
+      },
+      {
+        "id": "doc_12#p4",
+        "doc": "Integrated Disease Management for Solanaceous Crops",
+        "page": 4,
+        "text": "Protectant fungicides based on mancozeb are applied at 2.0-2.5 g per litre of water and act on the leaf surface, so complete coverage of both leaf surfaces is essential. Treat the affected zone plus a buffer of at least two rows, as neighbouring plants are usually already infected but not yet symptomatic. Under continued disease pressure, applications are repeated at 7-day intervals."
+      },
+      {
+        "id": "doc_07#p2",
+        "doc": "Fungicide Application Practice Note",
+        "page": 2,
+        "text": "Application timing materially affects efficacy. Spraying during the early morning or late evening avoids the rapid evaporation and drift that occur in midday heat, and allows the deposit to dry onto the leaf rather than being lost. Avoid spraying when rainfall is expected within four hours."
+      },
+      {
+        "id": "doc_19#p1",
+        "doc": "Fungicide Resistance Management Guidelines",
+        "page": 1,
+        "text": "Repeated application of a single mode of action selects strongly for resistant isolates. Systemic products should be reserved for periods of sustained high disease pressure and alternated with multi-site protectants. A season should not include more than three consecutive applications from the same resistance group."
+      }
+    ],
+    "block_reason": null
+  },
+  "schedule": [
+    {
+      "day_offset": 0,
+      "action": "Remove infected foliage",
+      "note": "Cut and remove visibly infected leaves from all three clusters. Burn or bury them away from the field; do not compost on the margin.",
+      "kind": "other"
+    },
+    {
+      "day_offset": 0,
+      "action": "First protectant spray",
+      "note": "Mancozeb at 2.0-2.5 g/L over the clusters plus a two-row buffer. Spray early morning or late evening.",
+      "kind": "spray"
+    },
+    {
+      "day_offset": 3,
+      "action": "Inspect buffer rows",
+      "note": "Check the two-row buffer around each cluster for new water-soaked lesions on older leaves.",
+      "kind": "monitor"
+    },
+    {
+      "day_offset": 7,
+      "action": "Second protectant spray",
+      "note": "Repeat only if new lesions appeared at the day-3 inspection or wet weather continued.",
+      "kind": "spray"
+    },
+    {
+      "day_offset": 7,
+      "action": "Re-scan field",
+      "note": "Run a fresh scan and compare the affected percentage against this one to confirm the spread has stopped.",
+      "kind": "rescan"
+    }
+  ],
+  "cost_estimate": {
+    "currency": "INR",
+    "low": 850,
+    "high": 1400,
+    "note": "Per acre, covering protectant fungicide and labour for two applications. Local prices vary."
+  },
+  "rescan_date": "2026-08-08",
+  "report": {
+    "en": "Your tomato field has late blight. About 18 out of every 100 plants we checked are affected, spread across three patches. The disease is moving towards the north-east corner of the field. Today, remove the sick leaves and burn them away from the field. Then spray mancozeb, 2 to 2.5 grams per litre of water, on the patches and two rows around them. Check the field again in 7 days.",
+    "hi": "आपके टमाटर के खेत में पछेती झुलसा (लेट ब्लाइट) रोग लगा है। जाँचे गए हर 100 पौधों में से लगभग 18 पौधे प्रभावित हैं, जो तीन जगह फैले हैं। रोग खेत के उत्तर-पूर्व कोने की ओर बढ़ रहा है। आज ही रोगग्रस्त पत्तियाँ तोड़कर खेत से दूर जला दें। फिर प्रभावित हिस्सों और उनके चारों ओर दो कतारों में मैंकोजेब, 2 से 2.5 ग्राम प्रति लीटर पानी में मिलाकर छिड़काव करें। 7 दिन बाद खेत की दोबारा जाँच करें।"
+  },
+  "events": [
+    "run.start",
+    "scout.done",
+    "diagnose.tile.t_00_00",
+    "diagnose.tile.t_01_00",
+    "diagnose.tile.t_02_00",
+    "diagnose.tile.t_03_00",
+    "diagnose.tile.t_04_00",
+    "diagnose.tile.t_05_00",
+    "diagnose.tile.t_06_00",
+    "diagnose.tile.t_07_00",
+    "diagnose.tile.t_00_01",
+    "diagnose.tile.t_01_01",
+    "diagnose.tile.t_02_01",
+    "diagnose.tile.t_03_01",
+    "diagnose.tile.t_04_01",
+    "diagnose.tile.t_05_01",
+    "diagnose.tile.t_06_01",
+    "diagnose.tile.t_07_01",
+    "diagnose.tile.t_00_02",
+    "diagnose.tile.t_01_02",
+    "diagnose.tile.t_02_02",
+    "diagnose.tile.t_03_02",
+    "diagnose.tile.t_04_02",
+    "diagnose.tile.t_05_02",
+    "diagnose.tile.t_06_02",
+    "diagnose.tile.t_07_02",
+    "diagnose.tile.t_00_03",
+    "diagnose.tile.t_01_03",
+    "diagnose.tile.t_02_03",
+    "diagnose.tile.t_03_03",
+    "diagnose.tile.t_04_03",
+    "diagnose.tile.t_05_03",
+    "diagnose.tile.t_06_03",
+    "diagnose.tile.t_07_03",
+    "diagnose.tile.t_01_04",
+    "diagnose.tile.t_02_04",
+    "diagnose.tile.t_03_04",
+    "diagnose.tile.t_04_04",
+    "diagnose.tile.t_05_04",
+    "diagnose.tile.t_06_04",
+    "diagnose.done",
+    "orchestrator.escalate.3_tiles",
+    "second_opinion.done",
+    "spread.done",
+    "agronomist.done",
+    "verify.rewrite",
+    "agronomist.done",
+    "verify.pass",
+    "planner.done",
+    "reporter.done",
+    "run.complete"
+  ]
+}
