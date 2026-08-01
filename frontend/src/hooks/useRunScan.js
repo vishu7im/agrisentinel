@@ -61,6 +61,7 @@ export function useRunScan() {
       if (eventName === 'spread.done') refreshState()
       if (eventName === 'verify.rewrite' || eventName === 'verify.block') refreshState()
       if (eventName === 'verify.pass') refreshState()
+      if (eventName === 'planner.done' || eventName === 'reporter.done') refreshState()
       if (eventName === 'run.complete') {
         setPhase('complete')
         refreshState(true)

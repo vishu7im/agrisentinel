@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import ActionPanel from './components/ActionPanel.jsx'
 import ActivityPanel from './components/ActivityPanel.jsx'
 import FieldPanel from './components/FieldPanel.jsx'
 import PlanPanel from './components/PlanPanel.jsx'
@@ -17,6 +18,8 @@ export default function App() {
   const visibleVerification = hasRewrite && !hasPass && !hasBlock && verification
     ? { ...verification, status: 'REWRITE' }
     : verification
+  const scheduleReady = scan.events.includes('planner.done') || scan.phase === 'complete'
+  const reportReady = scan.events.includes('reporter.done') || scan.phase === 'complete'
 
   useEffect(
     () => () => {
@@ -83,6 +86,14 @@ export default function App() {
           phase={scan.phase}
           plan={verdictReady ? scan.runState?.plan_draft : null}
           verification={visibleVerification}
+        />
+        <ActionPanel
+          key={scan.runId ?? 'empty-actions'}
+          costEstimate={scheduleReady ? scan.runState?.cost_estimate : null}
+          phase={scan.phase}
+          report={reportReady ? scan.runState?.report : null}
+          rescanDate={scheduleReady ? scan.runState?.rescan_date : null}
+          schedule={scheduleReady ? scan.runState?.schedule : null}
         />
       </div>
     </main>
