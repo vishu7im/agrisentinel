@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+  <defs>
+    <linearGradient id="soil-heavy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#52672c"/><stop offset="1" stop-color="#2f321c"/>
+    </linearGradient>
+    <pattern id="plants-heavy" width="48" height="48" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="9" fill="#6f8d38"/><circle cx="34" cy="31" r="11" fill="#765d2e"/>
+    </pattern>
+  </defs>
+  <rect width="960" height="600" fill="url(#soil-heavy)"/>
+  <rect width="960" height="600" fill="url(#plants-heavy)" opacity=".92"/>
+  <path d="M330 0H960V410C760 475 590 420 470 315 390 244 360 140 330 0Z" fill="#8e522c" opacity=".58"/>
+  <path d="M120 360C290 305 470 350 660 600H70Z" fill="#a4642e" opacity=".48"/>
+  <rect x="24" y="24" width="356" height="34" rx="17" fill="#101914" opacity=".88"/>
+  <text x="42" y="47" fill="#f4d59b" font-family="system-ui,sans-serif" font-size="15" font-weight="700">SYNTHETIC OFFLINE FIXTURE · HEAVY</text>
+</svg>

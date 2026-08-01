@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import ActionPanel from './components/ActionPanel.jsx'
 import ActivityPanel from './components/ActivityPanel.jsx'
+import DemoControls from './components/DemoControls.jsx'
 import FieldPanel from './components/FieldPanel.jsx'
 import PlanPanel from './components/PlanPanel.jsx'
 import { useRunScan } from './hooks/useRunScan.js'
@@ -20,6 +21,9 @@ export default function App() {
     : verification
   const scheduleReady = scan.events.includes('planner.done') || scan.phase === 'complete'
   const reportReady = scan.events.includes('reporter.done') || scan.phase === 'complete'
+  const { demoCases, demoMode, startDemo } = scan
+  const visiblePreviewUrl = scan.demoMode ? scan.demoPreviewUrl : previewUrl
+  const visibleFileName = scan.demoMode ? scan.demoFileName : fileName
 
   useEffect(
     () => () => {
@@ -27,6 +31,21 @@ export default function App() {
     },
     [],
   )
+
+  useEffect(() => {
+    if (!demoMode) return undefined
+
+    function selectDemoCase(event) {
+      if (event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+      const target = event.target
+      if (target instanceof HTMLElement && target.closest('input, textarea, select, [contenteditable="true"]')) return
+      const demoCase = demoCases.find((item) => item.shortcut === event.key)
+      if (demoCase) startDemo(demoCase.id)
+    }
+
+    window.addEventListener('keydown', selectDemoCase)
+    return () => window.removeEventListener('keydown', selectDemoCase)
+  }, [demoCases, demoMode, startDemo])
 
   function handleImage(file) {
     if (previewRef.current) URL.revokeObjectURL(previewRef.current)
@@ -55,19 +74,27 @@ export default function App() {
             </div>
           </div>
           <div className="hidden items-center gap-2 text-sm text-slate-400 sm:flex">
-            <span className="size-2 rounded-full bg-emerald-400 shadow-[0_0_12px_#4ade80]" />
-            Analysis console online
+            <span className={`size-2 rounded-full ${demoMode ? 'bg-amber-300 shadow-[0_0_12px_#fcd34d]' : 'bg-emerald-400 shadow-[0_0_12px_#4ade80]'}`} />
+            {demoMode ? 'Offline replay ready' : 'Analysis console online'}
           </div>
         </div>
       </header>
 
+      {demoMode && (
+        <DemoControls
+          activeCaseId={scan.activeDemoCaseId}
+          cases={demoCases}
+          onSelect={startDemo}
+        />
+      )}
+
       <div className="mx-auto grid max-w-[1600px] gap-5 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <FieldPanel
           error={scan.error}
-          fileName={fileName}
+          fileName={visibleFileName}
           onImage={handleImage}
           phase={scan.phase}
-          previewUrl={previewUrl}
+          previewUrl={visiblePreviewUrl}
           runState={scan.runState}
           spread={scan.events.includes('spread.done') ? scan.runState?.spread : null}
           visibleTileIds={scan.visibleTileIds}

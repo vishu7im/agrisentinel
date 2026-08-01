@@ -1,17 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
 import { openRunEvents } from '../api/client.js'
+import { replayRecordedEvents } from '../lib/demoReplay.js'
 
-export function useEventStream(runId) {
-  const [snapshot, setSnapshot] = useState({ runId: null, events: [] })
+export function useEventStream(runId, recording = null, replayKey = 0) {
+  const [snapshot, setSnapshot] = useState({ replayKey: null, runId: null, events: [] })
   const [status, setStatus] = useState('idle')
   const eventsRef = useRef([])
 
   useEffect(() => {
     eventsRef.current = []
-    setSnapshot({ runId, events: [] })
+    setSnapshot({ replayKey, runId, events: [] })
     if (!runId) {
       setStatus('idle')
       return undefined
+    }
+
+    if (recording) {
+      setStatus('connecting')
+      return replayRecordedEvents(recording.events, {
+        intervalMs: recording.event_interval_ms,
+        onEvent(eventName) {
+          const events = [...eventsRef.current, eventName]
+          eventsRef.current = events
+          setSnapshot({ replayKey, runId, events })
+        },
+        onStatus: setStatus,
+      })
     }
 
     let replayCursor = null
@@ -31,7 +45,7 @@ export function useEventStream(runId) {
         replayCursor = null
         const events = [...eventsRef.current, eventName]
         eventsRef.current = events
-        setSnapshot({ runId, events })
+        setSnapshot({ replayKey, runId, events })
 
         if (eventName === 'run.complete' || eventName === 'run.error') {
           terminal = true
@@ -48,8 +62,10 @@ export function useEventStream(runId) {
     })
 
     return () => source.close()
-  }, [runId])
+  }, [recording, replayKey, runId])
 
-  const events = snapshot.runId === runId ? snapshot.events : []
+  const events = snapshot.runId === runId && snapshot.replayKey === replayKey
+    ? snapshot.events
+    : []
   return { events, status }
 }

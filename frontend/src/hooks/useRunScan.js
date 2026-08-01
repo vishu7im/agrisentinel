@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getRun, startRun } from '../api/client.js'
+import { DEMO_CASES, DEMO_CASE_SUMMARIES, DEMO_MODE } from '../lib/demoRuns.js'
 import { useEventStream } from './useEventStream.js'
 
 const DIAGNOSE_PREFIX = 'diagnose.tile.'
@@ -11,11 +12,15 @@ export function useRunScan() {
   const [visibleTileIds, setVisibleTileIds] = useState([])
   const [error, setError] = useState(null)
   const [startedAt, setStartedAt] = useState(null)
+  const [activeDemoCaseId, setActiveDemoCaseId] = useState(DEMO_CASES[0]?.id ?? null)
+  const [demoReplayKey, setDemoReplayKey] = useState(0)
   const requestRef = useRef(0)
-  const processedRef = useRef({ runId: null, count: 0 })
+  const demoAutostartRef = useRef(false)
+  const processedRef = useRef({ count: 0, replayKey: null, runId: null })
   const refreshTimerRef = useRef(null)
   const runStateRef = useRef(null)
-  const stream = useEventStream(runId)
+  const activeDemoCase = DEMO_CASES.find((demoCase) => demoCase.id === activeDemoCaseId) ?? null
+  const stream = useEventStream(runId, DEMO_MODE ? activeDemoCase : null, demoReplayKey)
 
   const clearRefresh = useCallback(() => {
     clearTimeout(refreshTimerRef.current)
@@ -24,6 +29,13 @@ export function useRunScan() {
   useEffect(() => clearRefresh, [clearRefresh])
 
   const refreshState = useCallback((revealAll = false) => {
+    if (DEMO_MODE) {
+      const currentState = runStateRef.current
+      if (currentState) setRunState(currentState)
+      if (revealAll && currentState) setVisibleTileIds(currentState.tiles.map((tile) => tile.id))
+      return
+    }
+
     clearTimeout(refreshTimerRef.current)
     refreshTimerRef.current = setTimeout(async () => {
       try {
@@ -38,10 +50,34 @@ export function useRunScan() {
     }, 80)
   }, [runId])
 
+  const startDemo = useCallback((caseId) => {
+    const recording = DEMO_CASES.find((demoCase) => demoCase.id === caseId)
+    if (!recording) return
+
+    requestRef.current += 1
+    clearRefresh()
+    const nextState = structuredClone(recording.runState)
+    setActiveDemoCaseId(recording.id)
+    setDemoReplayKey((current) => current + 1)
+    setPhase('scanning')
+    setRunId(nextState.run_id)
+    setRunState(nextState)
+    runStateRef.current = nextState
+    setVisibleTileIds([])
+    setError(null)
+    setStartedAt(Date.now())
+  }, [clearRefresh])
+
+  useEffect(() => {
+    if (!DEMO_MODE || demoAutostartRef.current || !DEMO_CASES[0]) return
+    demoAutostartRef.current = true
+    startDemo(DEMO_CASES[0].id)
+  }, [startDemo])
+
   useEffect(() => {
     if (!runId) return
-    if (processedRef.current.runId !== runId) {
-      processedRef.current = { runId, count: 0 }
+    if (processedRef.current.runId !== runId || processedRef.current.replayKey !== demoReplayKey) {
+      processedRef.current = { count: 0, replayKey: demoReplayKey, runId }
     }
 
     const pendingEvents = stream.events.slice(processedRef.current.count)
@@ -72,9 +108,14 @@ export function useRunScan() {
       }
     })
     processedRef.current.count = stream.events.length
-  }, [refreshState, runId, stream.events])
+  }, [demoReplayKey, refreshState, runId, stream.events])
 
   const start = useCallback(async (image) => {
+    if (DEMO_MODE) {
+      startDemo(activeDemoCaseId)
+      return
+    }
+
     const requestId = ++requestRef.current
     clearRefresh()
     setPhase('uploading')
@@ -100,16 +141,22 @@ export function useRunScan() {
       setPhase('error')
       setError(caught instanceof Error ? caught.message : 'Upload failed. Please try again.')
     }
-  }, [clearRefresh])
+  }, [activeDemoCaseId, clearRefresh, startDemo])
 
   return {
     currentEvent: stream.events.at(-1) ?? null,
+    activeDemoCaseId,
+    demoCases: DEMO_CASE_SUMMARIES,
+    demoFileName: activeDemoCase?.file_name ?? '',
+    demoMode: DEMO_MODE,
+    demoPreviewUrl: activeDemoCase?.previewUrl ?? null,
     error,
     events: stream.events,
     phase,
     runId,
     runState,
     start,
+    startDemo,
     startedAt,
     streamStatus: stream.status,
     visibleTileIds,

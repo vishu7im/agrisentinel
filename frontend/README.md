@@ -1,16 +1,31 @@
-# React + Vite
+# AgriSentinel frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React 19 + Vite + Tailwind console for the frozen run-state contract in `../contract/`.
 
-Currently, two official plugins are available:
+## Live or mock API
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+cp .env.example .env
+npm install
+npm run dev
+```
 
-## React Compiler
+Set `VITE_API_URL` to the backend or start `node ../contract/mock_server.mjs --fast` on the default port 8000.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Backend-free demo
 
-## Expanding the Oxlint configuration
+```bash
+VITE_DEMO_MODE=true npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Recorded cases from `../demo/recorded_runs/` auto-play through the normal event consumer. Use keys `1`, `2`, and `3` to switch or restart cases.
+
+## Checks
+
+```bash
+npm run lint
+npm run build
+npm run verify:demo
+```
+
+See the root `README.md` and `../demo/README.md` for the complete setup and presentation runbook.
