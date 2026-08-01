@@ -1,13 +1,15 @@
 const STEPS = ['Image received', 'Field tiled', 'Tiles diagnosed', 'Analysis assembled']
 
-function stepState(index, phase) {
+function stepState(index, phase, visibleCount) {
   if (phase === 'idle' || phase === 'error') return 'pending'
   if (index === 0) return 'done'
-  if (index === 1) return 'active'
+  if (index === 1) return visibleCount > 0 ? 'done' : 'active'
+  if (index === 2) return phase === 'complete' ? 'done' : visibleCount > 0 ? 'active' : 'pending'
+  if (index === 3) return phase === 'complete' ? 'done' : 'pending'
   return 'pending'
 }
 
-export default function ActivityPanel({ phase, runId }) {
+export default function ActivityPanel({ currentEvent, phase, runId, tileCount, visibleCount }) {
   return (
     <aside className="rounded-2xl border border-field-border bg-field-panel p-5 shadow-2xl shadow-black/20">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">
@@ -31,7 +33,7 @@ export default function ActivityPanel({ phase, runId }) {
 
       <ol className="mt-6 space-y-1">
         {STEPS.map((step, index) => {
-          const state = stepState(index, phase)
+          const state = stepState(index, phase, visibleCount)
           return (
             <li className="flex gap-3" key={step}>
               <div className="flex flex-col items-center">
@@ -54,9 +56,18 @@ export default function ActivityPanel({ phase, runId }) {
         })}
       </ol>
 
-      <p className="mt-5 border-t border-field-border pt-4 text-xs leading-5 text-slate-500">
-        Detailed agent events will appear here as the analysis progresses.
-      </p>
+      {tileCount > 0 && (
+        <div className="mt-5 border-t border-field-border pt-4">
+          <div className="flex justify-between text-xs text-slate-400">
+            <span>Mapped tiles</span>
+            <span className="font-mono text-white">{visibleCount}/{tileCount}</span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/30">
+            <div className="h-full rounded-full bg-emerald-400 transition-all duration-300" style={{ width: `${(visibleCount / tileCount) * 100}%` }} />
+          </div>
+        </div>
+      )}
+      {currentEvent && <p className="mt-4 truncate font-mono text-[11px] text-slate-600">{currentEvent}</p>}
     </aside>
   )
 }

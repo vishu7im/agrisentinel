@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import ActivityPanel from './components/ActivityPanel.jsx'
 import FieldPanel from './components/FieldPanel.jsx'
 import PlanPlaceholder from './components/PlanPlaceholder.jsx'
-import { useRunUpload } from './hooks/useRunUpload.js'
+import { useRunScan } from './hooks/useRunScan.js'
 
 export default function App() {
   const [previewUrl, setPreviewUrl] = useState(null)
   const [fileName, setFileName] = useState('')
   const previewRef = useRef(null)
-  const upload = useRunUpload()
+  const scan = useRunScan()
 
   useEffect(
     () => () => {
@@ -23,7 +23,7 @@ export default function App() {
     previewRef.current = nextPreview
     setPreviewUrl(nextPreview)
     setFileName(file.name)
-    upload.start(file)
+    scan.start(file)
   }
 
   return (
@@ -52,17 +52,22 @@ export default function App() {
 
       <div className="mx-auto grid max-w-[1600px] gap-5 p-5 sm:p-8 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <FieldPanel
-          error={upload.error}
+          error={scan.error}
           fileName={fileName}
           onImage={handleImage}
-          phase={upload.phase}
+          phase={scan.phase}
           previewUrl={previewUrl}
+          runState={scan.runState}
+          visibleTileIds={scan.visibleTileIds}
         />
         <ActivityPanel
-          phase={upload.phase}
-          runId={upload.runId}
+          currentEvent={scan.currentEvent}
+          phase={scan.phase}
+          runId={scan.runId}
+          tileCount={scan.runState?.tiles?.length ?? 0}
+          visibleCount={scan.visibleTileIds.length}
         />
-        <PlanPlaceholder phase={upload.phase} />
+        <PlanPlaceholder phase={scan.phase} />
       </div>
     </main>
   )
