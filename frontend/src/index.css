@@ -9,5 +9,13 @@
 
   body {
     @apply bg-field-bg text-slate-200 antialiased;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+
+  button,
+  input,
+  label {
+    -webkit-tap-highlight-color: transparent;
   }
 }
