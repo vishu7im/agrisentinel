@@ -1,10 +1,22 @@
 import FarmerBrief from './FarmerBrief.jsx'
+import LoadingSkeleton, { SkeletonBlock } from './LoadingSkeleton.jsx'
 import ScheduleTimeline from './ScheduleTimeline.jsx'
 
-export default function ActionPanel({ costEstimate, phase, report, rescanDate, schedule }) {
-  const pendingMessage = phase === 'complete'
-    ? 'No action schedule was returned for this run.'
-    : 'The dated action plan appears after verification.'
+export default function ActionPanel({
+  blocked,
+  costEstimate,
+  phase,
+  report,
+  reportLoading,
+  rescanDate,
+  schedule,
+  scheduleLoading,
+}) {
+  const pendingMessage = blocked
+    ? 'No treatment schedule is shown when advice is withheld.'
+    : phase === 'complete'
+      ? 'No action schedule was returned for this run.'
+      : 'The dated action plan appears after verification.'
 
   return (
     <section className="grid gap-5 lg:col-span-2 xl:grid-cols-[minmax(0,1.45fr)_minmax(20rem,0.75fr)]">
@@ -20,6 +32,22 @@ export default function ActionPanel({ costEstimate, phase, report, rescanDate, s
             rescanDate={rescanDate}
             schedule={schedule}
           />
+        ) : scheduleLoading ? (
+          <LoadingSkeleton
+            className="mt-5 min-h-40 rounded-xl border border-field-border bg-black/10 p-5"
+            label="Preparing action schedule"
+          >
+            <div className="flex items-center justify-between gap-5">
+              {[0, 1, 2, 3].map((step) => (
+                <div className="flex flex-1 flex-col items-center" key={step}>
+                  <SkeletonBlock className="h-3 w-12" />
+                  <SkeletonBlock className="mt-4 size-9 rounded-full" />
+                  <SkeletonBlock className="mt-4 h-2.5 w-full max-w-24" />
+                </div>
+              ))}
+            </div>
+            <SkeletonBlock className="mt-6 h-12 w-full" />
+          </LoadingSkeleton>
         ) : (
           <div className="mt-5 flex min-h-40 items-center justify-center rounded-xl border border-dashed border-field-border bg-black/10 px-6 text-center">
             <div>
@@ -31,7 +59,7 @@ export default function ActionPanel({ costEstimate, phase, report, rescanDate, s
         )}
       </div>
 
-      <FarmerBrief phase={phase} report={report} />
+      <FarmerBrief loading={reportLoading} phase={phase} report={report} />
     </section>
   )
 }

@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import BlockedPlan from './BlockedPlan.jsx'
+import LoadingSkeleton, { SkeletonBlock } from './LoadingSkeleton.jsx'
 import MarkdownPlan from './MarkdownPlan.jsx'
 import SourceDrawer from './SourceDrawer.jsx'
 
 const SOURCE_MARKER = /\[(doc_\d+#p\d+)\]/g
 
-export default function PlanPanel({ diagnosisSummary, phase, plan, verification }) {
+export default function PlanPanel({ diagnosisSummary, loading, phase, plan, verification }) {
   const [activeSource, setActiveSource] = useState(null)
   const sourceNumbers = useMemo(
     () => new Map((verification?.sources ?? []).map((source, index) => [source.id, { number: index + 1, source }])),
@@ -39,7 +40,7 @@ export default function PlanPanel({ diagnosisSummary, phase, plan, verification 
       </div>
 
       {verification?.status === 'REWRITE' ? (
-        <div className="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-5">
+        <div className="result-enter mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-5">
           <p className="font-semibold text-amber-200">Plan returned for accuracy revision</p>
           <p className="mt-2 text-sm leading-6 text-slate-400">
             The verifier found claims that need stronger support. Treatment advice remains hidden while the agronomist revises it.
@@ -56,10 +57,24 @@ export default function PlanPanel({ diagnosisSummary, phase, plan, verification 
               </div>
             </div>
           )}
-          <div className="mt-4 rounded-xl border border-field-border bg-black/10 p-5 sm:p-6">
+          <div className="result-enter mt-4 rounded-xl border border-field-border bg-black/10 p-5 sm:p-6">
             <MarkdownPlan markdown={plan} onSource={setActiveSource} sourceNumbers={sourceNumbers} />
           </div>
         </>
+      ) : loading ? (
+        <LoadingSkeleton
+          className="mt-4 min-h-44 rounded-xl border border-field-border bg-black/10 p-5 sm:p-6"
+          label="Verifying treatment plan"
+        >
+          <div className="flex items-center justify-between gap-5">
+            <SkeletonBlock className="h-4 w-44" />
+            <SkeletonBlock className="h-7 w-24 rounded-full" />
+          </div>
+          <SkeletonBlock className="mt-7 h-3 w-full" />
+          <SkeletonBlock className="mt-3 h-3 w-11/12" />
+          <SkeletonBlock className="mt-3 h-3 w-4/5" />
+          <SkeletonBlock className="mt-6 h-3 w-2/3" />
+        </LoadingSkeleton>
       ) : (
         <div className="mt-4 flex min-h-32 items-center justify-center rounded-xl border border-dashed border-field-border bg-black/10 px-6 text-center">
           <div>

@@ -18,6 +18,11 @@
   label {
     -webkit-tap-highlight-color: transparent;
   }
+
+  :focus-visible {
+    outline: 2px solid rgb(52 211 153 / 0.9);
+    outline-offset: 3px;
+  }
 }
 
 @keyframes agent-event-in {
@@ -31,14 +36,91 @@
   }
 }
 
+@keyframes result-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes skeleton-sweep {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(110%);
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @layer utilities {
   .agent-event-enter {
     animation: agent-event-in 280ms ease-out both;
   }
+
+  .result-enter {
+    animation: result-reveal 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .result-cascade > * {
+    animation: result-reveal 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .result-cascade > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  .result-cascade > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  .result-cascade > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+
+  .drawer-enter {
+    animation: drawer-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .skeleton-block {
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(51 65 85 / 0.62);
+  }
+
+  .skeleton-block::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background-image: linear-gradient(90deg, transparent, rgb(148 163 184 / 0.15), transparent);
+    animation: skeleton-sweep 1.5s ease-in-out infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .agent-event-enter {
+  .agent-event-enter,
+  .drawer-enter,
+  .result-cascade > *,
+  .result-enter,
+  .skeleton-block::after {
     animation: none;
+  }
+
+  * {
+    scroll-behavior: auto !important;
   }
 }

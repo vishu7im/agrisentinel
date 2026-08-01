@@ -11,6 +11,7 @@ export default function FieldPanel({
   previewUrl,
   runState,
   spread,
+  spreadLoading,
   visibleTileIds,
 }) {
   const busy = phase === 'uploading'
@@ -58,7 +59,7 @@ export default function FieldPanel({
           <div className="mt-4">
             <HeatmapLegend />
           </div>
-          <SeverityPanel spread={spread} />
+          <SeverityPanel loading={spreadLoading} spread={spread} />
           {error && (
             <p className="mt-4 rounded-lg border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200" role="alert">
               {error}

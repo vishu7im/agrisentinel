@@ -18,7 +18,7 @@ export default function BlockedPlan({ diagnosisSummary, verification }) {
   }
 
   return (
-    <section className="rounded-2xl border border-amber-400/30 bg-field-panel p-5 shadow-2xl shadow-black/20 lg:col-span-2 sm:p-6">
+    <section className="result-enter rounded-2xl border border-amber-400/30 bg-field-panel p-5 shadow-2xl shadow-black/20 lg:col-span-2 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300/80">Verifier decision</p>

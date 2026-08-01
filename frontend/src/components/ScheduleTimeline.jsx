@@ -43,7 +43,7 @@ export default function ScheduleTimeline({ costEstimate, rescanDate, schedule })
   const formattedCost = formatCost(costEstimate)
 
   return (
-    <div className="mt-6">
+    <div className="result-enter mt-6">
       <div className="overflow-x-auto pb-2">
         <div className="relative min-w-[38rem] px-4 pt-1">
           <div className="absolute left-12 right-12 top-[3.7rem] h-px bg-gradient-to-r from-emerald-400/70 via-emerald-400/35 to-amber-400/70" />
@@ -82,7 +82,7 @@ export default function ScheduleTimeline({ costEstimate, rescanDate, schedule })
       </div>
 
       {selected && (
-        <div className={`mt-4 rounded-xl border p-4 ${selected.kind === 'rescan' ? 'border-amber-400/30 bg-amber-400/10' : 'border-field-border bg-black/15'}`}>
+        <div className={`result-enter mt-4 rounded-xl border p-4 ${selected.kind === 'rescan' ? 'border-amber-400/30 bg-amber-400/10' : 'border-field-border bg-black/15'}`} key={selected.key}>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="font-semibold text-white">{selected.action}</p>
             <span className="text-xs font-bold uppercase tracking-[0.14em] text-emerald-300">Day {selected.day_offset}</span>

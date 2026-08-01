@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import LoadingSkeleton, { SkeletonBlock } from './LoadingSkeleton.jsx'
 
 const DIRECTION_DEGREES = {
   N: 0,
@@ -49,14 +50,36 @@ function severityFor(pctAffected) {
   return { label: 'Severe', classes: 'border-red-400/30 bg-red-400/10 text-red-300' }
 }
 
-export default function SeverityPanel({ spread }) {
-  if (!spread) return null
+export default function SeverityPanel({ loading, spread }) {
+  if (!spread && !loading) return null
+
+  if (loading && !spread) {
+    return (
+      <section className="mt-5 border-t border-field-border pt-5" aria-labelledby="severity-loading-heading">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">Spread analysis</p>
+          <h3 className="mt-1 text-lg font-semibold text-white" id="severity-loading-heading">Mapping field severity</h3>
+        </div>
+        <LoadingSkeleton
+          className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4"
+          label="Mapping field severity"
+        >
+          {['affected area', 'infection clusters', 'spread direction', 'yield impact'].map((label) => (
+            <div className="min-h-32 rounded-xl border border-field-border bg-black/20 p-4" key={label}>
+              <SkeletonBlock className="h-2.5 w-24" />
+              <SkeletonBlock className="mt-6 h-10 w-20" />
+            </div>
+          ))}
+        </LoadingSkeleton>
+      </section>
+    )
+  }
 
   const severity = severityFor(spread.pct_affected)
   const directionDegrees = DIRECTION_DEGREES[spread.direction]
 
   return (
-    <section className="mt-5 border-t border-field-border pt-5" aria-labelledby="severity-heading">
+    <section className="result-enter mt-5 border-t border-field-border pt-5" aria-labelledby="severity-heading">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">Spread analysis</p>
@@ -67,7 +90,7 @@ export default function SeverityPanel({ spread }) {
         </span>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <div className="result-cascade mt-4 grid grid-cols-2 gap-3 xl:grid-cols-4">
         <StatCard label="Field affected">
           <AnimatedNumber decimals={1} suffix="%" value={spread.pct_affected} />
         </StatCard>

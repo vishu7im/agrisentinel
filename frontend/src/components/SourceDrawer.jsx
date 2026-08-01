@@ -20,7 +20,7 @@ export default function SourceDrawer({ onClose, source, sourceNumber }) {
       <aside
         aria-labelledby="source-title"
         aria-modal="true"
-        className="agent-event-enter absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-field-border bg-field-panel p-6 shadow-2xl shadow-black/60"
+        className="drawer-enter absolute inset-y-0 right-0 flex w-full max-w-md flex-col border-l border-field-border bg-field-panel p-6 shadow-2xl shadow-black/60"
         role="dialog"
       >
         <div className="flex items-start justify-between gap-5">

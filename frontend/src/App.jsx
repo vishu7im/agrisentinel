@@ -21,6 +21,7 @@ export default function App() {
     : verification
   const scheduleReady = scan.events.includes('planner.done') || scan.phase === 'complete'
   const reportReady = scan.events.includes('reporter.done') || scan.phase === 'complete'
+  const scanActive = scan.phase === 'uploading' || scan.phase === 'scanning'
   const { demoCases, demoMode, startDemo } = scan
   const visiblePreviewUrl = scan.demoMode ? scan.demoPreviewUrl : previewUrl
   const visibleFileName = scan.demoMode ? scan.demoFileName : fileName
@@ -97,6 +98,7 @@ export default function App() {
           previewUrl={visiblePreviewUrl}
           runState={scan.runState}
           spread={scan.events.includes('spread.done') ? scan.runState?.spread : null}
+          spreadLoading={scanActive && !scan.events.includes('spread.done')}
           visibleTileIds={scan.visibleTileIds}
         />
         <ActivityPanel
@@ -111,16 +113,20 @@ export default function App() {
           key={scan.runId ?? 'empty-plan'}
           diagnosisSummary={scan.runState?.report?.en}
           phase={scan.phase}
+          loading={scanActive && !verdictReady}
           plan={verdictReady ? scan.runState?.plan_draft : null}
           verification={visibleVerification}
         />
         <ActionPanel
           key={scan.runId ?? 'empty-actions'}
           costEstimate={scheduleReady ? scan.runState?.cost_estimate : null}
+          blocked={hasBlock}
           phase={scan.phase}
           report={reportReady ? scan.runState?.report : null}
+          reportLoading={scanActive && !reportReady}
           rescanDate={scheduleReady ? scan.runState?.rescan_date : null}
           schedule={scheduleReady ? scan.runState?.schedule : null}
+          scheduleLoading={scanActive && !scheduleReady && !hasBlock}
         />
       </div>
     </main>
