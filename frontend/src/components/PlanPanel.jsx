@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
+import BlockedPlan from './BlockedPlan.jsx'
 import MarkdownPlan from './MarkdownPlan.jsx'
 import SourceDrawer from './SourceDrawer.jsx'
 
 const SOURCE_MARKER = /\[(doc_\d+#p\d+)\]/g
 
-export default function PlanPanel({ phase, plan, verification }) {
+export default function PlanPanel({ diagnosisSummary, phase, plan, verification }) {
   const [activeSource, setActiveSource] = useState(null)
   const sourceNumbers = useMemo(
     () => new Map((verification?.sources ?? []).map((source, index) => [source.id, { number: index + 1, source }])),
@@ -14,6 +15,11 @@ export default function PlanPanel({ phase, plan, verification }) {
   const groundedClaims = claimIds.filter((id) => sourceNumbers.has(id)).length
   const allGrounded = claimIds.length > 0 && groundedClaims === claimIds.length
   const activeNumber = activeSource ? sourceNumbers.get(activeSource.id)?.number : null
+  const revised = verification?.status === 'PASS' && verification.unsupported_claims.length > 0
+
+  if (verification?.status === 'BLOCK') {
+    return <BlockedPlan diagnosisSummary={diagnosisSummary} verification={verification} />
+  }
 
   return (
     <section className="rounded-2xl border border-field-border bg-field-panel p-5 shadow-2xl shadow-black/20 lg:col-span-2 sm:p-6">
@@ -22,17 +28,38 @@ export default function PlanPanel({ phase, plan, verification }) {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/70">Verified treatment plan</p>
           <h2 className="mt-1 text-xl font-semibold text-white">Grounded field guidance</h2>
         </div>
-        {plan && verification && (
+        {plan && verification?.status === 'PASS' && (
           <span className={`rounded-full border px-3 py-1.5 text-xs font-bold ${allGrounded ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300' : 'border-amber-400/30 bg-amber-400/10 text-amber-300'}`}>
             Grounded: {groundedClaims}/{claimIds.length} claims
           </span>
         )}
+        {verification?.status === 'REWRITE' && (
+          <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-xs font-bold text-amber-300">Revision requested</span>
+        )}
       </div>
 
-      {plan && verification ? (
-        <div className="mt-5 rounded-xl border border-field-border bg-black/10 p-5 sm:p-6">
-          <MarkdownPlan markdown={plan} onSource={setActiveSource} sourceNumbers={sourceNumbers} />
+      {verification?.status === 'REWRITE' ? (
+        <div className="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/5 p-5">
+          <p className="font-semibold text-amber-200">Plan returned for accuracy revision</p>
+          <p className="mt-2 text-sm leading-6 text-slate-400">
+            The verifier found claims that need stronger support. Treatment advice remains hidden while the agronomist revises it.
+          </p>
         </div>
+      ) : plan && verification ? (
+        <>
+          {revised && (
+            <div className="mt-5 flex gap-3 rounded-xl border border-amber-400/20 bg-amber-400/5 px-4 py-3" role="status">
+              <span aria-hidden="true" className="text-amber-300">↻</span>
+              <div>
+                <p className="text-sm font-semibold text-amber-200">Plan revised for accuracy</p>
+                <p className="mt-0.5 text-xs leading-5 text-slate-400">The verifier removed unsupported advice before approving this plan.</p>
+              </div>
+            </div>
+          )}
+          <div className="mt-4 rounded-xl border border-field-border bg-black/10 p-5 sm:p-6">
+            <MarkdownPlan markdown={plan} onSource={setActiveSource} sourceNumbers={sourceNumbers} />
+          </div>
+        </>
       ) : (
         <div className="mt-4 flex min-h-32 items-center justify-center rounded-xl border border-dashed border-field-border bg-black/10 px-6 text-center">
           <div>

@@ -9,7 +9,14 @@ export default function App() {
   const [fileName, setFileName] = useState('')
   const previewRef = useRef(null)
   const scan = useRunScan()
-  const planReady = scan.events.includes('verify.pass') || scan.phase === 'complete'
+  const hasPass = scan.events.includes('verify.pass')
+  const hasBlock = scan.events.includes('verify.block')
+  const hasRewrite = scan.events.includes('verify.rewrite')
+  const verdictReady = hasPass || hasBlock || hasRewrite || scan.phase === 'complete'
+  const verification = verdictReady ? scan.runState?.verification : null
+  const visibleVerification = hasRewrite && !hasPass && !hasBlock && verification
+    ? { ...verification, status: 'REWRITE' }
+    : verification
 
   useEffect(
     () => () => {
@@ -72,9 +79,10 @@ export default function App() {
         />
         <PlanPanel
           key={scan.runId ?? 'empty-plan'}
+          diagnosisSummary={scan.runState?.report?.en}
           phase={scan.phase}
-          plan={planReady ? scan.runState?.plan_draft : null}
-          verification={planReady ? scan.runState?.verification : null}
+          plan={verdictReady ? scan.runState?.plan_draft : null}
+          verification={visibleVerification}
         />
       </div>
     </main>
