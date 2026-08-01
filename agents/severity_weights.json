@@ -1,0 +1,51 @@
+{
+  "_what_this_is": "Yield-loss weights for the Spread Analyst. est_yield_loss_pct = pct_affected x weight.",
+
+  "_units": "A weight is the fraction of yield lost when 100% of the canopy shows this disease. 0.61 for tomato late blight means a fully-blighted field loses about 61% of its yield, not 61% of its leaves.",
+
+  "_honesty": [
+    "These are ROUGH MIDPOINTS OF PUBLISHED RANGES, not clinical or field-calibrated values. Real loss depends on growth stage at onset, cultivar resistance, weather, and how fast the grower reacts — none of which a single photo knows. Published ranges for one disease routinely span 3x.",
+    "Treat the output as an order-of-magnitude triage signal: is this a 5% problem or a 50% problem. Do not quote it as a forecast, and do not put a currency figure on it.",
+    "The model is deliberately linear. A saturating curve would look more sophisticated and would be no better justified, because the uncertainty in the weight dwarfs the error from the linear form.",
+    "Severity also assumes the infected tiles are representative of the canopy they cover. A tile is ~1/40th of the frame, and the classifier reports the dominant condition in it, so light infection inside a tile rounds up to a whole affected tile. That biases pct_affected — and therefore this number — upward on early infections."
+  ],
+
+  "_lookup": "Keyed by class_key from ml/artifacts/model_classes.json. Crop matters: potato and tomato late blight are the same pathogen (Phytophthora infestans) but the potato figure is higher because tuber rot continues after harvest.",
+
+  "_default": 0.35,
+  "_default_note": "Used when a label has no entry — an unknown crop, or a class added to the model before this table catches up. Mid-range so it is neither alarmist nor reassuring, and the spread.weight_default event makes the fallback visible.",
+
+  "weights": {
+    "corn__common_rust": 0.20,
+    "corn__gray_leaf_spot": 0.35,
+    "corn__healthy": 0.0,
+    "corn__northern_leaf_blight": 0.30,
+
+    "potato__early_blight": 0.30,
+    "potato__healthy": 0.0,
+    "potato__late_blight": 0.75,
+
+    "tomato__bacterial_spot": 0.30,
+    "tomato__early_blight": 0.40,
+    "tomato__healthy": 0.0,
+    "tomato__late_blight": 0.61,
+    "tomato__leaf_mold": 0.25,
+    "tomato__septoria_leaf_spot": 0.35,
+    "tomato__yellow_leaf_curl_virus": 0.70
+  },
+
+  "_reasoning": {
+    "corn__common_rust": "The mildest of the three corn diseases in the table. Damaging in sweet corn and susceptible hybrids, but in commercial dent corn it usually arrives late and losses stay in the low tens of percent.",
+    "corn__gray_leaf_spot": "Persistent in no-till continuous corn and attacks the ear leaf, which is the one that fills the grain. Severe epidemics run higher than this; 0.35 sits below the worst case on purpose.",
+    "corn__northern_leaf_blight": "Loss tracks how much leaf area is lost before and during grain fill. Late-season infection can cost almost nothing, which is part of why the range is wide.",
+    "potato__early_blight": "Chronic and defoliating rather than catastrophic. Reduces tuber bulking; rarely takes a crop out.",
+    "potato__late_blight": "The highest weight here. Untreated it takes fields to total loss, and unlike the tomato case the tubers rot in storage after harvest, so the loss keeps accruing.",
+    "tomato__bacterial_spot": "Cosmetic fruit lesions drive the loss more than yield weight does — the fruit grows and then fails to grade. Weighted for market loss, not tonnage.",
+    "tomato__early_blight": "Progressive defoliation exposes fruit to sun scald, so loss comes from two directions at once.",
+    "tomato__late_blight": "Fast, weather-driven, capable of total loss, but tomato lacks potato's post-harvest tuber rot. Kept below the potato figure for that reason.",
+    "tomato__leaf_mold": "Mostly a greenhouse and high-tunnel problem where humidity stays up. The lowest tomato weight.",
+    "tomato__septoria_leaf_spot": "Heavy defoliation from the bottom of the plant upward; the plant survives and yields less.",
+    "tomato__yellow_leaf_curl_virus": "Second-highest weight and the one most sensitive to timing. Infected early the plant is effectively sterile; infected late the fruit already set. There is no cure, only vector control, so the weight sits high.",
+    "_healthy": "Zero by construction. Healthy tiles are excluded from pct_affected before the weight is ever applied, so this entry only exists to keep the table complete against model_classes.json."
+  }
+}
