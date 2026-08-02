@@ -22,6 +22,18 @@ app that refuses to boot tells you neither.
 Uploads and the SQLite file live in `backend/uploads/`, which is gitignored. Delete it to
 reset; it is rebuilt on startup.
 
+## Optional: an LLM key
+
+As of A6 a run returns a `plan_draft`, and as of A8 a schedule, cost band and farmer brief too. It does that with or without a network — with no key
+the Agronomist composes the plan extractively from the retrieved corpus passages, which is the
+mode the demo should assume. To draft with Gemini instead, copy the repo-root `.env.example`
+to `.env` and set `GEMINI_API_KEY`. Nothing else changes; the endpoints and the response shape
+are identical either way, and the event log says which path ran
+(`agronomist.drafted.llm` vs `agronomist.drafted.extractive`).
+
+The retrieval index is committed (`agents/rag/index/chunks.json`). Rebuild it after editing the
+corpus with `.venv/bin/python -m agents.rag.ingest`.
+
 ## Setup
 
 This machine's Python is PEP-668 externally managed, so a venv is required — `pip install`

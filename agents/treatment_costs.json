@@ -1,0 +1,108 @@
+{
+  "_what_this_is": "Rough per-acre, per-application cost bands for the products actually named in agents/rag/corpus/. The Action Planner sums these against the schedule it derives from the verified plan text — it never invents a product; a key only exists here because a corpus document names that exact product.",
+
+  "_currency": "INR",
+
+  "_honesty": [
+    "These are street-level agri-input price bands for one application over one acre, product plus mixing/spraying labour, gathered from general Indian retail ranges rather than a live price feed. Local prices vary by state, season and dealer by 30-50% either way.",
+    "A band, not a point estimate, for the same reason severity_weights.json gives a weight and not a forecast: the honest output of a rough model is a range, and a single rupee figure would claim a precision this table does not have.",
+    "The estimate is per scheduled application, not per season. A plan with two sprays costs roughly twice one spray's band, which is why cost_estimate is computed by summing the table entry for every spray step the schedule actually contains, not by looking up the disease once."
+  ],
+
+  "products": {
+    "mancozeb": {
+      "label": "Mancozeb",
+      "low": 250,
+      "high": 400,
+      "note": "Multi-site protectant WP, ~2.0-2.5 g/L, the cheapest and most common tank-mix anchor across the corpus."
+    },
+    "chlorothalonil": {
+      "label": "Chlorothalonil",
+      "low": 350,
+      "high": 500,
+      "note": "Multi-site protectant WP, ~2.0 g/L, priced above mancozeb at retail."
+    },
+    "copper_oxychloride": {
+      "label": "Copper oxychloride",
+      "low": 300,
+      "high": 450,
+      "note": "Protectant WP, ~3.0 g/L, used against bacterial spot where no fungicide has curative effect."
+    },
+    "cymoxanil_mancozeb_combo": {
+      "label": "Cymoxanil + mancozeb (systemic)",
+      "low": 500,
+      "high": 750,
+      "note": "Curative combination product for infection already past the protectant stage; priced above a plain protectant."
+    },
+    "metalaxyl_mancozeb_combo": {
+      "label": "Metalaxyl + mancozeb (systemic)",
+      "low": 550,
+      "high": 800,
+      "note": "Systemic combination, potato late blight's second-line option alongside the cymoxanil combo."
+    },
+    "azoxystrobin": {
+      "label": "Azoxystrobin",
+      "low": 600,
+      "high": 900,
+      "note": "Single-site strobilurin, capped at two applications per season per doc_19's resistance guidance."
+    },
+    "difenoconazole": {
+      "label": "Difenoconazole",
+      "low": 550,
+      "high": 850,
+      "note": "Single-site triazole EC, ~0.5 mL/L."
+    },
+    "propiconazole": {
+      "label": "Propiconazole",
+      "low": 500,
+      "high": 750,
+      "note": "Single-site triazole EC used on corn foliar disease at tasselling."
+    },
+    "tebuconazole": {
+      "label": "Tebuconazole",
+      "low": 500,
+      "high": 750,
+      "note": "Single-site triazole EC, corn foliar disease alternative to propiconazole."
+    },
+    "pyraclostrobin": {
+      "label": "Pyraclostrobin",
+      "low": 650,
+      "high": 950,
+      "note": "Single-site strobilurin, the priciest of the corn options."
+    },
+    "imidacloprid": {
+      "label": "Imidacloprid",
+      "low": 300,
+      "high": 450,
+      "note": "Systemic insecticide for whitefly vector control on TYLCV, not a fungicide — it treats the vector, not the plant."
+    },
+    "thiamethoxam": {
+      "label": "Thiamethoxam",
+      "low": 350,
+      "high": 500,
+      "note": "Alternate whitefly insecticide, rotated with imidacloprid per doc_06 so neither is used twice running."
+    },
+    "neem_oil": {
+      "label": "Neem oil",
+      "low": 150,
+      "high": 250,
+      "note": "Lower-impact option for light whitefly populations; cheapest entry in the table."
+    }
+  },
+
+  "labour": {
+    "sanitation_removal": {
+      "label": "Removal & sanitation labour",
+      "low": 100,
+      "high": 200,
+      "note": "Flat per-visit charge for cutting, bagging and destroying infected foliage or plants. Charged once per run even if the schedule lists more than one removal step, because it is one labour visit, not one per sentence."
+    }
+  },
+
+  "_default_product": {
+    "label": "Recommended product",
+    "low": 300,
+    "high": 500,
+    "note": "Used when a schedule step names a spray this table has no entry for. Mid-range so it is neither alarmist nor reassuring, the same reasoning severity_weights.json uses for its own default."
+  }
+}

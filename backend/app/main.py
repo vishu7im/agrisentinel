@@ -25,6 +25,9 @@ from fastapi.responses import FileResponse, StreamingResponse
 from app import pipeline
 from app.store import RunStore
 
+# app.pipeline puts the repo root on sys.path, so this import must follow it.
+from agents.crop_vote import AUTO  # noqa: E402
+
 # Vite's dev server. 127.0.0.1 and localhost are distinct origins to the browser, so both are
 # listed — the difference is otherwise a ten-minute CORS mystery.
 FRONTEND_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
@@ -81,7 +84,12 @@ async def health() -> dict[str, str]:
 async def start_run(
     background: BackgroundTasks,
     image: UploadFile | None = File(None),
-    crop: str = Form("tomato"),
+    # Defaults to "auto", not "tomato". contract/endpoints.md documents the old default, and
+    # that default was the bug: nothing in the UI ever overrode it, so every upload — corn,
+    # potato, a photo of a footpath — was scanned as tomato and the Diagnostician's crop mask
+    # made it unrecoverable. "auto" asks the model to vote instead; an explicit crop is still
+    # obeyed exactly as before, and the response field is always a real crop either way.
+    crop: str = Form(AUTO),
 ) -> dict[str, str]:
     """Accept a field image, start the pipeline in the background, return the run id at once.
 

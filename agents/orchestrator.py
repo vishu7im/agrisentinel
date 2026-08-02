@@ -21,17 +21,15 @@ on a projector. Whatever the failing agent had already written stays in the stat
 died in the Agronomist still has a valid grid and a valid severity read, and showing those is
 better than showing an error page.
 
-**A6 ends at the Agronomist.** `run.complete` fires with `verification`, `schedule`, `report`,
-`cost_estimate` and `rescan_date` still null. That is not the pipeline pretending to be
-finished — it is the pipeline being finished as far as it currently goes, with the contract's
-nullable fields carrying the difference. A7-A8 add stages between the Agronomist and the
-completion below, and nothing outside this file changes when they do.
+**The pipeline is complete as of A8.** Every field in the contract is now written by some
+stage below, and the only nulls left in a finished run are the ones a BLOCK deliberately
+leaves: no plan, no schedule, no cost, no re-scan date.
 
-**Until A7 exists, an unverified draft ships.** The Agronomist writes `plan_draft` and there
-is as yet nobody to overrule it, so this is the one window in the project where treatment text
-reaches the API without having been checked. `agronomist.unmarked.<n>_sentences` on the log is
-the only warning anyone gets. That is a stated, temporary condition of A6 and it is what A7 is
-for; it should not survive the phase.
+**A blocked run still completes.** `status` becomes `blocked` rather than `error`, and the
+event is still `run.complete`, because the contract says the SSE stream closes on
+`run.complete` or `run.error` and nothing else. A refusal is a successful outcome of the
+pipeline — the system worked out that it should not answer — and reporting it as an error
+would tell the UI to show a crash where it should show a decision.
 """
 
 from __future__ import annotations
@@ -42,11 +40,14 @@ from PIL import Image
 
 from agents.agronomist import run_agronomist
 from agents.diagnostician import BATCH_SIZE, Classifier, run_diagnostician
+from agents.planner import run_planner
+from agents.reporter import run_reporter
 from agents.scout import GREEN_THRESHOLD, UNIFORMITY_MAX, run_scout
 from agents.second_opinion import CONFIDENCE_GATE, low_confidence_tiles, run_second_opinion
 from agents.spread import run_spread
 from agents.state import RunState, utc_now
 from agents.tiling import DEFAULT_COLS, DEFAULT_ROWS
+from agents.verifier import MAX_REWRITES, run_verifier
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +63,7 @@ def run_pipeline(
     green_threshold: float = GREEN_THRESHOLD,
     uniformity_max: float = UNIFORMITY_MAX,
 ) -> RunState:
-    """Scout, Diagnostician, confidence gate, Second-Opinion, Spread, Agronomist. Always terminal."""
+    """Scout, Diagnose, gate, Second-Opinion, Spread, Agronomist, Verifier, Planner, Reporter."""
     stage = "scout"
     try:
         run_scout(state, img, cols, rows, green_threshold, uniformity_max)
@@ -90,7 +91,44 @@ def run_pipeline(
         stage = "agronomist"
         run_agronomist(state)
 
-        state.apply("run.complete", status="complete", finished_at=utc_now())
+        # The verify-redraft loop, and the one place in this pipeline where a stage runs more
+        # than once. It lives here rather than inside either agent because neither of them is
+        # allowed to know about the other: the Agronomist writes a draft and reads rulings, the
+        # Verifier reads drafts and writes rulings, and the going-round is this file's job.
+        #
+        # The loop condition obeys the Verifier unconditionally. There is no branch below where
+        # a REWRITE is overridden, no count kept here that could disagree with MAX_REWRITES,
+        # and nothing that inspects the plan to decide whether the ruling was reasonable. When
+        # the budget runs out the Verifier is the one that strips and passes — the orchestrator
+        # does not get to make that call either.
+        stage = "verifier"
+        for attempt in range(MAX_REWRITES + 1):
+            run_verifier(state, attempt)
+            if (state.verification or {}).get("status") != "REWRITE":
+                break
+            stage = "agronomist"
+            run_agronomist(state)
+            stage = "verifier"
+
+        # Both are skipped on a BLOCK, and skipped rather than run-and-discarded: a schedule is
+        # a set of dates to go and spray something, and there is nothing to spray. The refusal
+        # brief the Verifier already wrote stands as the report for that run.
+        blocked = (state.verification or {}).get("status") == "BLOCK"
+        if not blocked:
+            stage = "planner"
+            run_planner(state)
+
+            # The Reporter runs last because it summarises the schedule as well as the plan —
+            # what to do first is a question about day 0, which does not exist until the
+            # Planner has written one.
+            stage = "reporter"
+            run_reporter(state)
+
+        state.apply(
+            "run.complete",
+            status="blocked" if blocked else "complete",
+            finished_at=utc_now(),
+        )
     except Exception:
         # The stage name goes on the log; the traceback goes to the server. An exception
         # message can carry a filesystem path, and the event log is rendered in a browser.

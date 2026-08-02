@@ -32,6 +32,10 @@ from agents.diagnostician import (  # noqa: E402
 )
 from agents.orchestrator import run_pipeline  # noqa: E402
 from agents.scout import GREEN_THRESHOLD, UNIFORMITY_MAX, scout_summary  # noqa: E402
+from agents.agronomist import agronomist_summary  # noqa: E402
+from agents.planner import planner_summary  # noqa: E402
+from agents.reporter import reporter_summary  # noqa: E402
+from agents.verifier import verifier_summary  # noqa: E402
 from agents.second_opinion import CONFIDENCE_GATE, second_opinion_summary  # noqa: E402
 from agents.spread import spread_summary  # noqa: E402
 from agents.state import new_run  # noqa: E402
@@ -64,7 +68,11 @@ def validate(payload: dict) -> list[str]:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("image", type=Path, help="field photo to scan")
-    p.add_argument("--crop", default="tomato", help="tomato | potato | corn")
+    p.add_argument(
+        "--crop",
+        default="auto",
+        help="tomato | potato | corn, or auto to let the Diagnostician vote on it",
+    )
     p.add_argument("--cols", type=int, default=DEFAULT_COLS)
     p.add_argument("--rows", type=int, default=DEFAULT_ROWS)
     p.add_argument("--model", type=Path, default=DEFAULT_MODEL)
@@ -120,6 +128,10 @@ def main() -> int:
     log(f"diag:   {diagnose_summary(state)}")
     log(f"2nd:    {second_opinion_summary(state)}")
     log(f"spread: {spread_summary(state)}")
+    log(f"plan:   {agronomist_summary(state)}")
+    log(f"verify: {verifier_summary(state)}")
+    log(f"plan2:  {planner_summary(state)}")
+    log(f"report: {reporter_summary(state)}")
     log(f"total:  {total_ms:.0f} ms, status={state.status}")
 
     payload = state.to_dict()
@@ -144,6 +156,34 @@ def main() -> int:
         cell += "*" if tile.escalated else " "
         log(f"{tile.label[:12]:>13}:{cell}", end=end)
 
+    verification = state.verification or {}
+    if verification.get("unsupported_claims"):
+        label = "withheld" if verification["status"] == "BLOCK" else "rejected"
+        log(f"\n{label} by the verifier ({len(verification['unsupported_claims'])}):")
+        for claim in verification["unsupported_claims"]:
+            log(f"  {claim[:110]}")
+
+    if state.schedule:
+        log("\nschedule:")
+        for item in state.schedule:
+            log(f"  day {item['day_offset']:<3} {item.get('kind', '-'):<8} {item['action']}")
+            log(f"           {item['note'][:100]}")
+        cost = state.cost_estimate or {}
+        log(f"  cost: {cost.get('currency')} {cost.get('low')}-{cost.get('high')} | rescan {state.rescan_date}")
+
+    if state.report:
+        log("\nreport:")
+        for lang, text in state.report.items():
+            log(f"  {lang}: {text}")
+
+    if state.plan_draft:
+        log("\nplan_draft:")
+        for line in state.plan_draft.splitlines():
+            log(f"  {line}")
+        log(f"\nsources ({len(state.sources)}):")
+        for source in state.sources:
+            log(f"  {source['id']:<12} {source['doc'][:56]}")
+
     if problems:
         log("\nFAIL  run state does not match the contract:")
         for problem in problems:
@@ -151,7 +191,7 @@ def main() -> int:
         return 1
 
     log(f"\nOK    validates against {SCHEMA_PATH.relative_to(REPO_ROOT)}")
-    log(f"      status={payload['status']} (plan/verification/report stay null until A6-A8)")
+    log(f"      status={payload['status']}, verification={verification.get('status', 'none')}")
     return 0
 
 
