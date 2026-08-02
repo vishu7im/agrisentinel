@@ -13,7 +13,6 @@ frontend/presentation
 
 backend/uploads
 agents/testdata
-demo
 docs
 
 ml/checkpoints
@@ -32,4 +31,3 @@ ml/artifacts/*
 *.pptx
 *.tar.gz
 *.zip
-

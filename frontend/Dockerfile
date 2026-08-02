@@ -1,11 +1,14 @@
 FROM node:20-alpine AS build
 
-WORKDIR /app
+WORKDIR /app/frontend
 
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 
 COPY frontend/ ./
+COPY contract/mock_run.json /app/contract/mock_run.json
+COPY demo/recorded_runs /app/demo/recorded_runs
+COPY demo/field_mosaics /app/demo/field_mosaics
 
 # Leave VITE_API_URL empty when Caddy serves UI and /api on the same hostname.
 ARG VITE_API_URL=""
@@ -18,7 +21,7 @@ RUN npm run build
 FROM nginx:alpine AS runtime
 
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/frontend/dist /usr/share/nginx/html
 
 EXPOSE 80
 
