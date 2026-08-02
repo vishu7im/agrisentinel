@@ -51,9 +51,9 @@ prs = Presentation()
 prs.slide_width = Inches(W)
 prs.slide_height = Inches(H)
 prs.core_properties.title = "AgriSentinel — Aaroh AI/ML Hackathon"
-prs.core_properties.subject = "Hybrid crop disease detection and verified field action planning"
+prs.core_properties.subject = "Hybrid crop disease detection, verified field action planning, and grounded follow-up advice"
 prs.core_properties.author = "Vishal and Khushi"
-prs.core_properties.keywords = "AgriSentinel, Aaroh, AI, ML, agriculture, EfficientNet, vision LLM, RAG"
+prs.core_properties.keywords = "AgriSentinel, Aaroh, AI, ML, agriculture, EfficientNet, vision LLM, RAG, agents, advisor"
 
 
 def set_fill(shape, color: RGBColor) -> None:
@@ -178,7 +178,7 @@ def base_slide(section: str, number: int, title: str | None = None, subtitle: st
         textbox(slide, title, 0.58, 0.98, 11.9, 0.65, size=28, color=WHITE, bold=True)
     if subtitle:
         textbox(slide, subtitle, 0.6, 1.62, 11.5, 0.42, size=13.5, color=MUTED)
-    textbox(slide, "AAROH AI/ML HACKATHON  •  VISHAL + KHUSHI", 0.58, 7.16, 6.8, 0.18, size=7.5, color=DIM, bold=True, tracking=70)
+    textbox(slide, "AAROH AI/ML HACKATHON  •  DEV A: VISHAL  •  DEV B: KHUSHI", 0.58, 7.16, 7.8, 0.18, size=7.5, color=DIM, bold=True, tracking=60)
     return slide
 
 
@@ -252,8 +252,11 @@ textbox(slide, "Hybrid crop disease detection that combines local EfficientNet s
 chip(slide, "HYBRID DETECTION", 0.72, 5.18, 1.58, color=GREEN, fill=PANEL_2, size=7.5)
 chip(slide, "RAG + VERIFIER", 2.44, 5.18, 1.44, color=CYAN, fill=PANEL_2, size=7.5)
 chip(slide, "EN + HI BRIEF", 4.03, 5.18, 1.35, color=AMBER, fill=rgb("282511"), size=7.5)
-textbox(slide, "DEVELOPERS", 0.72, 6.08, 1.3, 0.18, size=7.5, color=DIM, bold=True, tracking=100)
-textbox(slide, "Vishal  •  Khushi", 0.72, 6.32, 4.0, 0.35, size=18, color=WHITE, bold=True)
+textbox(slide, "TEAM OWNERSHIP", 0.72, 6.00, 1.55, 0.18, size=7.5, color=DIM, bold=True, tracking=100)
+textbox(slide, "DEV A  ·  VISHAL", 0.72, 6.27, 2.00, 0.22, size=10, color=GREEN, bold=True, tracking=45)
+textbox(slide, "Backend • ML • Agents", 0.72, 6.54, 2.25, 0.20, size=9.5, color=WHITE, bold=True)
+textbox(slide, "DEV B  ·  KHUSHI", 3.35, 6.27, 2.05, 0.22, size=10, color=CYAN, bold=True, tracking=45)
+textbox(slide, "Frontend • UI • Demo", 3.35, 6.54, 2.25, 0.20, size=9.5, color=WHITE, bold=True)
 
 rect(slide, 7.10, 0.72, 5.63, 6.12, fill=CHARCOAL, line=BORDER)
 add_picture_cover(slide, FIELD_IMAGE, 7.28, 0.90, 5.27, 3.30, border=BORDER, focus_y=0.5)
@@ -272,7 +275,7 @@ textbox(slide, "maps where", 7.46, 6.06, 1.6, 0.24, size=12, color=WHITE, bold=T
 textbox(slide, "VISION LLM", 10.00, 5.76, 1.35, 0.22, size=8, color=CYAN, bold=True, tracking=70)
 textbox(slide, "checks what", 10.00, 6.06, 1.65, 0.24, size=12, color=WHITE, bold=True)
 add_notes(slide, """
-Open with the reframe: AgriSentinel is not another leaf-classification app. It turns one field image into a verified decision. Introduce Vishal and Khushi, then preview the hybrid idea: the local CNN maps where disease may be, while an independent vision model checks what the whole image actually shows.
+Open with the reframe: AgriSentinel is not another leaf-classification app. It turns one field image into a verified decision. Introduce Vishal as Dev A for backend, ML, and agents, and Khushi as Dev B for frontend, UI, and the demo experience. Then preview the hybrid idea: the local CNN maps where disease may be, while an independent vision model checks what the whole image actually shows.
 """)
 
 
@@ -405,9 +408,78 @@ The fusion policy has three important branches. Agreement passes forward. A dise
 
 
 # ---------------------------------------------------------------------------
-# 6. Agents
+# 6. End-to-end architecture
 # ---------------------------------------------------------------------------
-slide = base_slide("Architecture", 6, "Autonomy is visible — and auditable", "Specialised agents share one event-sourced RunState; the Orchestrator alone controls sequence and branching.")
+slide = base_slide(
+    "System architecture",
+    6,
+    "Architecture: pixels to a verified decision",
+    "The browser, API, agents, models, knowledge, and safety boundary stay decoupled through one shared RunState.",
+)
+
+# Primary request path.
+flow_box(slide, "Field capture", "Drone / phone\nJPEG or PNG", 0.62, 2.52, 1.43, 1.24, accent=WHITE, fill=PANEL, title_size=13)
+chevron(slide, 2.15, 2.96, 0.25, 0.31, color=DIM)
+flow_box(slide, "React console", "Upload • heatmap\nagent timeline\nbrief + Advisor", 2.49, 2.36, 1.79, 1.56, accent=GREEN, fill=PANEL_2, title_size=14)
+chevron(slide, 4.39, 2.96, 0.25, 0.31, color=GREEN)
+flow_box(slide, "FastAPI", "POST run • GET state\nSSE events • chat", 4.73, 2.36, 1.76, 1.56, accent=CYAN, fill=PANEL_2, title_size=14)
+chevron(slide, 6.60, 2.96, 0.25, 0.31, color=CYAN)
+
+# Supervised intelligence boundary.
+rect(slide, 6.96, 2.16, 5.72, 3.77, fill=CHARCOAL, line=AMBER)
+label(slide, "Supervised intelligence", 7.25, 2.42, 2.35, color=AMBER)
+flow_box(slide, "Orchestrator", "Owns order, gates,\nbranches, and the\nverify-redraft loop", 7.24, 2.86, 1.38, 2.18, accent=AMBER, fill=rgb("282511"), title_size=13)
+
+pipeline_groups = [
+    ("PERCEPTION", "Scout • Observer\nDiagnose • 2nd opinion", GREEN),
+    ("FUSION", "Consensus • Spread\nmap + severity", CYAN),
+    ("GROUND", "TF-IDF RAG\n10 curated documents", AMBER),
+    ("SAFETY", "Verifier → PASS\nREWRITE / BLOCK", RED),
+    ("ACTION", "Planner • Reporter\nEN / HI brief", GREEN_SOFT),
+]
+for i, (head, body, accent) in enumerate(pipeline_groups):
+    x = 8.88 + (i % 3) * 1.15
+    y = 2.83 + (i // 3) * 1.20
+    w = 1.02 if i < 3 else 1.60
+    if i == 4:
+        x = 10.68
+    rect(slide, x, y, w, 0.98, fill=PANEL, line=accent)
+    textbox(slide, head, x + 0.09, y + 0.11, w - 0.18, 0.18, size=6.7, color=accent, bold=True, tracking=35, align=PP_ALIGN.CENTER)
+    textbox(slide, body, x + 0.08, y + 0.38, w - 0.16, 0.44, size=7.4, color=WHITE, bold=True, align=PP_ALIGN.CENTER, valign=MSO_ANCHOR.MIDDLE)
+    if i in (0, 1, 3):
+        chevron(slide, x + w + 0.04, y + 0.36, 0.14, 0.24, color=accent)
+
+# State and service foundations.
+rect(slide, 2.49, 4.34, 3.99, 1.58, fill=PANEL, line=BORDER)
+label(slide, "Shared state + realtime", 2.74, 4.60, 2.15, color=GREEN)
+textbox(slide, "Immutable contract-shaped RunState", 2.74, 4.96, 3.30, 0.25, size=12.5, color=WHITE, bold=True)
+textbox(slide, "events[] is replayed over SSE; SQLite + uploads persist completed runs", 2.74, 5.31, 3.32, 0.39, size=9.3, color=MUTED)
+line(slide, 3.34, 4.17, 0.03, 0.17, color=GREEN)
+textbox(slide, "READ / WRITE", 4.91, 4.10, 1.14, 0.18, size=6.5, color=DIM, bold=True, align=PP_ALIGN.RIGHT, tracking=40)
+
+rect(slide, 7.24, 5.30, 5.16, 0.38, fill=PANEL_2, line=BORDER)
+textbox(slide, "ONNX Runtime  •  Vision LLM  •  TF-IDF retrieval  •  allowlist + dose rules", 7.41, 5.39, 4.82, 0.17, size=7.6, color=MUTED, bold=True, align=PP_ALIGN.CENTER)
+
+# Explicit return paths keep the architecture legible in a five-minute pitch.
+line(slide, 0.96, 4.23, 1.39, 0.03, color=GREEN)
+chevron(slide, 0.82, 4.09, 0.18, 0.29, color=GREEN)
+textbox(slide, "SSE EVENTS + FINAL STATE", 0.62, 4.46, 1.66, 0.35, size=7.2, color=GREEN_SOFT, bold=True, align=PP_ALIGN.CENTER)
+textbox(slide, "Live scan", 0.62, 5.08, 0.80, 0.20, size=8, color=GREEN, bold=True)
+textbox(slide, "Offline replay", 0.62, 5.40, 0.98, 0.20, size=8, color=CYAN, bold=True)
+textbox(slide, "Same event consumer", 0.62, 5.70, 1.49, 0.20, size=7.8, color=MUTED)
+
+rect(slide, 0.62, 6.23, 12.06, 0.53, fill=rgb("0E2B20"), line=GREEN)
+textbox(slide, "CONTROL PRINCIPLE", 0.88, 6.39, 1.47, 0.20, size=7.5, color=GREEN, bold=True, tracking=75)
+textbox(slide, "Agents never call each other; they read and write RunState, while the Orchestrator alone decides what runs next.", 2.47, 6.31, 9.73, 0.28, size=11.5, color=WHITE, bold=True, align=PP_ALIGN.CENTER)
+add_notes(slide, """
+Read this from left to right. The React console uploads the field image to FastAPI, which starts a background run and returns the run ID immediately. The Orchestrator is the only component that controls sequence, confidence escalation, and the verifier rewrite loop. Every specialised agent reads and writes the shared RunState; the browser receives the same event history over SSE. ONNX inference remains local, while the whole-image Observer and optional language-model work can use a hosted provider. SQLite and uploaded images make finished runs recoverable. The offline demo replays the same events into the same frontend consumer.
+""")
+
+
+# ---------------------------------------------------------------------------
+# 7. Agent system
+# ---------------------------------------------------------------------------
+slide = base_slide("Agent system", 7, "Eleven visible agents, one controlled execution trace", "Ten specialised agents share one event-sourced RunState; the Orchestrator alone controls sequence and branching.")
 
 groups = [
     ("PERCEPTION", GREEN, [
@@ -447,14 +519,14 @@ textbox(slide, "ORCHESTRATOR", 0.66, 6.42, 1.36, 0.20, size=8, color=GREEN, bold
 line(slide, 2.18, 6.50, 7.05, 0.03, color=GREEN)
 textbox(slide, "Shared RunState + SSE events → live agent timeline", 9.43, 6.33, 3.20, 0.37, size=11, color=GREEN_SOFT, bold=True, align=PP_ALIGN.RIGHT)
 add_notes(slide, """
-The multi-agent design is justified by different tools and different failure modes. Perception agents operate on pixels, the spread agent performs deterministic spatial analysis, the agronomist retrieves sources, and the verifier has veto power. All mutations and branches appear in one event stream, so judges can see what ran.
+There are eleven visible nodes including the Orchestrator. The multi-agent design is justified by different tools and different failure modes. Perception agents operate on pixels, the spread agent performs deterministic spatial analysis, the agronomist retrieves sources, and the verifier has veto power. All mutations and branches appear in one event stream, so judges can see what ran instead of trusting an architecture claim.
 """)
 
 
 # ---------------------------------------------------------------------------
-# 7. Product
+# 8. Product
 # ---------------------------------------------------------------------------
-slide = base_slide("Product", 7, "The full decision is visible in one console", "This screenshot is the running React interface in offline replay mode, using the same event consumer as the live API.")
+slide = base_slide("Product", 8, "The full decision is visible in one console", "This screenshot is the running React interface in offline replay mode, using the same event consumer as the live API.")
 
 rect(slide, 0.60, 2.17, 8.72, 4.64, fill=CHARCOAL, line=BORDER)
 add_picture_cover(slide, PRODUCT_SHOT, 0.72, 2.29, 8.48, 4.40, border=BORDER, focus_y=0.0)
@@ -479,9 +551,55 @@ This is the actual dashboard. Point out the progressive heatmap, spread cards, l
 
 
 # ---------------------------------------------------------------------------
-# 8. Metrics
+# 9. Advisor chatbot
 # ---------------------------------------------------------------------------
-slide = base_slide("Evidence", 8, "Measured performance, not presentation claims", "Results below come from committed artifacts and a 2,399-image, 14-class PlantVillage test split.")
+slide = base_slide(
+    "Advisor chatbot",
+    9,
+    "A run-grounded Advisor — not a generic chatbot",
+    "A stateless, run-scoped Advisor sits inside the Farmer Brief and inherits the Verifier’s safety decision.",
+)
+
+# Run-scoped answer path.
+flow_box(slide, "1  Ask", "Question + recent\nbrowser transcript", 0.64, 2.33, 1.58, 1.20, accent=GREEN, fill=PANEL_2, title_size=13)
+chevron(slide, 2.30, 2.76, 0.25, 0.31, color=GREEN)
+flow_box(slide, "2  Bind", "Load completed\nRunState read-only", 2.64, 2.33, 1.58, 1.20, accent=CYAN, fill=PANEL_2, title_size=13)
+chevron(slide, 4.30, 2.76, 0.25, 0.31, color=CYAN)
+flow_box(slide, "3  Retrieve", "Disease-scoped +\ngeneral practice", 4.64, 2.33, 1.58, 1.20, accent=AMBER, fill=rgb("282511"), title_size=13)
+chevron(slide, 6.30, 2.76, 0.25, 0.31, color=AMBER)
+flow_box(slide, "4  Answer", "LLM when online;\nextractive fallback", 6.64, 2.33, 1.58, 1.20, accent=CYAN, fill=PANEL_2, title_size=13)
+
+flow_box(slide, "5  Verify each sentence", "Recompute citation • drop unsupported text • reject unsafe chemical or dose", 2.10, 4.08, 2.86, 1.27, accent=RED, fill=PANEL, title_size=14)
+chevron(slide, 5.10, 4.53, 0.26, 0.32, color=RED)
+flow_box(slide, "6  Return a typed outcome", "answer • sources • grounded • refused • provider", 5.51, 4.08, 2.70, 1.27, accent=GREEN_SOFT, fill=PANEL, title_size=14)
+
+textbox(slide, "POST  /api/run/{run_id}/chat", 0.67, 3.76, 1.50, 0.38, size=8.2, color=DIM, bold=True, align=PP_ALIGN.CENTER)
+textbox(slide, "No chat state is written back to the frozen run contract.", 0.74, 4.32, 1.26, 0.72, size=9.3, color=MUTED, align=PP_ALIGN.CENTER, valign=MSO_ANCHOR.MIDDLE)
+
+# Product mock-up: brief with embedded cited follow-up.
+rect(slide, 8.60, 2.27, 4.07, 3.76, fill=CHARCOAL, line=BORDER)
+label(slide, "Inside the farmer brief", 8.88, 2.54, 2.25, color=GREEN)
+textbox(slide, "ASK ABOUT THIS FIELD", 8.88, 2.91, 2.16, 0.19, size=7.2, color=MUTED, bold=True, tracking=65)
+rect(slide, 9.72, 3.24, 2.56, 0.54, fill=rgb("103126"), line=GREEN)
+textbox(slide, "Can I spray before rain?", 9.88, 3.39, 2.22, 0.20, size=9.5, color=WHITE, bold=True, align=PP_ALIGN.RIGHT)
+rect(slide, 8.88, 3.98, 3.15, 1.02, fill=PANEL, line=BORDER)
+textbox(slide, "Avoid spraying if rain is expected within four hours; the application may wash off.", 9.05, 4.14, 2.79, 0.47, size=9.1, color=WHITE)
+chip(slide, "1  SOURCE • P2", 9.05, 4.65, 1.24, color=GREEN, fill=PANEL_2, size=6.5)
+rect(slide, 8.88, 5.23, 3.50, 0.49, fill=rgb("282511"), line=AMBER)
+textbox(slide, "BLOCK / contested → advice withheld", 9.04, 5.36, 3.18, 0.20, size=8.7, color=AMBER, bold=True, align=PP_ALIGN.CENTER)
+
+rect(slide, 0.64, 6.27, 12.03, 0.50, fill=rgb("0E2B20"), line=GREEN)
+textbox(slide, "SAFETY INHERITANCE", 0.91, 6.42, 1.63, 0.19, size=7.3, color=GREEN, bold=True, tracking=70)
+textbox(slide, "If the scan was BLOCKED or the models disagree, the Advisor never retrieves or calls a model—it explains the refusal and directs the farmer to an extension officer.", 2.67, 6.34, 9.46, 0.27, size=10.4, color=WHITE, bold=True, align=PP_ALIGN.CENTER)
+add_notes(slide, """
+The Advisor appears inside the Farmer Brief after a completed live run. The browser posts the question and a bounded recent transcript to a run-scoped endpoint. The server loads that RunState read-only, retrieves disease-specific and crop-agnostic passages from the same ten-document corpus, and asks the language model only when available. Every returned sentence is attributed again against the evidence, and the same chemical allowlist and dosage checks used by the Verifier are applied. If the model is unavailable, the closest extractive passage is returned with honest framing. If the run was blocked or contested, the Advisor never reaches retrieval or the network; it explains why advice was withheld.
+""")
+
+
+# ---------------------------------------------------------------------------
+# 10. Metrics
+# ---------------------------------------------------------------------------
+slide = base_slide("Evidence", 10, "Measured performance, not presentation claims", "Results below come from committed artifacts and a 2,399-image, 14-class PlantVillage test split.")
 
 stat_card(slide, "95.6%", "test accuracy", "clean test split", 0.62, 2.25, 2.24, GREEN)
 stat_card(slide, "94.7%", "macro-F1", "+2.6 pp vs scratch", 3.00, 2.25, 2.24, CYAN)
@@ -500,9 +618,9 @@ State the evidence boundary before the numbers: these are PlantVillage test-spli
 
 
 # ---------------------------------------------------------------------------
-# 9. Honesty / domain gap
+# 11. Honesty / domain gap
 # ---------------------------------------------------------------------------
-slide = base_slide("Validation", 9, "The lab-to-field gap is real — so we expose it", "Image degradation alone costs 9.0 accuracy points and more than doubles the escalation load.")
+slide = base_slide("Validation", 11, "The lab-to-field gap is real — so we expose it", "Image degradation alone costs 9.0 accuracy points and more than doubles the escalation load.")
 
 chart_x = 0.74
 chart_y = 2.44
@@ -540,9 +658,9 @@ This is the honesty slide. Under simulated field degradation, accuracy falls fro
 
 
 # ---------------------------------------------------------------------------
-# 10. Safety
+# 12. Safety
 # ---------------------------------------------------------------------------
-slide = base_slide("Safety", 10, "Refusal is a successful product outcome", "The Verifier can revise or stop treatment advice while still returning the field evidence and diagnosis context.")
+slide = base_slide("Safety", 12, "Refusal is a successful product outcome", "The Verifier can revise or stop treatment advice while still returning the field evidence and diagnosis context.")
 
 flow_box(slide, "RAG treatment draft", "Every sentence carries a retrieved source marker", 0.68, 2.48, 2.55, 1.50, accent=CYAN, fill=PANEL)
 chevron(slide, 3.41, 3.03, 0.35, 0.34, color=CYAN)
@@ -578,27 +696,27 @@ The verifier is a real control boundary. It checks whether claims are supported,
 
 
 # ---------------------------------------------------------------------------
-# 11. Team + feasibility
+# 13. Team + feasibility
 # ---------------------------------------------------------------------------
-slide = base_slide("Execution", 11, "Two developers. One frozen contract. One integrated demo.", "The project was split by ownership so the ML/agent pipeline and product experience could move in parallel.")
+slide = base_slide("Execution", 13, "Two developers. One contract. One integrated demo.", "Dev A and Dev B worked in parallel against the same RunState and endpoint contract.")
 
 rect(slide, 0.66, 2.32, 3.72, 3.34, fill=PANEL, line=BORDER)
-chip(slide, "Vishal", 0.91, 2.61, 1.04, color=GREEN, fill=PANEL_2, size=9)
-textbox(slide, "AI / ML + Backend", 0.91, 3.11, 2.65, 0.34, size=18, color=WHITE, bold=True)
-bullets(slide, ["EfficientNet-B0 + ONNX inference", "Observer, fusion, agents, verifier", "FastAPI + SSE + evidence artifacts"], 0.92, 3.68, 3.00, 1.43, size=10.5, color=MUTED, gap=3, bullet_color=GREEN)
+chip(slide, "DEV A  •  VISHAL", 0.91, 2.61, 1.56, color=GREEN, fill=PANEL_2, size=8.5)
+textbox(slide, "AI Systems + Backend", 0.91, 3.11, 2.74, 0.34, size=17.5, color=WHITE, bold=True)
+bullets(slide, ["Model training + ONNX inference", "Orchestration, agents, RAG, safety", "FastAPI, SSE, storage, evaluation"], 0.92, 3.68, 3.00, 1.43, size=10.2, color=MUTED, gap=3, bullet_color=GREEN)
 
 rect(slide, 4.57, 2.32, 3.72, 3.34, fill=PANEL, line=BORDER)
-chip(slide, "Khushi", 4.82, 2.61, 1.02, color=CYAN, fill=PANEL_2, size=9)
-textbox(slide, "Frontend + Demo", 4.82, 3.11, 2.65, 0.34, size=18, color=WHITE, bold=True)
-bullets(slide, ["React field console + heatmap", "Live pipeline, PASS / BLOCK states", "Offline replay + farmer brief UX"], 4.83, 3.68, 3.00, 1.43, size=10.5, color=MUTED, gap=3, bullet_color=CYAN)
+chip(slide, "DEV B  •  KHUSHI", 4.82, 2.61, 1.58, color=CYAN, fill=PANEL_2, size=8.5)
+textbox(slide, "Product UI + Demo", 4.82, 3.11, 2.65, 0.34, size=17.5, color=WHITE, bold=True)
+bullets(slide, ["React console + responsive field UX", "Heatmap, agent timeline, safety UI", "Offline replay, brief, Advisor experience"], 4.83, 3.68, 3.00, 1.43, size=10.2, color=MUTED, gap=3, bullet_color=CYAN)
 
 rect(slide, 8.48, 2.32, 4.19, 3.34, fill=PANEL, line=BORDER)
-label(slide, "Production-shaped prototype", 8.75, 2.64, 2.95, color=AMBER)
+label(slide, "Shared integration boundary", 8.75, 2.64, 2.95, color=AMBER)
 stack = [
-    ("EDGE", "ONNX Runtime • CPU • offline fallback", GREEN),
-    ("API", "FastAPI • event-sourced state • SSE", CYAN),
-    ("INTELLIGENCE", "Vision LLM • TF-IDF RAG • verifier", AMBER),
-    ("PRODUCT", "React 19 • Vite • Tailwind • EN/HI", ORANGE),
+    ("CONTRACT", "Frozen RunState JSON schema", GREEN),
+    ("TRANSPORT", "POST / GET / SSE / health / chat", CYAN),
+    ("DEV A", "Publishes state + ordered events", AMBER),
+    ("DEV B", "Renders live or replay identically", ORANGE),
 ]
 for i, (head, body, accent) in enumerate(stack):
     yy = 3.18 + i * 0.58
@@ -608,17 +726,17 @@ for i, (head, body, accent) in enumerate(stack):
         line(slide, 8.75, yy + 0.36, 3.48, 0.01, color=BORDER)
 
 rect(slide, 0.66, 6.10, 12.01, 0.58, fill=rgb("0E2B20"), line=GREEN)
-textbox(slide, "Shared contract", 0.93, 6.28, 1.28, 0.22, size=9, color=GREEN, bold=True)
-textbox(slide, "POST run • GET state • SSE events • health — live backend and offline replay render the same frozen RunState", 2.33, 6.20, 9.75, 0.31, size=11.5, color=WHITE, bold=True)
+textbox(slide, "Integration rule", 0.93, 6.28, 1.28, 0.22, size=9, color=GREEN, bold=True)
+textbox(slide, "Dev A owns the system behind the contract; Dev B owns every user interaction in front of it.", 2.33, 6.20, 9.75, 0.31, size=11.5, color=WHITE, bold=True, align=PP_ALIGN.CENTER)
 add_notes(slide, """
-Vishal owned AI/ML, agents, and backend. Khushi owned frontend, demo, and presentation experience. The frozen contract kept both sides independent, then made final integration simple. The architecture is demo-ready on a CPU laptop and can swap providers without changing the product contract.
+Vishal is Dev A and owns the backend, model pipeline, orchestration, agents, retrieval, verifier, Advisor, and evaluation evidence. Khushi is Dev B and owns the React product experience: upload, heatmap, activity timeline, safety states, farmer brief, Advisor UI, responsive behaviour, and demo replay. The frozen RunState and endpoint contract let both developers work in parallel and made final integration predictable.
 """)
 
 
 # ---------------------------------------------------------------------------
-# 12. Close
+# 14. Close
 # ---------------------------------------------------------------------------
-slide = base_slide("Vision", 12)
+slide = base_slide("Vision", 14)
 textbox(slide, "AgriSentinel turns uncertainty\ninto a safer field decision.", 0.70, 1.15, 7.62, 1.33, size=31, color=WHITE, bold=True)
 textbox(slide, "Not just “what disease?” — but where it is, how serious it may be, and whether the next action is evidence-backed enough to show.", 0.74, 2.76, 6.82, 0.88, size=15, color=MUTED)
 
@@ -642,8 +760,9 @@ textbox(slide, "Real-field benchmark", 8.69, 3.72, 3.10, 0.34, size=17, color=WH
 textbox(slide, "30–50 original photos • crop/device calibration • regional agronomy review", 8.69, 4.17, 3.20, 0.70, size=10.5, color=MUTED)
 line(slide, 8.69, 5.02, 3.46, 0.02, color=BORDER)
 textbox(slide, "THANK YOU", 8.69, 5.40, 1.42, 0.22, size=8, color=GREEN, bold=True, tracking=100)
-textbox(slide, "Vishal + Khushi", 8.69, 5.77, 2.85, 0.36, size=19, color=WHITE, bold=True)
-textbox(slide, "Aaroh AI/ML Hackathon", 8.69, 6.18, 2.80, 0.22, size=9.5, color=GREEN_SOFT)
+textbox(slide, "Dev A: Vishal", 8.69, 5.69, 2.85, 0.28, size=14, color=WHITE, bold=True)
+textbox(slide, "Dev B: Khushi", 8.69, 5.99, 2.85, 0.28, size=14, color=WHITE, bold=True)
+textbox(slide, "Aaroh AI/ML Hackathon", 8.69, 6.31, 2.80, 0.22, size=9.5, color=GREEN_SOFT)
 add_notes(slide, """
 Close with three words: see, verify, act. AgriSentinel combines two visual perspectives, turns evidence into an auditable decision, and knows when to refuse. The immediate next step is not more features; it is the real-field benchmark and calibration needed to earn deployment trust. Thank the judges.
 """)
@@ -656,7 +775,7 @@ def validate_assets():
 
 
 def validate_deck():
-    assert len(prs.slides) == 12, f"Expected 12 slides, found {len(prs.slides)}"
+    assert len(prs.slides) == 14, f"Expected 14 slides, found {len(prs.slides)}"
     for index, slide in enumerate(prs.slides, start=1):
         assert len(slide.shapes) > 0, f"Slide {index} is empty"
         for shape in slide.shapes:
@@ -672,6 +791,6 @@ if __name__ == "__main__":
     prs.save(OUT)
     # Re-open the final package to catch relationship or XML errors before handoff.
     reopened = Presentation(OUT)
-    assert len(reopened.slides) == 12
+    assert len(reopened.slides) == 14
     print(f"Created {OUT}")
     print(f"Slides: {len(reopened.slides)} | Size: {OUT.stat().st_size:,} bytes")

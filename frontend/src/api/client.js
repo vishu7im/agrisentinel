@@ -1,10 +1,9 @@
 const configuredBaseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, '')
 
 function apiUrl(path) {
-  if (!configuredBaseUrl) {
-    throw new Error('VITE_API_URL is missing. Copy .env.example to .env and restart Vite.')
-  }
-  return `${configuredBaseUrl}${path}`
+  // Production serves the UI and /api through one Caddy hostname, so an empty value means
+  // same-origin. Local development still sets VITE_API_URL=http://localhost:8000.
+  return `${configuredBaseUrl || ''}${path}`
 }
 
 async function request(path, options) {

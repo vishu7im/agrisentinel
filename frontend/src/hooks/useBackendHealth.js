@@ -31,8 +31,8 @@ export function useBackendHealth(paused = false) {
         await getHealth()
         if (!cancelled) setStatus('online')
       } catch {
-        // apiUrl() throws outright when VITE_API_URL is unset, so this covers configuration
-        // errors as well as a backend that is down. Both mean the same thing to a viewer.
+        // A failed same-origin or explicitly configured API probe means the backend is down
+        // from the browser's point of view.
         if (!cancelled) setStatus('offline')
       }
     }
