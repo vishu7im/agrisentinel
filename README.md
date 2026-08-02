@@ -91,3 +91,8 @@ The committed demo mosaics are visibly labelled synthetic fixtures for backend-f
 | `frontend/` | Dev B React field console |
 | `demo/` | Offline recordings, mosaics, verification, and runbook |
 | `docs/` | Presentation deck and screenshots |
+
+## Deployment
+
+For the self-contained VPS Docker Compose setup with Caddy, see
+[`DEPLOYMENT.md`](DEPLOYMENT.md).
