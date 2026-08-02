@@ -78,7 +78,22 @@ function canvasToBlob(canvas) {
   })
 }
 
-export async function createFarmerBriefImage({ blocked, fieldName, generatedAt = new Date(), language, text }) {
+// Badge states. Amber for anything withheld — a refusal is a decision, not an error.
+function badgeFor(blocked, crossCheck) {
+  if (blocked) return { fill: '#78350f', ink: '#fcd34d', text: 'ADVICE WITHHELD' }
+  if (crossCheck === 'contested') return { fill: '#78350f', ink: '#fcd34d', text: 'MODELS DISAGREE' }
+  if (crossCheck === 'agree') return { fill: '#064e3b', ink: '#6ee7b7', text: 'VERIFIED · CROSS-CHECKED' }
+  return { fill: '#064e3b', ink: '#6ee7b7', text: 'VERIFIED OUTPUT' }
+}
+
+const CROSS_CHECK_LINE = {
+  agree: 'Whole-image cross-check agrees',
+  contested: 'Whole-image cross-check disagrees',
+  relabelled: 'Diagnosis corrected by whole-image cross-check',
+  unavailable: 'Whole-image cross-check unavailable',
+}
+
+export async function createFarmerBriefImage({ blocked, crossCheck, fieldName, generatedAt = new Date(), language, text }) {
   if (!text) throw new Error('No farmer brief is available to export.')
 
   const canvas = document.createElement('canvas')
@@ -123,14 +138,26 @@ export async function createFarmerBriefImage({ blocked, fieldName, generatedAt =
   context.font = '700 52px system-ui, "Noto Sans Devanagari", sans-serif'
   context.fillText('Field result in plain words', SIDE_PADDING, 292)
 
-  const badgeText = blocked ? 'ADVICE WITHHELD' : 'VERIFIED OUTPUT'
+  // Three states, not two. This poster gets shared onward and read on its own, so a run where
+  // the two models disagreed must not go out stamped VERIFIED OUTPUT — that badge would assert
+  // exactly the certainty the system just declined to claim. Correctness, not decoration.
+  const badge = badgeFor(blocked, crossCheck)
   context.font = '700 19px system-ui, sans-serif'
-  const badgeWidth = context.measureText(badgeText).width + 48
-  context.fillStyle = blocked ? '#78350f' : '#064e3b'
+  const badgeWidth = context.measureText(badge.text).width + 48
+  context.fillStyle = badge.fill
   roundedRect(context, SIDE_PADDING, 326, badgeWidth, 46, 23)
   context.fill()
-  context.fillStyle = blocked ? '#fcd34d' : '#6ee7b7'
-  context.fillText(badgeText, SIDE_PADDING + 24, 357)
+  context.fillStyle = badge.ink
+  context.fillText(badge.text, SIDE_PADDING + 24, 357)
+
+  // One line naming the second opinion, so a reader of the poster alone knows a cross-check
+  // happened and what it concluded.
+  const crossLine = CROSS_CHECK_LINE[crossCheck]
+  if (crossLine) {
+    context.fillStyle = '#94a3b8'
+    context.font = '400 17px system-ui, sans-serif'
+    context.fillText(crossLine, SIDE_PADDING + badgeWidth + 18, 357)
+  }
 
   const bodyTop = 405
   context.fillStyle = '#141d17'

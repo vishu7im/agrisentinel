@@ -22,7 +22,11 @@ async function request(path, options) {
   return response.json()
 }
 
-export function startRun(image, crop = 'tomato') {
+// 'auto' asks the backend to vote on the crop from the image itself. It is the default because
+// the previous one — 'tomato' — was never overridden by anything, so every upload was scanned
+// as tomato whatever it showed. The vote is unreliable on real photographs, which is why the
+// upload screen offers an explicit choice: a crop the user picks is always obeyed.
+export function startRun(image, crop = 'auto') {
   const body = new FormData()
   body.append('image', image)
   body.append('crop', crop)
@@ -43,6 +47,24 @@ export function openRunEvents(runId, handlers = {}) {
 
 export function getHealth() {
   return request('/api/health')
+}
+
+/**
+ * One follow-up question about a finished run.
+ *
+ * Stateless on the server: the transcript lives here and is posted back each time, because
+ * `run_state.schema.json` is frozen and there is nowhere legal in a run to keep a conversation.
+ * Resolves to `{answer, sources, grounded, refused, provider}`. A refusal is a 200 with
+ * `refused` set to a short token, not an error — the system deciding not to answer is an
+ * outcome, the same argument the pipeline makes for a BLOCK completing rather than erroring.
+ */
+export function askAdvisor(runId, question, history = [], signal) {
+  return request(`/api/run/${encodeURIComponent(runId)}/chat`, {
+    body: JSON.stringify({ history: history.slice(-12), question }),
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+    signal,
+  })
 }
 
 export function resolveRunAsset(path) {

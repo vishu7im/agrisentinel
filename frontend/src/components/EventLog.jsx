@@ -4,8 +4,23 @@ import { getEventMeta } from '../lib/eventCatalog.js'
 function buildEntries(events, tileCount) {
   const entries = []
   let diagnosed = 0
+  let rescored = 0
 
   events.forEach((eventName, index) => {
+    if (eventName.startsWith('second_opinion.tile.')) {
+      rescored += 1
+      const entry = {
+        eventName,
+        id: 'second-opinion-progress',
+        meta: getEventMeta(eventName),
+        label: `Re-scoring uncertain tiles… ${rescored}`,
+      }
+      const at = entries.findIndex((item) => item.id === entry.id)
+      if (at >= 0) entries[at] = entry
+      else entries.push(entry)
+      return
+    }
+
     if (eventName.startsWith('diagnose.tile.')) {
       diagnosed += 1
       const entry = {
@@ -25,6 +40,13 @@ function buildEntries(events, tileCount) {
     if (eventName.startsWith('orchestrator.escalate.')) {
       const count = eventName.match(/escalate\.(\d+)_tiles/)?.[1]
       if (count) label = `${count} uncertain tiles escalated`
+    } else if (eventName.startsWith('consensus.relabel.')) {
+      const renamed = eventName.match(/relabel\.(.+?)_to_(.+?)\.(\d+)_tiles/)
+      if (renamed) {
+        label = `Renamed ${renamed[1].replaceAll('_', ' ')} → ${renamed[2].replaceAll('_', ' ')} on ${renamed[3]} tiles`
+      }
+    } else if (eventName.startsWith('consensus.contested.')) {
+      label = 'Models disagree — treatment advice withheld'
     }
     entries.push({ eventName, id: `${eventName}-${index}`, label, meta })
   })
@@ -83,6 +105,11 @@ export default function EventLog({ events, phase, startedAt, streamStatus, tileC
               <div className="min-w-0">
                 <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">{entry.meta.agentName}</p>
                 <p className="mt-0.5 text-xs leading-4">{entry.label}</p>
+                {entry.meta.payload && (
+                  // The free-text half of an `observer.note|…` event, rendered verbatim rather
+                  // than slug-formatted — it is a sentence the model wrote about the photograph.
+                  <p className="mt-1 text-xs italic leading-4 opacity-80">“{entry.meta.payload}”</p>
+                )}
               </div>
             </div>
           </article>

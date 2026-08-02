@@ -17,9 +17,19 @@
   },
   "diagnosis_label": "late_blight",
   "infected_tile_ids": [
-    "t_05_00", "t_06_00", "t_02_01", "t_03_01", "t_06_01", "t_03_03", "t_04_03"
+    "t_05_00",
+    "t_06_00",
+    "t_02_01",
+    "t_03_01",
+    "t_06_01",
+    "t_03_03",
+    "t_04_03"
   ],
-  "escalated_tile_ids": ["t_03_01", "t_06_01", "t_04_02"],
+  "escalated_tile_ids": [
+    "t_03_01",
+    "t_06_01",
+    "t_04_02"
+  ],
   "state": {
     "run_id": "10000000-0000-4000-8000-000000000001",
     "status": "complete",
@@ -29,6 +39,7 @@
   "events": [
     "run.start",
     "scout.done",
+    "observer.requested",
     "diagnose.tile.t_00_00",
     "diagnose.tile.t_01_00",
     "diagnose.tile.t_02_00",
@@ -70,6 +81,14 @@
     "diagnose.done",
     "orchestrator.escalate.3_tiles",
     "second_opinion.done",
+    "observer.verdict",
+    "observer.note|A tomato canopy with scattered dark water-soaked lesions on the lower leaves.",
+    "observer.sees.tomato__late_blight",
+    "observer.pct.20pct",
+    "observer.done",
+    "consensus.cnn.late_blight.18pct",
+    "consensus.agree.late_blight",
+    "consensus.done",
     "spread.done",
     "agronomist.done",
     "verify.rewrite",

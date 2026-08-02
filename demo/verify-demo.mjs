@@ -1,6 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { deriveConsensus } from '../frontend/src/lib/consensus.js'
 import { replayRecordedEvents } from '../frontend/src/lib/demoReplay.js'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -40,9 +41,16 @@ const recordings = await Promise.all(files.map(async (file) => (
   JSON.parse(await readFile(join(RECORDINGS, file), 'utf8'))
 )))
 
-assert(recordings.length === 3, 'Demo mode must expose exactly three keyboard cases')
-assert(new Set(recordings.map((item) => item.shortcut)).size === 3, 'Demo shortcuts must be unique')
-assert(recordings.map((item) => item.shortcut).join('') === '123', 'Demo shortcuts must be 1, 2, and 3')
+assert(recordings.length === 4, 'Demo mode must expose exactly four keyboard cases')
+assert(new Set(recordings.map((item) => item.shortcut)).size === 4, 'Demo shortcuts must be unique')
+assert(recordings.map((item) => item.shortcut).join('') === '1234', 'Demo shortcuts must be 1 to 4')
+
+// The cross-check has to be exercised by the recordings, because that is the path the demo
+// falls back to when the vision API is rate limited — which it was for most of A10.
+const outcomes = recordings.map((item) => deriveConsensus(item.events, item.state).state)
+for (const wanted of ['agree', 'relabelled', 'contested', 'unavailable']) {
+  assert(outcomes.includes(wanted), `No recorded run demonstrates the "${wanted}" cross-check state`)
+}
 
 for (const recording of recordings) {
   const state = recording.state

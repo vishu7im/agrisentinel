@@ -1,23 +1,38 @@
+import { useState } from 'react'
+import FieldImageCanvas from './FieldImageCanvas.jsx'
 import HeatmapLegend from './HeatmapLegend.jsx'
-import HeatmapOverlay from './HeatmapOverlay.jsx'
 import SeverityPanel from './SeverityPanel.jsx'
 import SpreadComparison from './SpreadComparison.jsx'
+import TileDetail from './TileDetail.jsx'
 import UploadZone from './UploadZone.jsx'
 
 export default function FieldPanel({
+  crop,
   error,
   fileName,
   onImage,
   phase,
   previewUrl,
   previousScan,
+  relabel,
   runState,
   spread,
   spreadLoading,
   visibleTileIds,
 }) {
+  const [selectedTile, setSelectedTile] = useState(null)
   const busy = phase === 'uploading'
   const hasImage = Boolean(previewUrl)
+  const tiles = runState?.tiles ?? []
+  const gridSize = tiles.length
+    ? {
+        cols: Math.max(...tiles.map((tile) => tile.x)) + 1,
+        rows: Math.max(...tiles.map((tile) => tile.y)) + 1,
+      }
+    : null
+  // Re-read from the live tiles rather than held in state: a pinned tile whose label the
+  // Consensus agent then rewrote would otherwise keep showing the label it had when tapped.
+  const activeTile = selectedTile ? (tiles.find((t) => t.id === selectedTile) ?? null) : null
 
   return (
     <section className="min-w-0 scroll-mt-24 rounded-2xl border border-field-border bg-field-panel p-4 shadow-2xl shadow-black/20 sm:p-5" id="field-scan">
@@ -37,7 +52,10 @@ export default function FieldPanel({
               accept="image/jpeg,image/png"
               className="sr-only"
               disabled={busy}
-              onChange={(event) => event.target.files?.[0] && onImage(event.target.files[0])}
+              // The crop is passed through. Without it a re-scan silently reverted to `auto`,
+              // discarding the choice made on the upload screen — the same class of bug as the
+              // original everything-is-tomato default, arriving through a different door.
+              onChange={(event) => event.target.files?.[0] && onImage(event.target.files[0], crop)}
               type="file"
             />
           </label>
@@ -48,18 +66,29 @@ export default function FieldPanel({
         <UploadZone disabled={busy} error={error} onImage={onImage} />
       ) : (
         <>
-          <div className="relative overflow-hidden rounded-xl border border-field-border bg-black">
-            <img alt="Uploaded field selected for disease analysis" className="block max-h-[70dvh] w-full object-contain sm:max-h-none" src={previewUrl} />
-            <HeatmapOverlay diagnosedTileIds={visibleTileIds} tiles={runState?.tiles ?? []} />
+          <FieldImageCanvas
+            centroids={spread?.cluster_centroids}
+            gridSize={gridSize}
+            onSelectTile={(tile) => setSelectedTile(tile?.id ?? null)}
+            previewUrl={previewUrl}
+            selectedTileId={activeTile?.id ?? null}
+            tiles={tiles}
+            visibleTileIds={visibleTileIds}
+          >
             {(phase === 'uploading' || phase === 'scanning') && (
               <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/80 px-3 py-2 text-xs font-semibold text-white backdrop-blur">
                 <span className="size-2 animate-pulse rounded-full bg-emerald-400" />
                 {phase === 'uploading' ? 'Uploading field…' : 'Scanning field…'}
               </div>
             )}
-          </div>
+          </FieldImageCanvas>
+          <TileDetail
+            onClear={() => setSelectedTile(null)}
+            relabel={relabel}
+            tile={activeTile}
+          />
           <div className="mt-4">
-            <HeatmapLegend />
+            <HeatmapLegend hasClusters={Boolean(spread?.cluster_centroids?.length)} />
           </div>
           <SeverityPanel loading={spreadLoading} spread={spread} />
           <SpreadComparison

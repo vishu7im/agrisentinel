@@ -2,9 +2,21 @@ import { useRef, useState } from 'react'
 
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png']
 
+// Auto first, because most people will not touch this and the model guessing is better than a
+// hardcoded crop. But the explicit options matter more than they look: the classifier's crop
+// vote is reliable on clean imagery and close to a coin toss on a real phone photo, so telling
+// it what you planted is the single biggest thing a user can do for the result.
+const CROPS = [
+  { value: 'auto', label: 'Auto-detect' },
+  { value: 'tomato', label: 'Tomato' },
+  { value: 'potato', label: 'Potato' },
+  { value: 'corn', label: 'Corn' },
+]
+
 export default function UploadZone({ disabled, error, onImage }) {
   const [dragging, setDragging] = useState(false)
   const [validationError, setValidationError] = useState(null)
+  const [crop, setCrop] = useState('auto')
   const inputRef = useRef(null)
 
   function chooseFile(file) {
@@ -14,7 +26,7 @@ export default function UploadZone({ disabled, error, onImage }) {
       return
     }
     setValidationError(null)
-    onImage(file)
+    onImage(file, crop)
   }
 
   function handleDrop(event) {
@@ -61,6 +73,34 @@ export default function UploadZone({ disabled, error, onImage }) {
         onChange={(event) => chooseFile(event.target.files?.[0])}
         type="file"
       />
+      <fieldset className="mt-4" disabled={disabled}>
+        <legend className="text-xs font-medium uppercase tracking-widest text-slate-400">
+          Crop
+        </legend>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {CROPS.map((option) => (
+            <button
+              key={option.value}
+              aria-pressed={crop === option.value}
+              className={`min-h-11 rounded-full border px-4 py-2 text-sm transition disabled:opacity-60 ${
+                crop === option.value
+                  ? 'border-emerald-400/60 bg-emerald-400/15 font-medium text-emerald-200'
+                  : 'border-field-border text-slate-300 hover:border-emerald-400/40 hover:text-white'
+              }`}
+              disabled={disabled}
+              onClick={() => setCrop(option.value)}
+              type="button"
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-xs leading-5 text-slate-500">
+          {crop === 'auto'
+            ? 'The model will guess the crop from the image. Pick one if the result looks wrong — the guess is unreliable on real field photos.'
+            : `Scanning as ${CROPS.find((option) => option.value === crop).label.toLowerCase()}. Only this crop's diseases will be considered.`}
+        </p>
+      </fieldset>
       {(validationError || error) && (
         <p className="mt-3 rounded-lg border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-200" role="alert">
           {validationError || error}

@@ -14,22 +14,29 @@ export function useRunScan() {
   const [startedAt, setStartedAt] = useState(null)
   const [activeDemoCaseId, setActiveDemoCaseId] = useState(DEMO_CASES[0]?.id ?? null)
   const [demoReplayKey, setDemoReplayKey] = useState(0)
+  // Whether a replay is running *right now*, as opposed to whether the build is in demo mode.
+  // They used to be the same flag, which meant the landing screen's sample-scan buttons could
+  // only work in a build nobody demos from. A judge with no field photo needs them in the
+  // ordinary build, with or without a backend.
+  const [replaying, setReplaying] = useState(DEMO_MODE)
   const requestRef = useRef(0)
   const demoAutostartRef = useRef(false)
   const processedRef = useRef({ count: 0, replayKey: null, runId: null })
   const refreshTimerRef = useRef(null)
+  const recoverTimerRef = useRef(null)
   const runStateRef = useRef(null)
   const activeDemoCase = DEMO_CASES.find((demoCase) => demoCase.id === activeDemoCaseId) ?? null
-  const stream = useEventStream(runId, DEMO_MODE ? activeDemoCase : null, demoReplayKey)
+  const stream = useEventStream(runId, replaying ? activeDemoCase : null, demoReplayKey)
 
   const clearRefresh = useCallback(() => {
     clearTimeout(refreshTimerRef.current)
+    clearInterval(recoverTimerRef.current)
   }, [])
 
   useEffect(() => clearRefresh, [clearRefresh])
 
   const refreshState = useCallback((revealAll = false) => {
-    if (DEMO_MODE) {
+    if (replaying) {
       const currentState = runStateRef.current
       if (currentState) setRunState(currentState)
       if (revealAll && currentState) setVisibleTileIds(currentState.tiles.map((tile) => tile.id))
@@ -48,7 +55,7 @@ export function useRunScan() {
         // The stream remains authoritative; a later event schedules another refresh.
       }
     }, 80)
-  }, [runId])
+  }, [replaying, runId])
 
   const startDemo = useCallback((caseId) => {
     const recording = DEMO_CASES.find((demoCase) => demoCase.id === caseId)
@@ -57,6 +64,7 @@ export function useRunScan() {
     requestRef.current += 1
     clearRefresh()
     const nextState = structuredClone(recording.runState)
+    setReplaying(true)
     setActiveDemoCaseId(recording.id)
     setDemoReplayKey((current) => current + 1)
     setPhase('scanning')
@@ -110,7 +118,43 @@ export function useRunScan() {
     processedRef.current.count = stream.events.length
   }, [demoReplayKey, refreshState, runId, stream.events])
 
-  const start = useCallback(async (image) => {
+  // When the stream dies or goes quiet, fall back to polling. `contract/endpoints.md` says
+  // GET /api/run/{id} always returns the completed run, so in the common case a broken SSE
+  // connection still resolves into a fully rendered scan instead of a spinner that never ends.
+  useEffect(() => {
+    const broken = stream.status === 'dropped' || stream.status === 'stalled'
+    if (!runId || replaying || !broken) return undefined
+
+    let polls = 0
+    const timer = setInterval(async () => {
+      if (++polls > 10) {
+        clearInterval(timer)
+        return
+      }
+      try {
+        const nextState = await getRun(runId)
+        if (runId !== processedRef.current.runId) return
+        runStateRef.current = nextState
+        setRunState(nextState)
+        if (nextState.status === 'complete' || nextState.status === 'blocked') {
+          setVisibleTileIds(nextState.tiles.map((tile) => tile.id))
+          setPhase('complete')
+          clearInterval(timer)
+        } else if (nextState.status === 'error') {
+          setPhase('error')
+          setError('The field analysis could not be completed.')
+          clearInterval(timer)
+        }
+      } catch {
+        // Still down. The poll count is the ceiling; nothing here should raise.
+      }
+    }, 3000)
+
+    recoverTimerRef.current = timer
+    return () => clearInterval(timer)
+  }, [replaying, runId, stream.status])
+
+  const start = useCallback(async (image, crop) => {
     if (DEMO_MODE) {
       startDemo(activeDemoCaseId)
       return
@@ -118,6 +162,7 @@ export function useRunScan() {
 
     const requestId = ++requestRef.current
     clearRefresh()
+    setReplaying(false)
     setPhase('uploading')
     setRunId(null)
     setRunState(null)
@@ -127,7 +172,7 @@ export function useRunScan() {
     setStartedAt(Date.now())
 
     try {
-      const created = await startRun(image)
+      const created = await startRun(image, crop)
       if (requestId !== requestRef.current) return
       setRunId(created.run_id)
       setPhase('scanning')
@@ -144,7 +189,6 @@ export function useRunScan() {
   }, [activeDemoCaseId, clearRefresh, startDemo])
 
   return {
-    currentEvent: stream.events.at(-1) ?? null,
     activeDemoCaseId,
     demoCases: DEMO_CASE_SUMMARIES,
     demoFileName: activeDemoCase?.file_name ?? '',
@@ -154,6 +198,10 @@ export function useRunScan() {
     error,
     events: stream.events,
     phase,
+    // Whether the run on screen is a recording, as opposed to whether the build is in demo
+    // mode. A sample scan from the landing screen is a replay in an ordinary build, and the
+    // Advisor must not post its recorded run id at a backend that has never heard of it.
+    replaying,
     runId,
     runState,
     start,

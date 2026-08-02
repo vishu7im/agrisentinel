@@ -4,12 +4,19 @@ import ScheduleTimeline from './ScheduleTimeline.jsx'
 
 export default function ActionPanel({
   blocked,
+  crop,
+  cropGuessed,
+  crossCheck,
   costEstimate,
+  disease,
   fieldName,
+  onRecrop,
   phase,
+  replaying,
   report,
   reportLoading,
   rescanDate,
+  runId,
   schedule,
   scheduleLoading,
 }) {
@@ -62,10 +69,17 @@ export default function ActionPanel({
 
       <FarmerBrief
         blocked={blocked}
+        crop={crop}
+        cropGuessed={cropGuessed}
+        crossCheck={crossCheck}
+        disease={disease}
         fieldName={fieldName}
         loading={reportLoading}
+        onRecrop={onRecrop}
         phase={phase}
+        replaying={replaying}
         report={report}
+        runId={runId}
       />
     </section>
   )

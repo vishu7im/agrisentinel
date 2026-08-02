@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import AdvisorChat from './AdvisorChat.jsx'
+import ErrorBoundary from './ErrorBoundary.jsx'
 import { createFarmerBriefImage, shareFarmerBriefImage } from '../lib/farmerBriefImage.js'
 import LoadingSkeleton, { SkeletonBlock } from './LoadingSkeleton.jsx'
 
@@ -6,6 +8,8 @@ const LANGUAGES = [
   { code: 'en', label: 'EN', name: 'English' },
   { code: 'hi', label: 'हि', name: 'हिन्दी' },
 ]
+
+const CROPS = ['tomato', 'potato', 'corn']
 
 const EXPORT_LABELS = {
   cancelled: 'Share cancelled',
@@ -16,7 +20,20 @@ const EXPORT_LABELS = {
   working: 'Creating PNG…',
 }
 
-export default function FarmerBrief({ blocked, fieldName, loading, phase, report }) {
+export default function FarmerBrief({
+  blocked,
+  crop,
+  cropGuessed,
+  crossCheck,
+  disease,
+  fieldName,
+  loading,
+  onRecrop,
+  phase,
+  replaying,
+  report,
+  runId,
+}) {
   const [language, setLanguage] = useState('en')
   const [exportState, setExportState] = useState('idle')
   const hasBrief = report?.en || report?.hi
@@ -34,6 +51,7 @@ export default function FarmerBrief({ blocked, fieldName, loading, phase, report
     try {
       const image = await createFarmerBriefImage({
         blocked,
+        crossCheck,
         fieldName,
         language,
         text: activeBrief,
@@ -116,6 +134,40 @@ export default function FarmerBrief({ blocked, fieldName, loading, phase, report
           </div>
         )}
       </div>
+
+      {/* Shown only when nothing identified the crop and the tile probe voted — the case the
+          brief hedges its opening for. The probe is measured wrong on 4 of 4 real photographs,
+          and a wrong crop masks the classifier's logits, so this one tap is the difference
+          between the right disease and a confident wrong one. */}
+      {cropGuessed && onRecrop && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-verdict-block/30 bg-verdict-block/[0.07] px-3 py-2.5">
+          <p className="text-xs text-amber-100/90">
+            <span aria-hidden="true">⚠ </span>
+            We guessed this is {crop}. Not right?
+          </p>
+          {CROPS.filter((option) => option !== crop).map((option) => (
+            <button
+              className="min-h-9 rounded-full border border-amber-300/30 bg-black/20 px-3 text-xs font-medium capitalize text-amber-100 transition hover:border-amber-200/70 hover:text-white"
+              key={option}
+              onClick={() => onRecrop(option)}
+              type="button"
+            >
+              Re-scan as {option}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <ErrorBoundary label="The follow-up chat">
+        <AdvisorChat
+          blocked={blocked}
+          crossCheck={crossCheck}
+          disease={disease}
+          hasPlan={Boolean(hasBrief)}
+          replaying={replaying}
+          runId={runId}
+        />
+      </ErrorBoundary>
     </article>
   )
 }

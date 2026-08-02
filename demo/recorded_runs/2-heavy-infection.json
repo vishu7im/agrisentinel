@@ -15,14 +15,38 @@
       "est_yield_loss_pct": 18.7
     }
   },
-  "diagnosis_label": "late_blight",
+  "diagnosis_label": "early_blight",
   "infected_tile_ids": [
-    "t_03_00", "t_04_00", "t_05_00", "t_06_00", "t_07_00",
-    "t_02_01", "t_03_01", "t_04_01", "t_05_01", "t_06_01", "t_07_01",
-    "t_02_02", "t_03_02", "t_04_02", "t_05_02", "t_06_02",
-    "t_01_03", "t_02_03", "t_03_03", "t_04_03", "t_05_03", "t_06_03"
+    "t_03_00",
+    "t_04_00",
+    "t_05_00",
+    "t_06_00",
+    "t_07_00",
+    "t_02_01",
+    "t_03_01",
+    "t_04_01",
+    "t_05_01",
+    "t_06_01",
+    "t_07_01",
+    "t_02_02",
+    "t_03_02",
+    "t_04_02",
+    "t_05_02",
+    "t_06_02",
+    "t_01_03",
+    "t_02_03",
+    "t_03_03",
+    "t_04_03",
+    "t_05_03",
+    "t_06_03"
   ],
-  "escalated_tile_ids": ["t_03_00", "t_07_00", "t_02_01", "t_06_01", "t_04_02"],
+  "escalated_tile_ids": [
+    "t_03_00",
+    "t_07_00",
+    "t_02_01",
+    "t_06_01",
+    "t_04_02"
+  ],
   "state": {
     "run_id": "20000000-0000-4000-8000-000000000002",
     "status": "complete",
@@ -34,8 +58,16 @@
       "direction": "SE",
       "est_yield_loss_pct": 34.5,
       "cluster_centroids": [
-        {"x": 4.9, "y": 1.2, "size": 16},
-        {"x": 3.5, "y": 3, "size": 6}
+        {
+          "x": 4.9,
+          "y": 1.2,
+          "size": 16
+        },
+        {
+          "x": 3.5,
+          "y": 3,
+          "size": 6
+        }
       ]
     },
     "plan_draft": "## Diagnosis summary\n\nLate blight is present across 57.9% of scored tomato tiles, with a broad infection front moving south-east. [doc_04#p1]\n\n## Immediate action (next 24 hours)\n\nRemove and destroy the worst affected foliage before spraying; do not leave it on field margins or compost it. [doc_12#p3]\nApply mancozeb at 2.0-2.5 g per litre over affected rows and a two-row buffer, following the product label and local extension guidance. [doc_12#p4]\nSpray early morning or late evening and avoid rain expected within four hours. [doc_07#p2]\n\n## Follow-up\n\nInspect the buffer after 3 days and re-scan after 7 days. Alternate modes of action if continued disease pressure requires later treatment. [doc_19#p1]",
@@ -73,12 +105,13 @@
     ],
     "report": {
       "en": "Late blight is severe in this tomato field. About 58 out of every 100 scored areas are affected, and the infection is moving south-east. Today, remove the worst infected leaves and destroy them away from the field. Spray the affected rows and a two-row buffer only at the verified label rate. Check the buffer in 3 days and scan the field again in 7 days.",
-      "hi": "इस टमाटर के खेत में पछेती झुलसा गंभीर है। जाँचे गए हर 100 हिस्सों में से लगभग 58 प्रभावित हैं और रोग दक्षिण-पूर्व की ओर बढ़ रहा है। आज सबसे अधिक रोगग्रस्त पत्तियाँ हटाकर खेत से दूर नष्ट करें। प्रभावित कतारों और उनके चारों ओर दो कतारों में केवल प्रमाणित मात्रा पर छिड़काव करें। 3 दिन बाद किनारों की जाँच करें और 7 दिन बाद खेत को फिर स्कैन करें।"
+      "hi": "\u0907\u0938 \u091f\u092e\u093e\u091f\u0930 \u0915\u0947 \u0916\u0947\u0924 \u092e\u0947\u0902 \u092a\u091b\u0947\u0924\u0940 \u091d\u0941\u0932\u0938\u093e \u0917\u0902\u092d\u0940\u0930 \u0939\u0948\u0964 \u091c\u093e\u0901\u091a\u0947 \u0917\u090f \u0939\u0930 100 \u0939\u093f\u0938\u094d\u0938\u094b\u0902 \u092e\u0947\u0902 \u0938\u0947 \u0932\u0917\u092d\u0917 58 \u092a\u094d\u0930\u092d\u093e\u0935\u093f\u0924 \u0939\u0948\u0902 \u0914\u0930 \u0930\u094b\u0917 \u0926\u0915\u094d\u0937\u093f\u0923-\u092a\u0942\u0930\u094d\u0935 \u0915\u0940 \u0913\u0930 \u092c\u0922\u093c \u0930\u0939\u093e \u0939\u0948\u0964 \u0906\u091c \u0938\u092c\u0938\u0947 \u0905\u0927\u093f\u0915 \u0930\u094b\u0917\u0917\u094d\u0930\u0938\u094d\u0924 \u092a\u0924\u094d\u0924\u093f\u092f\u093e\u0901 \u0939\u091f\u093e\u0915\u0930 \u0916\u0947\u0924 \u0938\u0947 \u0926\u0942\u0930 \u0928\u0937\u094d\u091f \u0915\u0930\u0947\u0902\u0964 \u092a\u094d\u0930\u092d\u093e\u0935\u093f\u0924 \u0915\u0924\u093e\u0930\u094b\u0902 \u0914\u0930 \u0909\u0928\u0915\u0947 \u091a\u093e\u0930\u094b\u0902 \u0913\u0930 \u0926\u094b \u0915\u0924\u093e\u0930\u094b\u0902 \u092e\u0947\u0902 \u0915\u0947\u0935\u0932 \u092a\u094d\u0930\u092e\u093e\u0923\u093f\u0924 \u092e\u093e\u0924\u094d\u0930\u093e \u092a\u0930 \u091b\u093f\u0921\u093c\u0915\u093e\u0935 \u0915\u0930\u0947\u0902\u0964 3 \u0926\u093f\u0928 \u092c\u093e\u0926 \u0915\u093f\u0928\u093e\u0930\u094b\u0902 \u0915\u0940 \u091c\u093e\u0901\u091a \u0915\u0930\u0947\u0902 \u0914\u0930 7 \u0926\u093f\u0928 \u092c\u093e\u0926 \u0916\u0947\u0924 \u0915\u094b \u092b\u093f\u0930 \u0938\u094d\u0915\u0948\u0928 \u0915\u0930\u0947\u0902\u0964"
     }
   },
   "events": [
     "run.start",
     "scout.done",
+    "observer.requested",
     "diagnose.tile.t_00_00",
     "diagnose.tile.t_01_00",
     "diagnose.tile.t_02_00",
@@ -120,6 +153,18 @@
     "diagnose.done",
     "orchestrator.escalate.5_tiles",
     "second_opinion.done",
+    "observer.verdict",
+    "observer.note|Tomato leaves with concentric brown target-like rings, heaviest on the older lower foliage.",
+    "observer.sees.tomato__early_blight",
+    "observer.pct.55pct",
+    "observer.done",
+    "consensus.cnn.late_blight.58pct",
+    "consensus.relabel.late_blight_to_early_blight.22_tiles",
+    "consensus.tile.t_03_00",
+    "consensus.tile.t_04_00",
+    "consensus.tile.t_05_00",
+    "consensus.tile.t_06_00",
+    "consensus.done",
     "spread.done",
     "agronomist.done",
     "verify.rewrite",
