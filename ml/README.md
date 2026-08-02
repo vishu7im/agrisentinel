@@ -81,10 +81,36 @@ file is what makes the demo run without a GPU.
 | `metrics_baseline.json`, `baseline_comparison.md` | `baseline.py` | slides |
 | `model.onnx`, `model_classes.json` | `export_onnx.py` | **A3 Diagnostician** |
 | `confusion_matrix_baseline.png`, `per_class_table_baseline.md` | `eval.py --tag baseline` | slides |
-| `latency.md`, `latency.json` | `export_onnx.py` | slides, A9 |
+| `latency.json` | `export_onnx.py` | `report/generate.py` |
+| `latency.md` | `report/generate.py` | slides |
+| `lab_vs_field.png/.md/.json` | `report/field_gap.py` | slides |
+| `pipeline_scan.md/.json` | `report/pipeline_run.py` | slides |
+| `block_rate.md/.json` | `report/verifier_eval.py` | slides |
+| `SUMMARY.md` | `report/generate.py` | slides |
 
 Checkpoints (`ml/checkpoints/*.pt`) are gitignored — they are 20 MB of torch-specific state
 that only `export_onnx.py` reads, and the ONNX file is the real deliverable.
+
+## Phase A9 — the metrics pack
+
+```bash
+.venv/bin/python ml/report/generate.py        # the whole pack, then the headline table
+.venv/bin/python ml/report/generate.py --only summary   # re-read what is on disk, recompute nothing
+.venv/bin/python ml/report/verifier_eval.py --both      # the adversarial suite, run separately
+```
+
+One rule holds the pack together: **`generate.py` computes nothing.** Every number is produced
+by the script that owns the measurement and written to disk; `generate.py` runs those scripts,
+reads what they wrote, and lays it out. So "where did that number come from" always has a
+one-word answer, and `SUMMARY.md` cannot drift from the artifacts it summarises.
+
+The adversarial suite is deliberately not part of the pack build. It fails for reasons that
+have nothing to do with the model — a spent API quota, most likely — and a red number should
+not scroll past inside a longer build.
+
+Read `NOTES.md` at the repo root before quoting any of it. In particular the lab-to-field
+chart's third bar is empty: no real field photographs have been collected, so the only field
+number here is simulated and is a floor, not the gap.
 
 ## Note for A3 — preprocessing must be reimplemented, not imported
 

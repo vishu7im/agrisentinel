@@ -1,0 +1,69 @@
+{
+  "rows": [
+    {
+      "label": "test split, clean",
+      "n": 2399,
+      "accuracy": 0.9558149228845352,
+      "macro_f1": 0.9469710698176156,
+      "mean_confidence": 0.8845223784446716,
+      "escalation_rate": 0.15839933305543977
+    },
+    {
+      "label": "simulated: mild",
+      "n": 2399,
+      "accuracy": 0.9278866194247604,
+      "macro_f1": 0.9188727889570013,
+      "mean_confidence": 0.857275128364563,
+      "escalation_rate": 0.21884118382659443
+    },
+    {
+      "label": "simulated: field",
+      "n": 2399,
+      "accuracy": 0.866194247603168,
+      "macro_f1": 0.8483495492931167,
+      "mean_confidence": 0.7821462750434875,
+      "escalation_rate": 0.3588995414756148
+    }
+  ],
+  "real_photos": false,
+  "severities": {
+    "mild": {
+      "blur": [
+        0.0,
+        0.8
+      ],
+      "jpeg": [
+        55,
+        85
+      ],
+      "bright": [
+        0.85,
+        1.2
+      ],
+      "rotate": 8,
+      "scale": [
+        0.7,
+        1.0
+      ]
+    },
+    "field": {
+      "blur": [
+        0.4,
+        1.6
+      ],
+      "jpeg": [
+        25,
+        55
+      ],
+      "bright": [
+        0.65,
+        1.45
+      ],
+      "rotate": 20,
+      "scale": [
+        0.4,
+        0.85
+      ]
+    }
+  }
+}

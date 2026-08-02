@@ -13,10 +13,14 @@ An export that loads is not an export that works, so this does two checks rather
    every argmax. Silent divergence here would mean the metrics in metrics.json describe a
    model that is not the one the demo runs.
 2. **Latency.** Mean/p50/p95 for a single 224px tile on CPU, measured after warm-up. A
-   field scan is ~40 tiles, so the per-tile number multiplied by 40 is the honest answer to
-   "how long does a scan take", and it is a number judges do ask for.
+   field scan is ~40 tiles, so the per-tile number multiplied by 40 is a first answer to
+   "how long does a scan take" — and, as A9 found by timing the real pipeline, an optimistic
+   one, because it counts inference and nothing else. The measured end-to-end number lives in
+   ml/artifacts/latency.md, which ml/report/generate.py assembles from the numbers here plus a
+   real run. This file owns latency.json; it deliberately no longer writes the prose, so there
+   is one writer per artifact.
 
-Writes ml/artifacts/{model.onnx, model_classes.json, latency.md, latency.json}.
+Writes ml/artifacts/{model.onnx, model_classes.json, latency.json}.
 """
 
 from __future__ import annotations
@@ -204,28 +208,29 @@ def main() -> int:
         + "\n"
     )
     (ARTIFACTS / "latency.json").write_text(
-        json.dumps({"per_tile": latency, "parity": parity, "scan_seconds": scan_s}, indent=2)
+        # img_size and tiles_per_scan travel with the numbers so the prose in latency.md can
+        # state the conditions without ml/report/generate.py guessing at them.
+        json.dumps(
+            {
+                "per_tile": latency,
+                "parity": parity,
+                "scan_seconds": scan_s,
+                "conditions": {
+                    "provider": "CPUExecutionProvider",
+                    "img_size": img_size,
+                    "batch": 1,
+                    "runs": args.latency_runs,
+                    "tiles_per_scan": args.tiles_per_scan,
+                },
+            },
+            indent=2,
+        )
         + "\n"
     )
-    (ARTIFACTS / "latency.md").write_text(
-        "# CPU inference latency\n\n"
-        f"ONNX Runtime, CPUExecutionProvider, batch 1, {img_size}x{img_size}, "
-        f"{args.latency_runs} runs after warm-up.\n\n"
-        "| metric | ms |\n|---|---:|\n"
-        f"| mean | {latency['mean_ms']:.1f} |\n"
-        f"| median | {latency['median_ms']:.1f} |\n"
-        f"| p95 | {latency['p95_ms']:.1f} |\n"
-        f"| min | {latency['min_ms']:.1f} |\n"
-        f"| max | {latency['max_ms']:.1f} |\n\n"
-        f"A {args.tiles_per_scan}-tile field scan is **{scan_s:.1f} s** of inference "
-        "single-threaded, before batching.\n\n"
-        f"PyTorch/ONNX parity: {parity['argmax_agreement']}/{parity['n_samples']} argmax "
-        f"agree, max |logit diff| {parity['max_abs_logit_diff']:.2e}.\n"
-    )
-
     print(f"\nwrote {args.out}")
     print(f"wrote {ARTIFACTS}/model_classes.json")
-    print(f"wrote {ARTIFACTS}/latency.md, latency.json")
+    print(f"wrote {ARTIFACTS}/latency.json")
+    print("run ml/report/generate.py to rebuild latency.md from these numbers")
     return 0 if parity["all_agree"] else 1
 
 

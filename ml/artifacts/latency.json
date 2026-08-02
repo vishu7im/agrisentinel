@@ -1,11 +1,11 @@
 {
   "per_tile": {
     "runs": 50,
-    "mean_ms": 4.886562700012291,
-    "median_ms": 4.810758000530768,
-    "p95_ms": 5.758958001024439,
-    "min_ms": 3.9756740006851032,
-    "max_ms": 6.179890999192139
+    "mean_ms": 6.5265492199978326,
+    "median_ms": 6.459780997829512,
+    "p95_ms": 7.981367001775652,
+    "min_ms": 4.9305860011372715,
+    "max_ms": 9.62468099896796
   },
   "parity": {
     "n_samples": 10,
@@ -49,5 +49,12 @@
       12
     ]
   },
-  "scan_seconds": 0.19546250800049164
+  "scan_seconds": 0.2610619687999133,
+  "conditions": {
+    "provider": "CPUExecutionProvider",
+    "img_size": 224,
+    "batch": 1,
+    "runs": 50,
+    "tiles_per_scan": 40
+  }
 }

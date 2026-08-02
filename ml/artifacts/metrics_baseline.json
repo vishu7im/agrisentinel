@@ -1,5 +1,5 @@
 {
-  "checkpoint": "ml/checkpoints/baseline.pt",
+  "checkpoint": "/home/vishal/tech/agrisentinel/ml/checkpoints/baseline.pt",
   "arch": "small_cnn",
   "split": "test",
   "n_images": 2399,
