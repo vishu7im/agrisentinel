@@ -88,6 +88,23 @@ SKY_MIN_BRIGHTNESS = 120.0
 # need full resolution, and this makes the Scout's cost independent of camera megapixels.
 MASK_SIZE = 64
 
+# Share of the grid this agent has to keep before the rest of the pipeline treats "there is
+# plant tissue in this photograph" as settled. Two later agents ask that question — the
+# Observer, deciding whether to trust a crop name, and the Consensus agent, deciding whether to
+# stop a run — and both need the same answer, so it lives here with the measurement that
+# produced it rather than in either of them.
+#
+# The Scout is good at this and the numbers say so: 0.03 on a photograph of bare soil,
+# 0.62-1.00 on every real photograph and every mosaic tested. What it is being used for is to
+# be the second signal against a whole-image model's `is_crop_field`, which answers a subtly
+# different question — "is this a *field*". Shown `field_tomato_heavy.jpg` that model answered
+# false and described "a grid of forty individual leaves against plain backgrounds", which is
+# exactly what the fixture is. It is right, and acting on it alone would refuse three of our
+# own demo fixtures and every laboratory photograph anyone tries. A mosaic of leaves is not a
+# field and is still perfectly diagnosable; only when both signals say the frame is empty is
+# there nothing to look at.
+SCOUT_TISSUE_MIN = 0.25
+
 
 @dataclass(frozen=True)
 class TileStats:
@@ -168,6 +185,23 @@ def run_scout(
         state.apply(f"scout.skipped.{skipped}_tiles")
     state.apply("scout.done")
     return state
+
+
+def tissue_share(state: RunState) -> float:
+    """Share of the grid this agent kept — its answer to "is there plant tissue in frame".
+
+    Read back off the tiles rather than off an event so it stays true if the grid size ever
+    changes, and computed over every tile rather than the scored ones because the skipped tiles
+    are precisely the measurement.
+    """
+    if not state.tiles:
+        return 0.0
+    return sum(1 for t in state.tiles if not t.skipped) / len(state.tiles)
+
+
+def has_subject(state: RunState) -> bool:
+    """Is there enough plant tissue in frame to be worth reading a diagnosis off?"""
+    return tissue_share(state) >= SCOUT_TISSUE_MIN
 
 
 def scout_summary(state: RunState) -> str:

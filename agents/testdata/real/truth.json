@@ -1,0 +1,11 @@
+{
+  "_what_this_is": "Public-domain / CC photographs from Wikimedia Commons, used to exercise the pipeline on images that are not PlantVillage. Only `crop` is asserted, and only where it is unambiguous from the photograph. There is no expert diagnosis behind any of these, so no disease label is claimed and nothing here should be quoted as an accuracy figure.",
+  "_source": "https://commons.wikimedia.org — see each entry",
+  "corn_nlb.jpg": {"crop": "corn", "file": "Northern_corn_leaf_blight.JPG", "note": "field of maize with cigar-shaped lesions"},
+  "corn_rust.jpg": {"file": "Puccinia_sorghi_(01).jpg", "note": "botanical illustration, not a photograph — kept deliberately, the system should decline it"},
+  "maize_field_healthy.jpg": {"crop": "corn", "file": "Maize_Field_-_geograph.org.uk_-_824038.jpg", "note": "young maize, no visible disease"},
+  "potato_field_healthy.jpg": {"crop": "potato", "file": "CSIRO_ScienceImage_4060_Potato_crop.jpg", "note": "healthy potato crop in rows — the 69.2%-affected case in NOTES.md"},
+  "potato_lateblight.jpg": {"crop": "potato", "file": "Late_blight_on_potato_leaf_2.jpg", "note": "close-up of one leaf"},
+  "tomato_lateblight.jpg": {"file": "Tomato_with_Phytophthora_infestans_(late_blight).jpg", "note": "fruit on a workbench, not a field — the system should decline it"},
+  "tomato_septoria.jpg": {"crop": "tomato", "file": "Tomato_septoria_leaf_spot_3026.jpg", "note": "leaf spots; called yellow leaf curl virus at 0.975 by the CNN"}
+}

@@ -44,11 +44,19 @@ STATE_FIELDS = (
 # `verification.sources` and `verification.status` has no value meaning "not ruled on yet" —
 # writing them earlier would mean inventing one.
 #
+# The Observer writes what a vision model saw in the whole photograph; the Consensus agent
+# reads it, fuses it into the tile labels and decides whether the two disagree. It stays
+# internal for a blunter reason than `sources`: `run_state.schema.json` sets
+# `additionalProperties: false` at the top level and is frozen, so there is nowhere legal to
+# put it. What reaches the UI is the `observer.*` and `consensus.*` events, which the schema
+# does sanction — and that turns out to be the better design anyway, because it forces the
+# verdict to be expressed as things that happened rather than a blob to be inspected.
+#
 # This does not widen the API surface: `to_dict()` is unchanged and still emits exactly the
 # schema's keys. The point of routing it through `apply()` anyway is that the handoff stays
 # on the event log like every other mutation, rather than becoming a quiet setattr between
 # two agents that the timeline never shows.
-INTERNAL_FIELDS = ("sources",)
+INTERNAL_FIELDS = ("sources", "vision")
 
 STATUSES = frozenset({"queued", "running", "complete", "blocked", "error"})
 
@@ -124,6 +132,11 @@ class RunState:
     # Not serialised — see INTERNAL_FIELDS. Retrieved chunks, in verification.sources shape.
     sources: list[dict] = field(default_factory=list)
 
+    # Not serialised — see INTERNAL_FIELDS. An observer.VisionVerdict as a plain dict, or None
+    # when the Observer never ran. A dict rather than the dataclass so consensus.py can be
+    # exercised by hand-writing one, with no network, no PIL and no ONNX in the test.
+    vision: dict | None = None
+
     # --- the only way to mutate -------------------------------------------------------
 
     def apply(self, event: str, **changes) -> "RunState":
@@ -196,6 +209,37 @@ class RunState:
 
     def to_json(self, indent: int | None = 2) -> str:
         return json.dumps(self.to_dict(), indent=indent, ensure_ascii=False)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "RunState":
+        """The inverse of `to_dict`. A finished run, read back off the store, as an object.
+
+        The Advisor answers questions about a run that has already ended, so it needs the same
+        RunState every other agent reads rather than a dict of the same shape — `scored_tiles`,
+        `grid_size` and every `events[]` re-derivation in `dispute.py` and `checks.py` are
+        methods on this class, and duplicating them against a raw dict is how two readers of the
+        same run start disagreeing about it.
+
+        Only the schema's own keys are restored, because they are the only ones that were
+        serialised. `sources` and `vision` are INTERNAL_FIELDS and do not survive a round trip —
+        which is correct: everything a later reader needs from them is on `events[]` and, for
+        sources, under `verification.sources`.
+        """
+        known = {k: v for k, v in payload.items() if k in STATE_FIELDS and k != "tiles"}
+        state = cls(**known)
+        state.tiles = [
+            Tile(
+                id=t["id"],
+                x=t["x"],
+                y=t["y"],
+                label=t.get("label", PENDING_LABEL),
+                confidence=t.get("confidence"),
+                escalated=bool(t.get("escalated")),
+            )
+            for t in (payload.get("tiles") or [])
+        ]
+        state.sources = list((state.verification or {}).get("sources") or [])
+        return state
 
 
 def new_run(crop: str = "tomato", image_url: str | None = None) -> RunState:

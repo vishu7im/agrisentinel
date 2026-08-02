@@ -38,8 +38,15 @@ import logging
 
 from PIL import Image
 
+from concurrent.futures import Future, ThreadPoolExecutor
+
+from PIL import Image
+
 from agents.agronomist import run_agronomist
+from agents.consensus import run_consensus
+from agents.crop_vote import AUTO
 from agents.diagnostician import BATCH_SIZE, Classifier, run_diagnostician
+from agents.observer import VISION_TIMEOUT, observe, record_observation
 from agents.planner import run_planner
 from agents.reporter import run_reporter
 from agents.scout import GREEN_THRESHOLD, UNIFORMITY_MAX, run_scout
@@ -50,6 +57,47 @@ from agents.tiling import DEFAULT_COLS, DEFAULT_ROWS
 from agents.verifier import MAX_REWRITES, run_verifier
 
 log = logging.getLogger(__name__)
+
+# One worker. There is exactly one vision call per run, and a single-slot pool makes that a
+# property of the code rather than a convention. Not a module-level singleton: the backend runs
+# scans on Starlette's threadpool and a shared executor would silently serialise two concurrent
+# uploads behind each other's 12-second network call.
+OBSERVER_WORKERS = 1
+
+# How long to wait at collection time on top of the call's own timeout. Small: `observe` already
+# owns VISION_TIMEOUT and returns rather than raises, so this only covers a thread that has not
+# been scheduled yet, and a run must never hang on it.
+OBSERVER_JOIN_GRACE = 5.0
+
+
+def start_observer(img: Image.Image) -> tuple[ThreadPoolExecutor, Future]:
+    """Begin the vision call and return immediately.
+
+    The pool is handed back with the future because it has to outlive this function and be shut
+    down exactly once, at collection.
+    """
+    pool = ThreadPoolExecutor(max_workers=OBSERVER_WORKERS, thread_name_prefix="observer")
+    return pool, pool.submit(observe, img)
+
+
+def run_observer_result(state: RunState, started: tuple[ThreadPoolExecutor, Future]) -> RunState:
+    """Wait for the vision call and write what it found into the run state.
+
+    Every failure lands as a verdict rather than an exception, including this function's own:
+    an observer that cannot be collected must not be able to fail a run that has a perfectly
+    good grid, a severity read and a treatment plan waiting behind it.
+    """
+    from agents.vision_verdict import VisionVerdict
+
+    pool, future = started
+    try:
+        verdict = future.result(timeout=VISION_TIMEOUT + OBSERVER_JOIN_GRACE)
+    except Exception as exc:  # noqa: BLE001 — deliberately total, see the docstring
+        log.warning("observer collection failed: %s", exc)
+        verdict = VisionVerdict(ok=False, error="failed")
+    finally:
+        pool.shutdown(wait=False)
+    return record_observation(state, verdict)
 
 
 def run_pipeline(
@@ -63,10 +111,37 @@ def run_pipeline(
     green_threshold: float = GREEN_THRESHOLD,
     uniformity_max: float = UNIFORMITY_MAX,
 ) -> RunState:
-    """Scout, Diagnose, gate, Second-Opinion, Spread, Agronomist, Verifier, Planner, Reporter."""
+    """Scout, Observe, Diagnose, gate, Second-Opinion, Consensus, Spread, Agronomist, Verifier,
+    Planner, Reporter."""
     stage = "scout"
     try:
         run_scout(state, img, cols, rows, green_threshold, uniformity_max)
+
+        # The whole-image cross-check starts here and is collected below. Started rather than
+        # run, because it is a network call that measured 12.0-12.9 s against a 1.35 s pipeline,
+        # and running it inline means twelve seconds of dead air before a single tile appears.
+        # On the projector that pause is the whole system looking broken.
+        #
+        # Measured with a 6 s stand-in call: an explicit crop costs 6.55 s total, so 0.8 s of
+        # the 1.35 s pipeline disappears behind the call; `auto` costs 7.00 s, because only the
+        # Scout can overlap before the crop is needed. Never worse than inline, and nearly free
+        # whenever a human picked the crop.
+        #
+        # The thread does no state mutation — `observe` takes an image and returns a verdict —
+        # so there is no interleaving with the tile events the Diagnostician is writing. All of
+        # its events are applied at `collect`, in one place, in a fixed order.
+        stage = "observer"
+        state.apply("observer.requested")
+        observation = start_observer(img)
+
+        # Where it gets collected is the one real constraint. The Diagnostician masks its logits
+        # to the run's crop, so on an `auto` run the crop must be settled first and the wait is
+        # unavoidable — though no worse than running it inline. When a human chose the crop the
+        # vision answer cannot override it (crop_vote.py's policy), nothing before Consensus
+        # reads the verdict, and the entire call overlaps tile scoring for free.
+        if state.crop == AUTO:
+            run_observer_result(state, observation)
+            observation = None
 
         stage = "diagnostician"
         run_diagnostician(state, img, classifier, cols, rows, batch_size)
@@ -81,6 +156,20 @@ def run_pipeline(
             run_second_opinion(state, img, classifier, gate, cols, rows, batch_size)
         else:
             state.apply("orchestrator.no_escalation")
+
+        # Fusion, and it must happen before Spread: every number Spread computes is a function
+        # of the tile labels, so rewriting them here means Spread, the Agronomist, the Verifier,
+        # the Planner and the Reporter all read the fused answer without one line changing in
+        # any of them. The division of labour is that the CNN knows *where* and the vision model
+        # knows *what* — the tile grid and its clustering are real spatial information that a
+        # single whole-image verdict does not have, so a relabel never moves the
+        # infected/healthy partition, only the name attached to it.
+        stage = "observer"
+        if observation is not None:
+            run_observer_result(state, observation)
+
+        stage = "consensus"
+        run_consensus(state)
 
         stage = "spread"
         run_spread(state)
