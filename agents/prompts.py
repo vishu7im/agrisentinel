@@ -72,6 +72,22 @@ Previous draft:
 {draft}"""
 
 
+# Appended to the drafting request when the Verifier has sent a plan back. It quotes the
+# rejected sentences and says what "supported" means, because the failure being corrected is
+# usually not a missing marker but a sentence that carries a marker and still says more than
+# its passage does — a rule the model plainly believed it was already following.
+VERIFIER_REWRITE = """An automated verifier checked your previous draft against these same \
+passages and rejected the following sentences, because it could not find what they say in the \
+passage they cited:
+
+{rejected}
+
+Write the plan again from the passages above. Do not include those sentences or restatements \
+of them. Stay close to the wording of the passages — a sentence that adds a detail, a \
+quantity, or a reassurance the passage does not contain will be rejected again, even if it is \
+true. If dropping them leaves a section with nothing to say, leave that section out."""
+
+
 def format_passages(sources: list[dict]) -> str:
     """Retrieved chunks as the prompt sees them: the marker id first, then the text.
 

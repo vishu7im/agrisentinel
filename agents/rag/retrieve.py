@@ -87,31 +87,56 @@ class Retriever:
             f"{c['doc']}. {c['heading']}. {c['text']}" for c in chunks
         )
 
-    def _haystack(self, index: int) -> str:
-        chunk = self.chunks[index]
-        return f"{chunk['doc']} {chunk['heading']} {chunk['text']}".lower()
+    def _allowed(
+        self,
+        index: int,
+        crop: str | None,
+        require: str | None,
+        exclude: tuple[str, ...],
+        agnostic_only: bool,
+    ) -> bool:
+        """Is this chunk in scope: right crop, about the right subject, not about another one.
 
-    def _allowed(self, index: int, crop: str | None, require: str | None) -> bool:
-        """A chunk is in scope if it is crop-agnostic or names this crop, and, when `require`
-        is given, if it names that subject too.
+        Hard filters, not score penalties, and each was added after watching ranking alone get
+        it wrong in a way a citation could not warn anyone about — a plan that is fluent, cited
+        and about the wrong thing.
 
-        Hard filters, not score penalties, and both were added after watching ranking alone
-        get it wrong. Asked about tomato late blight, pure lexical ranking returned the potato
-        document, whose chemical section recommends earthing up to protect tubers — grounded,
-        cited, and useless to someone growing tomatoes. Constrained to tomato, it then returned
-        the tomato *early* blight document for a late blight diagnosis, because "early blight"
-        and "late blight" share a word and a document title full of "identification" outranks
-        the difference. Both mistakes produce a plan that is fluent, cited, and about the wrong
-        thing, which is the failure mode a citation is least able to warn anyone about.
+        `crop`: asked about tomato late blight, pure lexical ranking returned the *potato*
+        document, whose chemical section recommends earthing up to protect tubers. Correctly
+        retrieved, correctly cited, useless to someone growing tomatoes.
 
-        `require` matches against title and heading as well as body: doc_04's chemical section
-        never repeats "late blight" because it is a section of a document titled "Tomato Late
-        Blight", and demanding the phrase in the body alone would reject the single most
-        relevant chunk in the corpus.
+        `require`, matched against **title and heading only, never the body**: constrained to
+        tomato, ranking then cited the tomato *early* blight document for a late blight
+        diagnosis. Body containment does not fix that, because the early blight document
+        legitimately says "Unlike late blight it begins on the oldest, lowest leaves" — a
+        contrastive mention, which body matching reads as aboutness. A document is about what
+        it is titled, not what its prose mentions in passing. Title counts as well as heading
+        because doc_04's chemical section never repeats the disease name: it has no reason to,
+        being a section of a document called "Tomato Late Blight".
+
+        `exclude`: the other diseases, matched against the heading only. One document may
+        cover three — doc_10 is titled for all three corn diseases — so the title admits every
+        section of it and the heading is what says which disease a given section is about. A
+        section headed "Gray leaf spot" is not first-response advice for northern leaf blight,
+        however well it scores when the document has no first-response section to offer.
+
+        `agnostic_only`: for the questions that are not about a disease at all — how to hold a
+        sprayer, why to rotate a mode of action — restrict to the crop-agnostic documents that
+        exist to answer them. Without it, a late blight run pulled the septoria document's
+        chemical section into its sources on the strength of the phrase "leaf underside": a
+        different disease's dosing advice, sitting in the drawer of a plan that is not about
+        it. Sources may still legitimately go uncited — retrieval returns two per section and
+        the drafter uses one — but they should at least be about the right disease.
         """
-        if require and require.lower() not in self._haystack(index):
+        chunk = self.chunks[index]
+        heading = chunk["heading"].lower()
+        crops = chunk.get("crops") or []
+        if agnostic_only:
+            return not crops
+        if require and require.lower() not in f"{chunk['doc']} {heading}".lower():
             return False
-        crops = self.chunks[index].get("crops") or []
+        if any(other in heading for other in exclude):
+            return False
         return crop is None or not crops or crop in crops
 
     def search(
@@ -121,13 +146,18 @@ class Retriever:
         min_score: float = MIN_RELEVANCE,
         crop: str | None = None,
         require: str | None = None,
+        exclude: tuple[str, ...] = (),
+        agnostic_only: bool = False,
     ) -> list[Hit]:
         """Top-k chunks above min_score, best first. Empty list means the corpus does not cover it."""
         if not query.strip():
             return []
         # TfidfVectorizer L2-normalises its rows, so this dot product is already the cosine.
         scores = (self._matrix @ self._vectorizer.transform([query]).T).toarray().ravel()
-        eligible = [i for i in range(len(scores)) if self._allowed(i, crop, require)]
+        eligible = [
+            i for i in range(len(scores))
+            if self._allowed(i, crop, require, exclude, agnostic_only)
+        ]
         ranked = sorted(eligible, key=lambda i: -scores[i])[:k]
         return [
             Hit(

@@ -38,22 +38,22 @@ description of the disease, not the numbers. A grounding check that demands corp
 
 from __future__ import annotations
 
-import re
+import json
 from collections import Counter
+from functools import lru_cache
+from pathlib import Path
 
 from agents import llm
-from agents.prompts import (
-    AGRONOMIST_REPAIR,
-    AGRONOMIST_SYSTEM,
-    AGRONOMIST_USER,
-    INSUFFICIENT,
-    format_passages,
+from agents.drafting import (
+    MARKER_RE,
+    draft_extractive,
+    draft_llm,
+    unmarked_lines,
+    valid_markers,
 )
+from agents.prompts import INSUFFICIENT
 from agents.rag.retrieve import retriever, to_sources
 from agents.state import RunState
-
-MARKER_RE = re.compile(r"\[(doc_\d+#p\d+)\]\s*$")
-SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 
 # One query per section the plan will have, because no single string reaches all of them: the
 # disease document, the spray-practice note and the resistance guidance share almost no
@@ -76,6 +76,11 @@ SECTIONS: tuple[tuple[str, str, bool], ...] = (
 
 K_PER_QUERY = 2
 
+# The classifier's own class list is the authority on what diseases exist. Reading it here
+# rather than hardcoding eleven strings means retraining on a twelfth disease cannot leave
+# this file quietly disagreeing with the model about what the model can say.
+CLASSES_PATH = Path(__file__).resolve().parent.parent / "ml" / "artifacts" / "model_classes.json"
+
 
 def disease_phrase(label: str) -> str:
     """Tile label -> the words a document would use. `yellow_leaf_curl_virus` -> that phrase."""
@@ -96,15 +101,38 @@ def dominant_disease(state: RunState) -> tuple[str | None, int]:
     return label, count
 
 
+@lru_cache(maxsize=1)
+def disease_vocabulary() -> tuple[str, ...]:
+    """Every disease the classifier can emit, as the phrase a document would use."""
+    keys = json.loads(CLASSES_PATH.read_text(encoding="utf-8"))["class_keys"]
+    return tuple(sorted({disease_phrase(k.split("__", 1)[1]) for k in keys if "healthy" not in k}))
+
+
+def other_diseases(disease: str) -> tuple[str, ...]:
+    """The disease phrases that are not this one — passed to the retriever as `exclude`.
+
+    Substring-overlapping names are dropped from the exclusion set rather than trusted to a
+    string comparison, so a future class like "late blight (tuber)" cannot end up excluding
+    the very sections it belongs to.
+    """
+    return tuple(d for d in disease_vocabulary() if d != disease and d not in disease and disease not in d)
+
+
 def retrieve_sections(disease: str, crop: str) -> dict[str, list]:
     """{section: hits}. Retrieval is done once, per section, and reused by both drafters."""
     index = retriever()
+    exclude = other_diseases(disease)
     return {
         name: index.search(
             template.format(disease=disease),
             k=K_PER_QUERY,
             crop=crop,
             require=disease if scoped else None,
+            exclude=exclude,
+            # A section that is not about the disease is about general practice, and general
+            # practice comes from the documents written for it, not from another disease's
+            # monograph that happens to share a phrase.
+            agnostic_only=not scoped,
         )
         for name, template, scoped in SECTIONS
     }
@@ -131,116 +159,22 @@ def covers(sections: dict[str, list]) -> bool:
     return bool(sections.get("identification"))
 
 
-def valid_markers(sources: list[dict]) -> set[str]:
-    return {s["id"] for s in sources}
+def rewrite_feedback(state: RunState) -> list[str]:
+    """The sentences the Verifier rejected, if its last ruling was REWRITE. Empty otherwise."""
+    verification = state.verification or {}
+    if verification.get("status") != "REWRITE":
+        return []
+    return list(verification.get("unsupported_claims") or [])
 
 
-def unmarked_lines(draft: str, allowed: set[str]) -> list[str]:
-    """Content lines that do not end with a marker drawn from the retrieved set."""
-    offenders = []
-    for line in draft.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-        match = MARKER_RE.search(line)
-        if not match or match.group(1) not in allowed:
-            offenders.append(line)
-    return offenders
+def rejected_chunks(rejected: list[str]) -> set[str]:
+    """The chunk ids the rejected sentences cited, so the extractive drafter can move past them.
 
-
-# --- drafting ----------------------------------------------------------------------------
-
-
-def _best_sentence(text: str, query: str) -> str:
-    """The sentence in a passage that most covers the query terms, preferring earlier ones.
-
-    Deterministic and dull on purpose — this runs when the LLM is unavailable, which is when
-    surprises are least affordable.
+    A rejected sentence with no marker names no chunk and contributes nothing here, which is
+    correct: there is no passage to move past, and the extractive drafter could not have
+    produced an unmarked line in the first place.
     """
-    terms = {w for w in re.findall(r"[a-z]+", query.lower()) if len(w) > 3}
-    sentences = [s.strip() for s in SENTENCE_SPLIT_RE.split(text) if len(s.strip()) > 40]
-    if not sentences:
-        return text.strip()
-    scored = [
-        (sum(t in s.lower() for t in terms), -i, s) for i, s in enumerate(sentences)
-    ]
-    return max(scored)[2]
-
-
-def draft_extractive(state: RunState, disease: str, sources: list[dict]) -> str:
-    """Compose the plan from the retrieved sentences themselves. Grounded by construction.
-
-    Each line is a sentence copied out of the passage whose id it carries, so the marker is
-    not an assertion about where the claim came from — it is where the claim came from.
-    """
-    by_id = {s["id"]: s for s in sources}
-    spread = state.spread or {}
-    used: set[str] = set()
-
-    def line(section: str) -> str | None:
-        query = SECTION_QUERIES[section].format(disease=disease)
-        hits = retriever().search(query, k=3, crop=state.crop)
-        for hit in hits:
-            if hit.id in by_id and hit.id not in used:
-                used.add(hit.id)
-                return f"{_best_sentence(by_id[hit.id]['text'], query)} [{hit.id}]"
-        return None
-
-    identification = line("identification")
-    # The diagnosis sentence is built from the scan, and cited to whichever passage describes
-    # the disease — see the note in the module docstring about what A7 should not flag.
-    anchor = MARKER_RE.search(identification).group(1) if identification else sources[0]["id"]
-    direction = spread.get("direction")
-    heading = (
-        f"{disease.capitalize()} is present across {spread.get('pct_affected', 0.0)}% of the "
-        f"scanned field in {spread.get('clusters', 0)} cluster(s)"
-        + (f", trending {direction}." if direction else ", with no dominant direction.")
-        + f" [{anchor}]"
-    )
-
-    blocks = [
-        ("## Diagnosis summary", [heading, identification]),
-        ("## Immediate action (next 48 hours)", [line("first_response"), line("chemical"), line("application")]),
-        ("## Follow-up", [line("followup"), line("resistance")]),
-    ]
-    parts = []
-    for title, lines in blocks:
-        body = [ln for ln in lines if ln]
-        if body:
-            parts.append(title + "\n\n" + "\n".join(body))
-    return "\n\n".join(parts)
-
-
-def draft_llm(state: RunState, disease: str, sources: list[dict]) -> tuple[str | None, str]:
-    """(draft, note). draft is None when the model refused or the call failed."""
-    spread = state.spread or {}
-    user = AGRONOMIST_USER.format(
-        crop=state.crop,
-        disease=disease,
-        pct_affected=spread.get("pct_affected", 0.0),
-        clusters=spread.get("clusters", 0),
-        direction=spread.get("direction") or "no dominant direction",
-        passages=format_passages(sources),
-    )
-    result = llm.complete(AGRONOMIST_SYSTEM, user)
-    if not result.ok:
-        return None, result.error or "llm unavailable"
-    if INSUFFICIENT in result.text:
-        return None, INSUFFICIENT
-
-    draft = result.text.strip()
-    offenders = unmarked_lines(draft, valid_markers(sources))
-    if offenders:
-        # One repair attempt only. The Verifier in A7 owns the retry loop and has veto power;
-        # duplicating it here would mean two independent retry budgets and a plan that could
-        # be rewritten five times while each component believed it had allowed two.
-        repair = llm.complete(
-            AGRONOMIST_SYSTEM,
-            AGRONOMIST_REPAIR.format(offenders="\n".join(offenders), draft=draft),
-        )
-        if repair.ok and INSUFFICIENT not in repair.text:
-            draft = repair.text.strip()
-    return draft, result.provider
+    return {m.group(1) for m in (MARKER_RE.search(line) for line in rejected) if m}
 
 
 # --- the agent ---------------------------------------------------------------------------
@@ -254,11 +188,26 @@ def run_agronomist(state: RunState) -> RunState:
         state.apply("agronomist.done")
         return state
 
+    # The Spread Analyst is the authority on how much of the field is affected, and this agent
+    # obeys it rather than re-deriving the answer from tile labels. They disagree in exactly
+    # one case, and it is the case that matters: a photograph of bare soil where a single tile
+    # survived the Scout's mask and was labelled at 0.10 confidence. Spread already declines
+    # that one — below MIN_SCORED_TILES there is no field to take a ratio over — and reports
+    # 0% affected. Reading the tiles directly instead, this agent drafted a full treatment
+    # plan for yellow leaf curl virus off that one tile, cited and fluent, for a picture of
+    # dirt. Same failure as A5's, one stage later: an honest "I could not measure this" is
+    # only worth anything if the next consumer reads it.
+    if not (state.spread or {}).get("pct_affected"):
+        state.apply("agronomist.skipped.no_measurable_field")
+        state.apply("agronomist.done")
+        return state
+
     disease = disease_phrase(disease_label)
-    sources = retrieve_for(disease, state.crop)
+    sections = retrieve_sections(disease, state.crop)
+    sources = collect_sources(sections)
     state.apply(f"agronomist.retrieved.{len(sources)}_chunks", sources=sources)
 
-    if not sources or not covers(sources, disease):
+    if not covers(sections):
         # Sources are still published: "we searched and found nothing that covers this" is a
         # more useful thing for the UI to show than an empty drawer, and A7 needs to see the
         # same evidence to rule on it.
@@ -268,14 +217,36 @@ def run_agronomist(state: RunState) -> RunState:
 
     state.apply(f"agronomist.disease.{disease_label}.{tile_count}_tiles")
 
-    draft, note = (None, "llm not configured")
+    # A rewrite arrives the same way everything else does — as something already written into
+    # the run state. The Verifier does not call this function and this function does not call
+    # the Verifier; it just notices that the last ruling on the board was REWRITE and reads the
+    # sentences that failed. That is what keeps the retry loop inspectable: the reason for the
+    # second draft is on the event log and in verification.unsupported_claims, not in a
+    # parameter passed between two agents behind the log's back.
+    rejected = rewrite_feedback(state)
+    if rejected:
+        state.apply(f"agronomist.redraft.{len(rejected)}_rejected")
+
+    draft = None
     if llm.available():
-        draft, note = draft_llm(state, disease, sources)
+        draft, note = draft_llm(state, disease, sources, rejected)
+        if note == INSUFFICIENT:
+            # The model read the passages and said they do not cover this. That is a judgement
+            # about the evidence, and the extractive drafter is in no position to overrule it:
+            # it cannot assess coverage at all, it assembles whatever retrieval returned. So a
+            # refusal ends the agent rather than falling through to a plan, which would mean
+            # the one component that actually looked at the passages gets ignored whenever it
+            # says no. Transport failures below are different — there, nothing was judged.
+            state.apply("agronomist.llm_refused")
+            state.apply("agronomist.insufficient_context")
+            state.apply("agronomist.done")
+            return state
         if draft is None:
-            state.apply("agronomist.llm_unavailable" if note != INSUFFICIENT else "agronomist.llm_refused")
+            state.apply("agronomist.llm_unavailable")
 
     if draft is None:
-        draft = draft_extractive(state, disease, sources)
+        queries = {name: template.format(disease=disease) for name, template, _ in SECTIONS}
+        draft = draft_extractive(state, disease, sections, queries, rejected_chunks(rejected))
         state.apply("agronomist.drafted.extractive")
     else:
         state.apply("agronomist.drafted.llm")
@@ -291,12 +262,17 @@ def run_agronomist(state: RunState) -> RunState:
     return state
 
 
+REASONS = {
+    "agronomist.skipped.clean_field": "clean field, nothing to treat",
+    "agronomist.skipped.no_measurable_field": "too little crop in frame to measure",
+    "agronomist.insufficient_context": "corpus does not cover this disease",
+}
+
+
 def agronomist_summary(state: RunState) -> str:
     if not state.plan_draft:
-        reason = "no plan — " + (
-            "clean field" if "agronomist.skipped.clean_field" in state.events else "insufficient context"
-        )
-        return f"{reason} | {len(state.sources)} chunk(s) retrieved"
+        reason = next((why for event, why in REASONS.items() if event in state.events), "not drafted")
+        return f"no plan — {reason} | {len(state.sources)} chunk(s) retrieved"
     lines = [ln for ln in state.plan_draft.splitlines() if ln.strip() and not ln.startswith("#")]
     cited = len(lines) - len(unmarked_lines(state.plan_draft, valid_markers(state.sources)))
     return (

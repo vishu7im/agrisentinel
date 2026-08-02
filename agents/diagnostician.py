@@ -8,13 +8,28 @@ CPU-only, batched, no torch anywhere. The model is `ml/artifacts/model.onnx` (Ef
 alongside it in `model_classes.json` — see `agents/preprocess.py` for why that recipe has to
 be reimplemented rather than imported.
 
-Two decisions worth knowing about before reading the code:
+Three decisions worth knowing about before reading the code:
 
 **Predictions are restricted to the run's crop.** The model has 14 classes across tomato,
 potato and corn, but a field is one crop, and `POST /api/run` already carries which one. Left
 unrestricted, one odd tile in a tomato field comes back `corn__common_rust`, which then flows
 into A4's per-disease severity weights and A6's retrieval as if it were real. Masking the
 logits to the declared crop turns an impossible answer into a merely uncertain one.
+
+**Nobody declaring a crop is different from someone declaring the wrong one.** `crop` used to
+default to `tomato` at every layer — the form field, `new_run()`, the frontend's own call — and
+there was no crop picker, so the default was never overridden by anything and masking made it
+unrecoverable: a corn field came back as tomato diseases at near-zero confidence, reporting
+94.4% infected and ~49.9% yield at risk against a true 30.6% and 9.2%. The caller now sends
+`auto` when no human has chosen, and a probe pass reads the first tiles unmasked and votes.
+
+**Detection does not overrule a person, and the measurements are why.** On the synthetic
+mosaics the winning crop takes 0.91-0.99 of the probability mass and this is easy. On four real
+photographs downloaded from Wikimedia Commons it is not: a corn field split tomato 0.502 / corn
+0.483, a potato leaf came back corn 0.438, and a tomato plant went corn 0.754 — confidently,
+wrongly, and by enough to have overruled a correct declaration. That is the lab-to-field gap in
+`ml/artifacts/lab_vs_field.md` arriving here. So an explicit crop is obeyed and a disagreement
+is only logged (`diagnose.crop_mismatch.*`); the vote decides only when the answer was `auto`.
 
 **Confidence stays the unrestricted softmax.** It would be easy to renormalise over the
 crop's classes and report a flattering number, but `ml/eval.py` measured the 0.75 escalation
@@ -33,6 +48,7 @@ import numpy as np
 import onnxruntime as ort
 from PIL import Image
 
+from agents.crop_vote import AUTO, CROP_PROBE_TILES, FALLBACK_CROP, resolve_crop
 from agents.preprocess import preprocess_batch, softmax
 from agents.state import RunState
 from agents.tiling import DEFAULT_COLS, DEFAULT_ROWS, crop_tiles
@@ -110,12 +126,31 @@ class Classifier:
     def logits(self, batch: np.ndarray) -> np.ndarray:
         return self.session.run(None, {self.input_name: batch})[0]
 
+    def probabilities(self, images: list[Image.Image]) -> np.ndarray:
+        """One softmax row per image, undecoded. Separate from `predict` because the crop
+        probe has to read the distribution before it knows which crop to decode against."""
+        if not images:
+            return np.empty((0, len(self.class_keys)), dtype=np.float32)
+        return softmax(self.logits(preprocess_batch(images, self.img_size)))
+
     def predict(self, images: list[Image.Image], crop: str | None = None) -> list[dict]:
         """[{label, confidence, class_key}] — one entry per image, in input order."""
-        if not images:
-            return []
-        probs = softmax(self.logits(preprocess_batch(images, self.img_size)))
-        return [self.decode(row, crop) for row in probs]
+        return [self.decode(row, crop) for row in self.probabilities(images)]
+
+    def crop_shares(self, probs: np.ndarray) -> dict[str, float]:
+        """Mean probability mass each crop attracts across these tiles.
+
+        Mass rather than a vote over argmax labels: a tile that is 40% one corn disease and 40%
+        another is strong evidence of corn, and counting argmax winners throws that away. It
+        also degrades gracefully on the tiles this matters most for — the uncertain ones.
+        """
+        if not len(probs):
+            return {}
+        return {
+            crop: float(probs[:, mask].sum(axis=1).mean())
+            for crop in self.crops
+            if (mask := self.crop_mask(crop)) is not None
+        }
 
     def decode(self, probs: np.ndarray, crop: str | None) -> dict:
         """One probability row -> a contract label. Public because the Second-Opinion agent
@@ -135,6 +170,7 @@ class Classifier:
             "label": self.split_key(key)[1],
             "confidence": float(probs[index]),
         }
+
 
 
 def run_diagnostician(
@@ -158,28 +194,36 @@ def run_diagnostician(
     if not pending:
         # Every tile was soil or sky. Not an error — a photo of a footpath is a valid thing
         # to hand the system, and A4 must be able to report an empty field rather than crash.
+        if state.crop == AUTO:
+            # There is nothing to vote on, and `auto` must not reach the response: the contract
+            # says crop is a crop, and the UI would render the word "auto" at a farmer.
+            state.apply(f"diagnose.crop_unresolved.{FALLBACK_CROP}", crop=FALLBACK_CROP)
         state.apply("diagnose.empty_field")
         state.apply("diagnose.done")
         return state
 
-    if classifier.crop_mask(state.crop) is None:
-        # Unknown crop: fall back to all 14 classes rather than refusing. The label is still
-        # useful and the event makes the degraded mode visible instead of silent.
-        state.apply(f"diagnose.crop_unknown.{state.crop}")
-        crop_filter = None
-    else:
-        crop_filter = state.crop
+    # The probe reads the first few tiles unmasked and settles the crop question before any
+    # label is written. Its rows are kept and decoded below, so this costs no extra inference —
+    # only the first `diagnose.tile.*` event arriving a couple of batches late, which is a
+    # cheaper thing to spend than scanning a corn field as a tomato one.
+    probe = pending[:CROP_PROBE_TILES]
+    probe_probs = classifier.probabilities([crops[t.id] for t in probe])
+    crop_filter = resolve_crop(state, classifier, probe_probs)
 
-    for start in range(0, len(pending), batch_size):
-        chunk = pending[start : start + batch_size]
-        results = classifier.predict([crops[t.id] for t in chunk], crop_filter)
-        for tile, result in zip(chunk, results):
+    def write(chunk: list, rows: np.ndarray) -> None:
+        for tile, row in zip(chunk, rows):
+            result = classifier.decode(row, crop_filter)
             state.update_tile(
                 tile.id,
                 f"diagnose.tile.{tile.id}",
                 label=result["label"],
                 confidence=result["confidence"],
             )
+
+    write(probe, probe_probs)
+    for start in range(len(probe), len(pending), batch_size):
+        chunk = pending[start : start + batch_size]
+        write(chunk, classifier.probabilities([crops[t.id] for t in chunk]))
 
     state.apply("diagnose.done")
     return state

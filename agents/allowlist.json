@@ -1,0 +1,47 @@
+{
+  "_note": "The Verifier's independent authority on what may be sprayed. Derived once from agents/rag/corpus/ and then COMMITTED, deliberately not regenerated at run time: if it were computed from the corpus on every run it could never disagree with the corpus, and a check that cannot disagree with the thing it checks is not a check. Editing a corpus file must not silently widen what the system is allowed to recommend. Adding a chemical here is a separate, reviewable act.",
+  "_units": "g/L = grams per litre of water, ml/L = millilitres per litre. Ranges are the spray concentrations the corpus itself states, not label maxima.",
+  "chemicals": {
+    "mancozeb": {
+      "unit": "g/L",
+      "low": 2.0,
+      "high": 3.0,
+      "note": "2.0-2.5 as straight 75% WP; up to 3.0 as the 64% component of a cymoxanil or metalaxyl co-formulation, where the stated dose is of the formulated product."
+    },
+    "chlorothalonil": {"unit": "g/L", "low": 2.0, "high": 2.0},
+    "copper oxychloride": {"unit": "g/L", "low": 3.0, "high": 3.0},
+    "cymoxanil": {
+      "unit": "g/L",
+      "low": 2.5,
+      "high": 3.0,
+      "note": "Only as cymoxanil 8% + mancozeb 64% WP. The dose is of the co-formulation."
+    },
+    "metalaxyl": {
+      "unit": "g/L",
+      "low": 2.5,
+      "high": 3.0,
+      "note": "Only as metalaxyl 8% + mancozeb 64% WP. The dose is of the co-formulation."
+    },
+    "pyraclostrobin": {"unit": "g/L", "low": 1.0, "high": 1.0},
+    "thiamethoxam": {"unit": "g/L", "low": 0.3, "high": 0.3},
+    "azoxystrobin": {"unit": "ml/L", "low": 1.0, "high": 1.0},
+    "difenoconazole": {"unit": "ml/L", "low": 0.5, "high": 0.5},
+    "propiconazole": {"unit": "ml/L", "low": 1.0, "high": 1.0},
+    "tebuconazole": {"unit": "ml/L", "low": 1.0, "high": 1.0},
+    "imidacloprid": {"unit": "ml/L", "low": 0.3, "high": 0.3},
+    "neem oil": {"unit": "ml/L", "low": 5.0, "high": 5.0}
+  },
+  "_banned_note": "Products whose appearance in a plan is an immediate BLOCK regardless of dose, because no dose of them is an acceptable recommendation to a smallholder. This is a short demonstrative list of actives banned or severely restricted for agricultural use in India, not a legal register — the authority is the CIB&RC notification, and this file must not be cited as though it were.",
+  "banned": [
+    "monocrotophos",
+    "endosulfan",
+    "carbofuran",
+    "phorate",
+    "phosphamidon",
+    "methyl parathion",
+    "dichlorvos",
+    "benomyl",
+    "paraquat",
+    "carbaryl"
+  ]
+}
