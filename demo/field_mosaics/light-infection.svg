@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+  <defs>
+    <linearGradient id="soil-light" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#466b2c"/><stop offset="1" stop-color="#273f20"/>
+    </linearGradient>
+    <pattern id="plants-light" width="48" height="48" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="8" fill="#67a43f"/><circle cx="32" cy="30" r="10" fill="#528d35"/>
+    </pattern>
+  </defs>
+  <rect width="960" height="600" fill="url(#soil-light)"/>
+  <rect width="960" height="600" fill="url(#plants-light)" opacity=".9"/>
+  <g fill="#b37b35" opacity=".55">
+    <circle cx="710" cy="82" r="52"/><circle cx="350" cy="190" r="44"/><circle cx="480" cy="430" r="48"/>
+  </g>
+  <rect x="24" y="24" width="348" height="34" rx="17" fill="#101914" opacity=".88"/>
+  <text x="42" y="47" fill="#f4d59b" font-family="system-ui,sans-serif" font-size="15" font-weight="700">SYNTHETIC OFFLINE FIXTURE · LIGHT</text>
+</svg>

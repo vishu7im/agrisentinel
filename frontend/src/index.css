@@ -5,9 +5,214 @@
 @layer base {
   html {
     color-scheme: dark;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-field-bg text-slate-200 antialiased;
+    min-width: 320px;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  button,
+  input,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(52 211 153 / 0.9);
+    outline-offset: 3px;
+  }
+}
+
+@keyframes agent-event-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes result-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes skeleton-sweep {
+  from {
+    transform: translateX(-110%);
+  }
+  to {
+    transform: translateX(110%);
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@layer utilities {
+  .app-header {
+    padding: max(0.75rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.75rem max(1rem, env(safe-area-inset-left));
+  }
+
+  .app-content,
+  .page-gutter {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .mobile-field-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    border-top: 1px solid rgb(36 51 41 / 0.95);
+    background: rgb(20 29 23 / 0.94);
+    padding: 0.25rem max(0.75rem, env(safe-area-inset-right)) max(0.25rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+    box-shadow: 0 -12px 30px rgb(0 0 0 / 0.3);
+    backdrop-filter: blur(16px);
+  }
+
+  .drawer-panel {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  #agent-activity,
+  #field-actions,
+  #field-scan,
+  #treatment-plan {
+    scroll-margin-top: 5.5rem;
+  }
+
+  .agent-event-enter {
+    animation: agent-event-in 280ms ease-out both;
+  }
+
+  .result-enter {
+    animation: result-reveal 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .result-cascade > * {
+    animation: result-reveal 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .result-cascade > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  .result-cascade > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  .result-cascade > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+
+  .drawer-enter {
+    animation: drawer-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .skeleton-block {
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(51 65 85 / 0.62);
+  }
+
+  .skeleton-block::after {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background-image: linear-gradient(90deg, transparent, rgb(148 163 184 / 0.15), transparent);
+    animation: skeleton-sweep 1.5s ease-in-out infinite;
+  }
+}
+
+@media (min-width: 640px) {
+  .app-header {
+    padding: 1rem max(2rem, env(safe-area-inset-right)) 1rem max(2rem, env(safe-area-inset-left));
+  }
+
+  .app-content,
+  .page-gutter {
+    padding-left: max(2rem, env(safe-area-inset-left));
+    padding-right: max(2rem, env(safe-area-inset-right));
+  }
+
+  .drawer-panel {
+    padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) 1.5rem;
+  }
+}
+
+/* The cross-check verdict landing. A short settle, not a bounce — this chip is often the word
+   "Contested", and a refusal should read as considered rather than alarming. */
+@keyframes consensus-verdict {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.consensus-verdict {
+  animation: consensus-verdict 380ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+/* The Verifier's veto edge appearing. Amber, and it pulses once so the eye catches a loop in
+   the graph executing — the one thing a chain of three prompts cannot show. */
+@keyframes veto-edge {
+  0%   { opacity: 0; transform: translateX(-6px); }
+  60%  { opacity: 1; transform: translateX(0); }
+  75%  { box-shadow: 0 0 0 4px rgb(234 179 8 / 0.18); }
+  100% { box-shadow: 0 0 0 0 rgb(234 179 8 / 0); }
+}
+
+.veto-edge {
+  animation: veto-edge 900ms ease-out both;
+}
+
+/* Infection cluster rings drawn onto the photograph, staggered by index. */
+@keyframes cluster-ring {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.cluster-ring {
+  animation: cluster-ring 520ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-event-enter,
+  .cluster-ring,
+  .consensus-verdict,
+  .drawer-enter,
+  .result-cascade > *,
+  .result-enter,
+  .skeleton-block::after,
+  .veto-edge {
+    animation: none;
+  }
+
+  * {
+    scroll-behavior: auto !important;
   }
 }

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+  <defs>
+    <linearGradient id="soil-clean" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3f7b34"/><stop offset="1" stop-color="#214f2c"/>
+    </linearGradient>
+    <pattern id="plants-clean" width="48" height="48" patternUnits="userSpaceOnUse">
+      <ellipse cx="13" cy="14" rx="10" ry="7" fill="#72c15a" transform="rotate(-25 13 14)"/>
+      <ellipse cx="34" cy="32" rx="11" ry="8" fill="#58a94b" transform="rotate(28 34 32)"/>
+    </pattern>
+  </defs>
+  <rect width="960" height="600" fill="url(#soil-clean)"/>
+  <rect width="960" height="600" fill="url(#plants-clean)" opacity=".96"/>
+  <rect x="24" y="24" width="440" height="34" rx="17" fill="#101914" opacity=".88"/>
+  <text x="42" y="47" fill="#f4d59b" font-family="system-ui,sans-serif" font-size="15" font-weight="700">SYNTHETIC OFFLINE FIXTURE · CLEAN / OUT OF SCOPE</text>
+</svg>
