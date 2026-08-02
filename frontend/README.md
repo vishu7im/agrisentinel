@@ -26,6 +26,10 @@ In live mode, completed PASS results are kept in browser-local storage so the ne
 
 Demo cases `1` and `2` use clearly labelled synthetic seven-day baselines. Case `3` demonstrates that a BLOCK result cannot enter the comparison history.
 
+## Shareable farmer brief
+
+When a farmer brief is ready, choose English or Hindi and select **Share brief**. AgriSentinel creates a 1200-pixel PNG containing the selected brief, field filename, export date, and verification state. Devices with file sharing support open the native share sheet; other browsers download the PNG. The image is rendered entirely in the browser and is not uploaded to another service.
+
 ## Checks
 
 ```bash

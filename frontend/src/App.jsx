@@ -149,6 +149,7 @@ export default function App() {
           key={scan.runId ?? 'empty-actions'}
           costEstimate={scheduleReady ? scan.runState?.cost_estimate : null}
           blocked={hasBlock}
+          fieldName={visibleFileName}
           phase={scan.phase}
           report={reportReady ? scan.runState?.report : null}
           reportLoading={scanActive && !reportReady}

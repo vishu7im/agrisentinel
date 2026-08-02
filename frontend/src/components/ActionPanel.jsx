@@ -5,6 +5,7 @@ import ScheduleTimeline from './ScheduleTimeline.jsx'
 export default function ActionPanel({
   blocked,
   costEstimate,
+  fieldName,
   phase,
   report,
   reportLoading,
@@ -59,7 +60,13 @@ export default function ActionPanel({
         )}
       </div>
 
-      <FarmerBrief loading={reportLoading} phase={phase} report={report} />
+      <FarmerBrief
+        blocked={blocked}
+        fieldName={fieldName}
+        loading={reportLoading}
+        phase={phase}
+        report={report}
+      />
     </section>
   )
 }
