@@ -102,17 +102,17 @@ dose safety checks.
 
 ## Models and decision methods
 
-| Component | Implementation | Role |
-|---|---|---|
-| Tile classifier | EfficientNet-B0, ImageNet-1K pretrained, 14-class head | Disease/healthy prediction per tile |
-| Production inference | `ml/artifacts/model.onnx` with ONNX Runtime CPU | Torch-free backend inference |
-| Second opinion | Four-view test-time augmentation: original, horizontal flip, vertical flip, 180° rotation | Re-evaluates predictions below 0.75 confidence |
-| Whole-image Observer | Optional Gemini vision model configured by `GEMINI_VISION_MODEL` | Independent crop/disease cross-check |
-| Consensus | Deterministic policy over CNN and Observer evidence | Relabels disease disagreement or blocks unsafe presence/absence disagreement |
-| Spread analysis | NumPy plus DBSCAN from scikit-learn | Affected percentage, clusters, direction, and severity |
-| Retrieval | TF-IDF with unigram/bigram search over 49 committed chunks | Deterministic, offline agronomy retrieval |
-| Plan and chat drafting | Optional Gemini model configured by `GEMINI_MODEL`; extractive fallback without a key | Grounded plan and follow-up answers |
-| Verification | Citation containment, allowed-chemical rules, dose rules, and rewrite budget | PASS, REWRITE, or BLOCK decision |
+| Component              | Implementation                                                                            | Role                                                                         |
+| ---------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Tile classifier        | EfficientNet-B0, ImageNet-1K pretrained, 14-class head                                    | Disease/healthy prediction per tile                                          |
+| Production inference   | `ml/artifacts/model.onnx` with ONNX Runtime CPU                                           | Torch-free backend inference                                                 |
+| Second opinion         | Four-view test-time augmentation: original, horizontal flip, vertical flip, 180° rotation | Re-evaluates predictions below 0.75 confidence                               |
+| Whole-image Observer   | Optional Gemini vision model configured by `GEMINI_VISION_MODEL`                          | Independent crop/disease cross-check                                         |
+| Consensus              | Deterministic policy over CNN and Observer evidence                                       | Relabels disease disagreement or blocks unsafe presence/absence disagreement |
+| Spread analysis        | NumPy plus DBSCAN from scikit-learn                                                       | Affected percentage, clusters, direction, and severity                       |
+| Retrieval              | TF-IDF with unigram/bigram search over 49 committed chunks                                | Deterministic, offline agronomy retrieval                                    |
+| Plan and chat drafting | Optional Gemini model configured by `GEMINI_MODEL`; extractive fallback without a key     | Grounded plan and follow-up answers                                          |
+| Verification           | Citation containment, allowed-chemical rules, dose rules, and rewrite budget              | PASS, REWRITE, or BLOCK decision                                             |
 
 ### Classifier training
 
@@ -130,16 +130,16 @@ dose safety checks.
 These figures come from the committed `ml/artifacts/` outputs on the clean held-out
 PlantVillage test split:
 
-| Metric | Result |
-|---|---:|
-| Test images | 2,399 |
-| Single-view accuracy | 95.58% |
-| Macro-F1 | 94.70% |
-| Tiles below the 0.75 confidence gate | 15.84% |
-| Accuracy above the confidence gate | 99.31% |
-| Accuracy below the confidence gate | 75.79% |
-| Mean ONNX CPU time per tile | 6.53 ms |
-| Estimated model time for 40 tiles | 0.26 s |
+| Metric                               |  Result |
+| ------------------------------------ | ------: |
+| Test images                          |   2,399 |
+| Single-view accuracy                 |  95.58% |
+| Macro-F1                             |  94.70% |
+| Tiles below the 0.75 confidence gate |  15.84% |
+| Accuracy above the confidence gate   |  99.31% |
+| Accuracy below the confidence gate   |  75.79% |
+| Mean ONNX CPU time per tile          | 6.53 ms |
+| Estimated model time for 40 tiles    |  0.26 s |
 
 These are lab-style dataset results, not claimed real-field accuracy. See
 [`ml/artifacts/metrics.json`](ml/artifacts/metrics.json),
@@ -153,22 +153,22 @@ The classifier uses the color-image subset of
 `ml/data/download.py` from the canonical GitHub mirror. The project narrows the original dataset
 to 14 classes across three supported crops.
 
-| Crop | Included classes |
-|---|---|
-| Tomato | bacterial spot, early blight, late blight, leaf mold, Septoria leaf spot, yellow leaf curl virus, healthy |
-| Potato | early blight, late blight, healthy |
-| Corn/maize | common rust, gray leaf spot, northern leaf blight, healthy |
+| Crop       | Included classes                                                                                          |
+| ---------- | --------------------------------------------------------------------------------------------------------- |
+| Tomato     | bacterial spot, early blight, late blight, leaf mold, Septoria leaf spot, yellow leaf curl virus, healthy |
+| Potato     | early blight, late blight, healthy                                                                        |
+| Corn/maize | common rust, gray leaf spot, northern leaf blight, healthy                                                |
 
 ### Preparation and split
 
-| Setting | Value |
-|---|---|
-| Images retained after balancing | 16,031 |
-| Train / validation / test | 11,233 / 2,399 / 2,399 |
-| Split ratio | 70% / 15% / 15%, stratified per class |
-| Seed | 42 |
-| Imbalance control | Each class capped at 1.5× the median class size |
-| Runtime image size | 224 × 224 |
+| Setting                         | Value                                           |
+| ------------------------------- | ----------------------------------------------- |
+| Images retained after balancing | 16,031                                          |
+| Train / validation / test       | 11,233 / 2,399 / 2,399                          |
+| Split ratio                     | 70% / 15% / 15%, stratified per class           |
+| Seed                            | 42                                              |
+| Imbalance control               | Each class capped at 1.5× the median class size |
+| Runtime image size              | 224 × 224                                       |
 
 Training augmentation includes random resized crops, horizontal/vertical flips, rotation,
 brightness/contrast/saturation jitter, blur, JPEG compression, and occasional grayscale. Raw
@@ -186,19 +186,19 @@ The following 256 × 256 examples were copied from the held-out
 `ml/data/processed/test` split. Click a preview to open the original file, then upload it to the
 live app. Choose the matching crop for the most interpretable smoke test.
 
-| Tomato late blight | Potato late blight | Corn common rust | Healthy tomato |
-|---|---|---|---|
-| [![Tomato leaf with late blight](demo/sample_images/tomato-late-blight.jpg)](demo/sample_images/tomato-late-blight.jpg?raw=1) | [![Potato leaf with late blight](demo/sample_images/potato-late-blight.jpg)](demo/sample_images/potato-late-blight.jpg?raw=1) | [![Corn leaf with common rust](demo/sample_images/corn-common-rust.jpg)](demo/sample_images/corn-common-rust.jpg?raw=1) | [![Healthy tomato leaf](demo/sample_images/tomato-healthy.jpg)](demo/sample_images/tomato-healthy.jpg?raw=1) |
-| [Download](demo/sample_images/tomato-late-blight.jpg?raw=1) | [Download](demo/sample_images/potato-late-blight.jpg?raw=1) | [Download](demo/sample_images/corn-common-rust.jpg?raw=1) | [Download](demo/sample_images/tomato-healthy.jpg?raw=1) |
+| Tomato late blight                                                                                                      | Potato late blight                                                                                                      | Corn common rust                                                                                                  | Healthy tomato                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| [![Tomato leaf with late blight](demo/sample_images/tomato-late-blight.jpg)](demo/sample_images/tomato-late-blight.jpg) | [![Potato leaf with late blight](demo/sample_images/potato-late-blight.jpg)](demo/sample_images/potato-late-blight.jpg) | [![Corn leaf with common rust](demo/sample_images/corn-common-rust.jpg)](demo/sample_images/corn-common-rust.jpg) | [![Healthy tomato leaf](demo/sample_images/tomato-healthy.jpg)](demo/sample_images/tomato-healthy.jpg) |
+| [Download](demo/sample_images/tomato-late-blight.jpg)                                                                   | [Download](demo/sample_images/potato-late-blight.jpg)                                                                   | [Download](demo/sample_images/corn-common-rust.jpg)                                                               | [Download](demo/sample_images/tomato-healthy.jpg)                                                      |
 
 For a full-grid pipeline test, use the synthetic field mosaics assembled from held-out
 PlantVillage tiles:
 
-- [Download light tomato infection](agents/testdata/field_tomato_light.jpg?raw=1)
-- [Download tomato late blight](agents/testdata/field_tomato_late_blight.jpg?raw=1)
-- [Download heavy tomato infection](agents/testdata/field_tomato_heavy.jpg?raw=1)
-- [Download corn northern leaf blight](agents/testdata/field_corn_nlb.jpg?raw=1)
-- [Download the bare-soil refusal test](agents/testdata/field_all_soil.jpg?raw=1)
+- [Download light tomato infection](agents/testdata/field_tomato_light.jpg)
+- [Download tomato late blight](agents/testdata/field_tomato_late_blight.jpg)
+- [Download heavy tomato infection](agents/testdata/field_tomato_heavy.jpg)
+- [Download corn northern leaf blight](agents/testdata/field_corn_nlb.jpg)
+- [Download the bare-soil refusal test](agents/testdata/field_all_soil.jpg)
 
 The mosaics are deterministic integration fixtures with adjacent truth files. They test tiling,
 skip masks, escalation, spatial analysis, and refusal behavior; they are not real-field evidence.
@@ -207,16 +207,16 @@ skip masks, escalation, spatial analysis, and refusal behavior; they are not rea
 
 ### Production runtime
 
-| Layer | Main dependencies | Purpose |
-|---|---|---|
-| Frontend | React 19, React DOM 19 | Dashboard and chat UI |
-| Frontend build | Vite 8, Tailwind CSS 3, PostCSS, Autoprefixer, oxlint | Build, styling, and linting |
-| API | FastAPI 0.141.1, Uvicorn 0.52.0, python-multipart 0.0.32 | HTTP API, uploads, background work, and SSE |
-| ML inference | ONNX Runtime 1.24.1, NumPy 2.3.5, Pillow 12.1.0 | CPU inference and image preprocessing |
-| Analytics/RAG | scikit-learn 1.7.2 | DBSCAN spread clustering and TF-IDF retrieval |
-| Validation/storage | jsonschema 4.26.0, Python `sqlite3` | Contract checks and completed-run persistence |
-| Edge/runtime | Caddy 2, Nginx Alpine, Docker Compose | HTTPS, reverse proxy, static UI, and container orchestration |
-| Optional AI | Gemini REST API through Python `urllib` | Whole-image observation and grounded drafting/chat |
+| Layer              | Main dependencies                                        | Purpose                                                      |
+| ------------------ | -------------------------------------------------------- | ------------------------------------------------------------ |
+| Frontend           | React 19, React DOM 19                                   | Dashboard and chat UI                                        |
+| Frontend build     | Vite 8, Tailwind CSS 3, PostCSS, Autoprefixer, oxlint    | Build, styling, and linting                                  |
+| API                | FastAPI 0.141.1, Uvicorn 0.52.0, python-multipart 0.0.32 | HTTP API, uploads, background work, and SSE                  |
+| ML inference       | ONNX Runtime 1.24.1, NumPy 2.3.5, Pillow 12.1.0          | CPU inference and image preprocessing                        |
+| Analytics/RAG      | scikit-learn 1.7.2                                       | DBSCAN spread clustering and TF-IDF retrieval                |
+| Validation/storage | jsonschema 4.26.0, Python `sqlite3`                      | Contract checks and completed-run persistence                |
+| Edge/runtime       | Caddy 2, Nginx Alpine, Docker Compose                    | HTTPS, reverse proxy, static UI, and container orchestration |
+| Optional AI        | Gemini REST API through Python `urllib`                  | Whole-image observation and grounded drafting/chat           |
 
 ### Training and evaluation only
 
@@ -299,16 +299,16 @@ volume, and VPS instructions.
 
 ## Repository map
 
-| Path | Purpose |
-|---|---|
-| `agents/` | Agent stages, orchestration, RAG corpus, Advisor chat, and safety checks |
-| `backend/` | FastAPI endpoints, background pipeline, SQLite store, and upload handling |
-| `frontend/` | React/Tailwind dashboard, SSE client, heatmap, plans, and chat UI |
-| `ml/` | Dataset preparation, augmentation, training, evaluation, ONNX export, and artifacts |
-| `contract/` | Frozen run-state schema, example run, endpoint contract, and mock server |
-| `demo/` | Offline recordings, field mosaics, selected test images, and demo verification |
-| `deploy/`, `compose.yml` | Caddy and production Docker Compose configuration |
-| `docs/` | Presentation and screenshot material |
+| Path                     | Purpose                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| `agents/`                | Agent stages, orchestration, RAG corpus, Advisor chat, and safety checks            |
+| `backend/`               | FastAPI endpoints, background pipeline, SQLite store, and upload handling           |
+| `frontend/`              | React/Tailwind dashboard, SSE client, heatmap, plans, and chat UI                   |
+| `ml/`                    | Dataset preparation, augmentation, training, evaluation, ONNX export, and artifacts |
+| `contract/`              | Frozen run-state schema, example run, endpoint contract, and mock server            |
+| `demo/`                  | Offline recordings, field mosaics, selected test images, and demo verification      |
+| `deploy/`, `compose.yml` | Caddy and production Docker Compose configuration                                   |
+| `docs/`                  | Presentation and screenshot material                                                |
 
 ## Evidence and responsible-use limits
 
