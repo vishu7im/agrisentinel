@@ -59,6 +59,16 @@ curl -s http://localhost:8000/api/health
 
 Interactive docs at http://localhost:8000/docs.
 
+The API accepts browser requests from localhost and private-network development URLs on any
+port. For a deployed frontend, add its exact origin (scheme and host, with no path) to the
+repo-root `.env`; multiple origins are comma-separated:
+
+```bash
+CORS_ORIGINS=https://agrisentinel.example.com,https://preview.example.com
+```
+
+Restart uvicorn after changing this value.
+
 ## Port 8000 is shared with the mock server
 
 `contract/mock_server.mjs` also defaults to 8000. Run one at a time. That collision is

@@ -40,128 +40,24 @@ drawer showing the chunk verbatim is what lets a human find it.
 
 from __future__ import annotations
 
-import json
-from functools import lru_cache
-from pathlib import Path
-
-from agents.claims import (
-    GROUNDING_MIN,
-    Claim,
-    containment,
-    doses,
-    is_scan_statement,
-    mentioned,
-    names_disease,
-    parse_claims,
-    unknown_actives,
+from agents.checks import (
+    chemical_violations,
+    dominant_label,
+    dose_violations,
+    ungrounded,
 )
-from agents.refusal import refusal_report
+from agents.claims import parse_claims
+from agents.dispute import dispute, dispute_parts
+from agents.observer import vision_verdict
+from agents.refusal import contested_report, not_field_report, refusal_report
 from agents.state import RunState
-
-ALLOWLIST_PATH = Path(__file__).resolve().parent / "allowlist.json"
 
 # Two redrafts, then strip. Set here and nowhere else — the orchestrator reads it rather than
 # keeping a count of its own, because two components each believing they own the budget is how
 # a plan gets rewritten five times.
 MAX_REWRITES = 2
 
-
-
-@lru_cache(maxsize=1)
-def allowlist() -> dict:
-    return json.loads(ALLOWLIST_PATH.read_text(encoding="utf-8"))
-
-
-def approved() -> list[str]:
-    return sorted(allowlist()["chemicals"])
-
-
-# --- the three checks --------------------------------------------------------------------
-
-
-def ungrounded(claims: list[Claim], chunks: dict[str, dict], state: RunState) -> list[str]:
-    """Sentences that do not trace back to the chunk they cite. Returns the original lines.
-
-    Three distinct failures, all of them ungrounded and only the first of them obvious: no
-    marker at all; a marker naming a chunk that was never retrieved (an invented id, which is
-    worse than none because it looks checked); and a marker naming a real chunk that does not
-    actually contain the sentence.
-    """
-    disease = dominant_label(state)
-    out = []
-    for claim in claims:
-        chunk = chunks.get(claim.marker or "")
-        if chunk is None:
-            out.append(claim.line)
-        elif is_scan_statement(claim.text, state.spread):
-            # Its numbers came from the Spread Analyst and are in no passage. What its source
-            # has to back is the other half of the sentence — that this field has this disease.
-            if not names_disease(claim.text, chunk, disease):
-                out.append(claim.line)
-        elif containment(claim.text, chunk) < GROUNDING_MIN:
-            out.append(claim.line)
-    return out
-
-
-def chemical_violations(claims: list[Claim]) -> list[tuple[str, str]]:
-    """(sentence, reason) for banned actives and anything not on the allowlist."""
-    banned = allowlist()["banned"]
-    known = approved()
-    problems = []
-    for claim in claims:
-        for name in mentioned(claim.text, banned):
-            problems.append((claim.text, f"{name} is banned or severely restricted for agricultural use"))
-        for name in unknown_actives(claim.text, known):
-            if name not in banned:
-                problems.append((claim.text, f"{name} is not a chemical any source document names"))
-    return problems
-
-
-def dose_violations(claims: list[Claim]) -> list[tuple[str, str]]:
-    """(sentence, reason) for doses outside the stated range, in the wrong unit, or unattached.
-
-    A dose in the wrong unit is its own failure and not a rounding matter: 3 grams per litre of
-    a wettable powder and 3 millilitres per litre of a concentrate are different amounts of
-    active ingredient, and the mistake is invisible in a sentence that otherwise reads well.
-    """
-    table = allowlist()["chemicals"]
-    known = approved()
-    problems = []
-    for claim in claims:
-        # Unapproved actives are included when attributing doses, purely so the number lands on
-        # the right name. Without them, "carbendazim ... at 4.0 grams per litre" reported a
-        # dose "with no chemical named" — true of the allowlist, and baffling to read next to a
-        # sentence that plainly names one. The chemical itself is already a violation above;
-        # this loop only has to avoid describing it wrongly.
-        for name, low, high, unit in doses(claim.text, known + unknown_actives(claim.text, known)):
-            if name is None:
-                problems.append((claim.text, f"a dose of {low} {unit} is given with no chemical named"))
-            elif name not in table:
-                continue
-            elif unit != table[name]["unit"]:
-                problems.append(
-                    (claim.text, f"{name} is dosed in {unit}, but its source states {table[name]['unit']}")
-                )
-            elif low < table[name]["low"] or high > table[name]["high"]:
-                problems.append((
-                    claim.text,
-                    f"{name} at {low}-{high} {unit} is outside the supported "
-                    f"{table[name]['low']}-{table[name]['high']} {unit}",
-                ))
-    return problems
-
-
 # --- the ruling ---------------------------------------------------------------------------
-
-
-def dominant_label(state: RunState) -> str:
-    """The disease the plan is about, as words. Read off the event log the Agronomist wrote,
-    so the Verifier does not re-derive it from tiles and reach a different answer."""
-    prefix = "agronomist.disease."
-    for event in reversed(state.events):
-        if event.startswith(prefix):
-            return event[len(prefix):].rsplit(".", 1)[0].replace("_", " ")
-    return ""
 
 
 def strip(draft: str, offenders: list[str]) -> str:
@@ -188,18 +84,31 @@ def _ruling(state: RunState, status: str, claims: list[str], reason: str | None 
     }
 
 
-def block(state: RunState, reason: str, detail: list[str], plainly: str) -> RunState:
+def block(
+    state: RunState,
+    reason: str,
+    detail: list[str],
+    plainly: str,
+    report: dict | None = None,
+) -> RunState:
     """`reason` is the technical explanation on the refusal card; `plainly` is the clause the
     farmer brief uses. They are separate because the person holding the phone in a field does
     not need to be told which active ingredient failed an allowlist — they need to be told
     that nobody is going to give them a spray recommendation today, and why not, in one line.
+
+    `report` overrides the standard brief, and exists for exactly one caller. `refusal_report`
+    opens "Your potato field shows signs of late blight across 69.2% of the scanned area" —
+    stating as fact the one claim a contested run has just decided it cannot stand behind. On
+    that path the brief has to be about the disagreement, so the caller supplies it and
+    `plainly` goes unused.
     """
     state.apply(f"verify.block.{len(detail)}_violations")
     state.apply(
         "verify.block",
         verification=_ruling(state, "BLOCK", detail, reason),
         plan_draft=None,
-        report=refusal_report(
+        report=report
+        or refusal_report(
             state.crop, dominant_label(state) or "a disease",
             (state.spread or {}).get("pct_affected", 0.0), plainly,
         ),
@@ -208,9 +117,57 @@ def block(state: RunState, reason: str, detail: list[str], plainly: str) -> RunS
     return state
 
 
+def contested_block(state: RunState) -> RunState:
+    """Rule on a run the Consensus agent found in dispute.
+
+    The Verifier's usual question is "is this plan supported by its sources", and on this path
+    there is no plan and the answer would be irrelevant if there were: a plan for late blight
+    can be perfectly grounded in the late-blight documents while the field has no late blight.
+    That is the hole this whole phase was built to close, and the reason it is ruled here rather
+    than left to the Agronomist is that BLOCK is the only state the contract has for "nothing
+    ships", and the Verifier is the only agent allowed to enter it.
+    """
+    event = dispute(state) or ""
+    kind, label, pct = dispute_parts(event)
+    seen = vision_verdict(state)
+    # The vision model's own sentence, verbatim. This is the single most convincing line on a
+    # refusal card — "a wide field of young potato plants in rows of reddish-brown soil, no
+    # lesions visible" is an argument a reader can check against the photograph on screen.
+    observed = f' The second check reported: "{seen.visible}"' if seen.visible else ""
+
+    if kind == "not_crop":
+        return block(
+            state,
+            "This photograph does not show a growing crop. A whole-image check identified the "
+            "subject as something other than a crop field, so the tile grid is measuring "
+            "texture rather than plant health." + observed,
+            ["The image was not identified as a photograph of a growing crop."],
+            "the photograph does not appear to show a growing crop",
+            report=not_field_report(),
+        )
+
+    disease = (label or "a disease").replace("_", " ")
+    return block(
+        state,
+        f"Two independent checks disagree about this field. The tile classifier reports "
+        f"{disease} across {pct:g}% of the scanned area; a whole-image check of the same "
+        f"photograph reports no disease. Treatment advice was withheld rather than issued on "
+        f"the strength of one of them." + observed,
+        [
+            f"Tile classifier: {disease} across {pct:g}% of the field.",
+            f"Whole-image check: no disease "
+            f"({seen.pct_affected}% of visible tissue, {seen.confidence}% confident).",
+        ],
+        "our two checks disagreed about whether this field is diseased",
+        report=contested_report(state.crop, disease, pct),
+    )
+
+
 def run_verifier(state: RunState, attempt: int = 0) -> RunState:
     """Rule on the current draft. `attempt` is how many redrafts have already been spent."""
     if not state.plan_draft:
+        if "agronomist.skipped.contested" in state.events:
+            return contested_block(state)
         if "agronomist.insufficient_context" in state.events:
             # The Agronomist declined because the corpus does not cover this disease. That is a
             # refusal the farmer has to see, not an empty panel, so it is ruled a BLOCK here

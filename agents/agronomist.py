@@ -46,11 +46,13 @@ from pathlib import Path
 from agents import llm
 from agents.drafting import (
     MARKER_RE,
+    cited_lines,
     draft_extractive,
     draft_llm,
     unmarked_lines,
     valid_markers,
 )
+from agents.dispute import dispute
 from agents.prompts import INSUFFICIENT
 from agents.rag.retrieve import retriever, to_sources
 from agents.state import RunState
@@ -179,9 +181,21 @@ def rejected_chunks(rejected: list[str]) -> set[str]:
 
 # --- the agent ---------------------------------------------------------------------------
 
-
 def run_agronomist(state: RunState) -> RunState:
     """Draft a grounded treatment plan, or decline and say why."""
+    # The Consensus agent found the two models describing different fields — most often the
+    # classifier reporting disease across a canopy a whole-image model reads as clean. Declined
+    # here, before retrieval, because drafting a plan just so the Verifier can throw it away
+    # spends a retrieval and an LLM round trip to arrive somewhere already known.
+    #
+    # Checked before the clean-field branch on purpose: a not-a-crop-photo run has had every
+    # scored tile rewritten to `skipped_not_crop`, so it would otherwise fall through as a clean
+    # field and produce silence instead of a refusal.
+    if dispute(state):
+        state.apply("agronomist.skipped.contested")
+        state.apply("agronomist.done")
+        return state
+
     disease_label, tile_count = dominant_disease(state)
     if disease_label is None:
         state.apply("agronomist.skipped.clean_field")
@@ -243,6 +257,11 @@ def run_agronomist(state: RunState) -> RunState:
             return state
         if draft is None:
             state.apply("agronomist.llm_unavailable")
+        elif not cited_lines(draft, valid_markers(sources)):
+            # Not one usable citation in the whole draft — see `cited_lines`. Dropped for the
+            # extractive one below, which is grounded by construction.
+            state.apply("agronomist.llm_uncited")
+            draft = None
 
     if draft is None:
         queries = {name: template.format(disease=disease) for name, template, _ in SECTIONS}

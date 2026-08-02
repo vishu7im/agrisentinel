@@ -59,6 +59,31 @@ def unmarked_lines(draft: str, allowed: set[str]) -> list[str]:
     return offenders
 
 
+def cited_lines(draft: str, allowed: set[str]) -> int:
+    """How many content lines carry a marker from the retrieved set.
+
+    Zero means the model ignored rule 2 wholesale rather than slipping on a sentence, and that
+    is a different condition from a draft with two bad lines in it. Measured, and it is not
+    hypothetical: with the 2.5-flash quota exhausted the fall-through in `llm.complete_first`
+    reached a model that returned eleven fluent, correct, entirely unmarked sentences three
+    times in a row, repair pass included. The Verifier did exactly its job and stripped all
+    eleven, and the run finished `status: complete` with no plan, no schedule and no farmer
+    brief — strictly worse than the extractive draft that same run would have produced offline.
+
+    So the caller checks this and falls back. It does not weaken the Verifier: a draft with
+    *some* unmarked lines still goes to it untouched, because those are the sentences it exists
+    to catch. This is only the case where there is nothing to check.
+    """
+    return sum(
+        1
+        for line in draft.splitlines()
+        if (stripped := line.strip())
+        and not stripped.startswith("#")
+        and (match := MARKER_RE.search(stripped))
+        and match.group(1) in allowed
+    )
+
+
 def best_sentence(text: str, query: str, must_dose: bool = False) -> str:
     """The sentence in a passage that best covers the query terms, preferring earlier ones.
 
@@ -169,7 +194,7 @@ def draft_llm(
         # to re-send the passages anyway. Naming the rejected sentences is the whole content of
         # the retry: told only "try again", a model rewrites the parts that were already fine.
         user += "\n\n" + VERIFIER_REWRITE.format(rejected="\n".join(rejected))
-    result = llm.complete(AGRONOMIST_SYSTEM, user)
+    result = llm.complete_first(AGRONOMIST_SYSTEM, user)
     if not result.ok:
         return None, result.error or "llm unavailable"
     if INSUFFICIENT in result.text:
@@ -181,7 +206,7 @@ def draft_llm(
         # One repair attempt only. The Verifier in A7 owns the retry loop and has veto power;
         # a second budget here would mean a plan could be rewritten five times while each
         # component believed it had allowed two.
-        repair = llm.complete(
+        repair = llm.complete_first(
             AGRONOMIST_SYSTEM,
             AGRONOMIST_REPAIR.format(offenders="\n".join(offenders), draft=draft),
         )

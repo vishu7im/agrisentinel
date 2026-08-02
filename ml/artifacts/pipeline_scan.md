@@ -6,13 +6,13 @@ Whole pipeline on a CPU-only laptop: tile, mask, classify, escalate, cluster, re
 
 | image | tiles | escalated | vision ms | language ms | total ms | tile acc |
 |---|---:|---:|---:|---:|---:|---:|
-| field_all_soil.jpg | 40 | 1 | 52 | 0 | 52 | — |
-| field_corn_nlb.jpg | 40 | 10 | 646 | 14 | 660 | 0.750 |
-| field_tomato_heavy.jpg | 40 | 7 | 606 | 4 | 610 | 0.921 |
-| field_tomato_late_blight.jpg | 40 | 2 | 458 | 5 | 462 | 0.974 |
-| field_tomato_light.jpg | 40 | 1 | 447 | 6 | 453 | 1.000 |
+| field_all_soil.jpg | 40 | 1 | 98 | 2 | 100 | — |
+| field_corn_nlb.jpg | 40 | 10 | 1,248 | 26 | 1,274 | 0.750 |
+| field_tomato_heavy.jpg | 40 | 7 | 916 | 8 | 923 | 0.921 |
+| field_tomato_late_blight.jpg | 40 | 2 | 677 | 11 | 688 | 0.974 |
+| field_tomato_light.jpg | 40 | 1 | 607 | 8 | 614 | 1.000 |
 
-Median end-to-end **0.46 s**. This is the demo-day path.
+Median end-to-end **0.69 s**. This is the demo-day path.
 
 ## Grid correctness
 

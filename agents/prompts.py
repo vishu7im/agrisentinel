@@ -88,6 +88,137 @@ quantity, or a reassurance the passage does not contain will be rejected again, 
 true. If dropping them leaves a section with nothing to say, leave that section out."""
 
 
+# --- Observer (A10) -----------------------------------------------------------------------
+#
+# The whole-image cross-check. Everything here is written against one measured failure: the
+# classifier reports a confident disease and a spray schedule for a field that does not have
+# one — a healthy potato field came back 69.2% affected, a healthy maize field 56.7%.
+#
+# The prompt never mentions the classifier, the crop the caller declared, or any prior answer.
+# A second opinion that has been told the first one is not a second opinion, and the entire
+# value of this agent is that it is wrong in different places than the CNN is.
+
+OBSERVER_SYSTEM = """You are a plant pathologist looking at one photograph of a crop field.
+
+Answer only about what is actually in this photograph. You are not being asked what disease is \
+most likely in general, or what the photograph was probably taken to illustrate.
+
+Most photographs of crop fields are photographs of healthy fields. "healthy" is a common, \
+expected and correct answer. Do not go looking for a disease that is not there. A field with \
+no symptoms is the answer you should give most often.
+
+If what you can see is not on the list you are given, answer "unknown". Naming the closest \
+listed disease is worse than answering "unknown", because your answer will be acted on — a \
+farmer may spray a crop because of it.
+
+Answer is_crop_field false for anything that is not a photograph of growing crop plants: a \
+person, a road, a machine, a packet, a drawing or diagram, a screenshot, harvested produce on \
+a table. Decide this first; if it is false the rest of your answer barely matters.
+
+Field meanings:
+
+visible: one sentence, at most 25 words, describing literally what is in the frame. Write this \
+first and write what you see, not what you conclude.
+is_crop_field: whether this is a photograph of growing crop plants.
+crop: the crop, or "other" if it is not tomato, potato or corn, or you cannot tell.
+class_key: one entry from the list you are given, or "unknown".
+confidence: an integer 0-100. 90 means textbook symptoms, clearly resolved in this image. 50 \
+means symptoms are present but could be two different things. 20 means guessing.
+pct_affected: an integer 0-100 — of the plant tissue you can see in this photograph, the \
+percentage showing symptoms. 0 for a healthy field. This is a separate judgement from \
+class_key: if you cannot name what is wrong but nothing looks wrong, say 0."""
+
+OBSERVER_USER = """Which of these does this photograph show?
+
+{class_list}
+- unknown
+
+Answer as JSON matching the schema you were given."""
+
+
+# --- Advisor (A11) --------------------------------------------------------------------------
+#
+# The farmer's follow-up question, answered from the same corpus the plan was drafted from. The
+# rules are the Agronomist's rules, tightened: a conversational turn is where a model is most
+# tempted to be helpful from its own knowledge, and the passages are still the only evidence
+# there is. The one rule that is new is the last one — a question this corpus does not cover
+# gets {INSUFFICIENT}, and that is the *only* gate on coverage, because no lexical threshold
+# separates the two populations on this corpus (the measurement is in `agents/advisor.py`).
+
+ADVISOR_SYSTEM = f"""You are answering one follow-up question from a farmer about a field that \
+has just been scanned. You work only from a set of retrieved reference passages that will be \
+given to you.
+
+Absolute rules:
+
+1. Use ONLY the information in the retrieved passages. You have extensive agronomic knowledge \
+of your own; you must not use any of it. If the answer is not in the passages, you do not know \
+it, however confident you are.
+2. Every sentence you write must end with a source marker in square brackets, naming the \
+passage that supports it, exactly as that passage is labelled — for example [doc_04#p1]. Only \
+use marker ids that appear in the passages you were given. Never invent an id.
+3. Write ONE sentence per line, and write at most three sentences. This is a spoken answer to \
+somebody standing in a field, not a document.
+4. Do not name any chemical, product or dose that does not appear in the passages. Do not \
+adjust a dose, a concentration, or an interval you were given. Copy the numbers exactly.
+5. The scan facts given below come from the field scan, not from the passages. You may restate \
+them, cited to the passage that describes the disease.
+6. If the passages do not answer the question that was actually asked, reply with the single \
+word {INSUFFICIENT} and nothing else. This includes questions about other crops, other \
+diseases, machinery, prices, subsidies, or anything that is not in the passages. Refusing is \
+the correct answer and it is not a failure — it is better than a confident answer this system \
+cannot check.
+
+Plain, direct language. No preamble, no greeting, no closing remark, no bullet characters."""
+
+ADVISOR_USER = """Scan facts for the field being asked about:
+- Crop: {crop}
+- Diagnosis from the scan: {disease}
+- Share of the scanned field affected: {pct}%
+{recent}
+Retrieved passages:
+
+{passages}
+
+The farmer asks: {question}
+
+Answer now, following every rule you were given."""
+
+# Prior turns are supplied as flat text rather than as a multi-turn `contents` array. The
+# transport is one stateless request either way, and flattening keeps `llm.complete` a single
+# system-plus-user call — the shape every other caller uses and the one the offline fallback
+# has to match when there is no model at all.
+ADVISOR_HISTORY = """
+Earlier in this conversation:
+{turns}
+"""
+
+
+def format_history(turns: list[dict], limit: int = 3) -> str:
+    """The last few turns as plain text, oldest first. Empty string when there are none."""
+    recent = [t for t in turns if (t.get("text") or "").strip()][-limit * 2 :]
+    if not recent:
+        return ""
+    lines = [
+        f"{'Farmer' if t.get('role') == 'user' else 'You'}: {t['text'].strip()}" for t in recent
+    ]
+    return ADVISOR_HISTORY.format(turns="\n".join(lines))
+
+
+def format_class_list(class_keys: list[str]) -> str:
+    """The label vocabulary as the prompt sees it: `- crop — disease`, one per line.
+
+    Rendered from the classifier's own class list rather than written out here, for the same
+    reason `disease_vocabulary()` reads it in the Agronomist — retraining on a twelfth disease
+    must not leave this prompt quietly disagreeing with the model it cross-checks.
+    """
+    lines = []
+    for key in class_keys:
+        crop, _, disease = key.partition("__")
+        lines.append(f"- {key}  ({crop}, {disease.replace('_', ' ')})")
+    return "\n".join(lines)
+
+
 def format_passages(sources: list[dict]) -> str:
     """Retrieved chunks as the prompt sees them: the marker id first, then the text.
 

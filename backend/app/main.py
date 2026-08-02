@@ -22,15 +22,30 @@ from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 
-from app import pipeline
+from app import chat, pipeline
 from app.store import RunStore
 
 # app.pipeline puts the repo root on sys.path, so this import must follow it.
 from agents.crop_vote import AUTO  # noqa: E402
+from agents.settings import setting  # noqa: E402
 
-# Vite's dev server. 127.0.0.1 and localhost are distinct origins to the browser, so both are
-# listed — the difference is otherwise a ten-minute CORS mystery.
-FRONTEND_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+# Exact deployed UI origins stay opt-in. The local regex covers Vite's fallback ports and its
+# `--host` LAN URL; both are common during the demo and are distinct origins to the browser.
+# Origin values never contain a path, and trailing slashes in configuration are normalised away.
+FRONTEND_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    *[
+        origin.strip().rstrip("/")
+        for origin in setting("CORS_ORIGINS").split(",")
+        if origin.strip()
+    ],
+]
+LOCAL_FRONTEND_ORIGIN_REGEX = (
+    r"^https?://(?:localhost|127\.0\.0\.1|\[::1\]|"
+    r"10(?:\.\d{1,3}){3}|192\.168(?:\.\d{1,3}){2}|"
+    r"172\.(?:1[6-9]|2\d|3[01])(?:\.\d{1,3}){2})(?::\d+)?$"
+)
 
 # A field mosaic off a phone is 2-8 MB. 32 covers a DSLR panorama and still refuses the
 # accidental video upload before it reaches the disk.
@@ -68,10 +83,16 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=FRONTEND_ORIGINS,
+    allow_origin_regex=LOCAL_FRONTEND_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# The Advisor's follow-up endpoint. Additive and outside the frozen four, in the same place
+# `GET /api/run/{id}/image` already sits — see the note at the top of app/chat.py.
+chat.attach(app, store)
 
 
 @app.get("/api/health")

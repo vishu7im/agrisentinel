@@ -486,3 +486,122 @@ section only — a section headed "Chemical control" is being asked what to spra
 action on tissue already infected", while the Hindi brief was six short ones from a phrase
 table. The spec says six, plain, no jargon. English now uses the schedule's short action label
 plus the dose — the full grounded sentence is still one panel up, with its source.
+
+## A10 — the vision cross-check
+
+Two new agents, and one measured problem behind both of them.
+
+`NOTES.md` records that the classifier scores 95.6% on held-out PlantVillage images and falls
+apart on real photographs: a healthy potato field came back **69.2% affected** with a confident
+disease name and a spray schedule attached, a healthy maize field 56.7%, and the crop probe got
+four of four real photographs wrong. The Verifier cannot catch any of it — the plan is correctly
+grounded advice for a disease the field does not have, and every check it owns passes.
+
+**`observer.py`** asks a different kind of model a different question: not "what is in this
+tile" forty times, but "what is in this photograph" once. Its prompt never mentions the
+classifier, the declared crop or any prior answer, and it runs before the Diagnostician partly
+so that it cannot be told — an agreeing second opinion that was shown the first one is worth
+nothing. It contributes three things, in descending order of reliability: whether anything is
+wrong at all, which crop this is (only when the caller sent `auto`), and which disease.
+
+**`consensus.py`** decides what the run believes. The division of labour is that the CNN knows
+*where* and the vision model knows *what*: a relabel changes the name attached to the infected
+tiles and never which tiles are infected, and `spread.pct_affected` stays the CNN's measurement.
+Disagreement about *which* disease fuses and ships a better plan. Disagreement about whether
+there *is* one refuses, through the existing BLOCK machinery — the Agronomist declines,
+the Verifier rules, `refusal.py` writes a brief that reports the disagreement instead of
+asserting a diagnosis the system has just declined to stand behind.
+
+Four gates have to fire together before anything is withheld: the CNN must call at least 20% of
+the field infected (`reporter.severity_band`'s own mild/moderate boundary, reused rather than
+invented), the vision model must be at least 60% confident, the disagreement must be
+categorical, and there must be a plan at risk. The whole table is asserted offline in
+`agents/verify_consensus.py`, including the boundaries either side of every threshold.
+
+Two design decisions came out of running it rather than thinking about it, and both are in the
+constants:
+
+- **A refusal needs two signals, not one.** Shown `field_tomato_heavy.jpg` the vision model
+  answers `is_crop_field: false` — "a grid of forty individual leaves against plain
+  backgrounds", which is exactly what that fixture is. Acting on that alone would have refused
+  three of our own demo fixtures. The Scout's green mask is the corroborating signal: 0.00 on
+  bare soil, 0.62-1.00 on every real photograph and every mosaic. A mosaic of leaves is not a
+  field and is still perfectly diagnosable.
+- **"Healthy" is a percentage, not a label.** Shown a healthy maize field the model answered
+  `class_key: unknown` — honestly, the plants were too young to identify — and `pct_affected: 0`.
+  Keying the refusal on the class name would have missed the case entirely.
+
+Everything reaches the UI through `events[]`, which the frozen schema explicitly sanctions.
+`state.vision` is an `INTERNAL_FIELDS` entry and never appears in a response, so
+`run_state.schema.json` and `contract/validate.py` are untouched. With no key the only trace is
+four events and the run is byte-identical to before this phase — verified against captured
+baselines for all five fixtures.
+
+Before and after on seven real photographs: `ml/artifacts/vision_crosscheck.md`.
+
+---
+
+## A11 — the crop cascade, and the Advisor
+
+| file | what |
+|---|---|
+| `settings.py` | The `.env` parser and the one credential. Split from `llm.py` under the 300-line rule. |
+| `advisor.py` | **Advisor Agent** — the farmer's follow-up question, answered from the corpus and cited. |
+| `verify_advisor.py` | The Advisor's decision table, asserted offline against a stubbed model. |
+
+### The bug this phase existed to fix
+
+A10 shipped one condition that cost four stages of the pipeline. `_adopt_crop` would not adopt
+the vision model's crop unless `is_crop_field` was true — so a photograph of one detached tomato
+leaf, read as `crop: tomato` at 90% confidence with `is_crop_field: false` (correctly: a leaf on
+a bench is not a field), had its crop thrown away. The probe vote said corn, the Diagnostician
+masked its logits to corn, the classifier returned northern leaf blight, and `consensus.py`
+dropped the vision model's correct `tomato__late_blight` as belonging to the wrong crop. The
+brief read *"Your corn field has northern leaf blight."*
+
+The rule was already written down — in `consensus.py`, for exactly that photograph. So
+`SCOUT_TISSUE_MIN` and `tissue_share` moved to **`scout.py`**, which is the agent that makes the
+measurement, and both readers import them. A crop is now declined only when the vision model and
+the Scout's green mask *both* say the frame holds no plant tissue, and such a run is heading for
+`consensus.not_crop` anyway. `CROP_MIN_CONFIDENCE` dropped 60 → 50 for a measured reason: what it
+displaces is the tile probe, which is wrong on 4 of 4 real photographs.
+
+Crop identified correctly across the seven real photographs: **3/5 → 5/5**
+(`ml/artifacts/vision_crosscheck.md`).
+
+The Reporter no longer states a guessed crop as fact. `crop_is_guessed` reads `events[]` for a
+probe vote with no `observer.crop.*` behind it, and the brief opens *"This looks like a corn
+field, and it has…"* instead of *"Your corn field has…"* — the same test the UI applies to decide
+whether to offer a one-tap re-scan under another crop.
+
+### The Advisor
+
+`answer(state, question, history)` — same shape as every other agent, never raises, but it
+answers instead of writing. It re-uses rather than re-implements: `rag/retrieve.py` for search,
+`claims.py` for grounding, `checks.py` for the allowlist and the dose table, `drafting.py` for
+the extractive fallback, `dispute.py` for whether the run was contested.
+
+Three things are worth the reasoning:
+
+- **Coverage is judged by the model, and by nothing else.** Measured over 12 in-domain and 9
+  out-of-domain questions, retrieval scores overlap (0.134–0.310 against 0.140–0.198) and so
+  does question containment (0.000–1.000 against 0.000–0.333). "How does this spread?" repeats
+  no word of the passage that answers it; "What is the price of tomatoes in Delhi?" scores 0.333
+  because the corpus is full of the word tomato. There is no cut here, so there is no threshold —
+  the model answers `INSUFFICIENT_CONTEXT` and `keep_grounded` is the net under it.
+- **The citation is computed, not believed.** A marker the model writes is a claim about
+  provenance; containment against the retrieved chunk is a measurement of it. The first live
+  answer was a near-verbatim quotation carrying no marker at all — fully checkable, and it would
+  have been discarded for a formatting slip.
+- **The Verifier's veto reaches the chat.** On a BLOCK or a contested run every question is
+  answered from the ruling, quoting `verification.block_reason`, with no retrieval and no
+  network. A chat that would recommend a spray the Verifier had just withheld would be a way
+  around it.
+
+Two searches, not one: half the budget is reserved for the crop-agnostic documents, because
+prefixing the crop and disease dominates the ranking and a single query never reached the spray-
+practice document for "What time of day should I spray?".
+
+Served at `POST /api/run/{id}/chat` — additive, stateless, and outside the frozen four, in the
+same place `GET /api/run/{id}/image` already sits. No schema key is added and nothing is written
+back to a run.

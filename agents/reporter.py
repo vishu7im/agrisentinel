@@ -114,6 +114,27 @@ def dominant_disease(state: RunState) -> str | None:
     return Counter(labels).most_common(1)[0][0] if labels else None
 
 
+def crop_is_guessed(state: RunState) -> bool:
+    """Did anything actually identify this crop, or was it the tile probe's best effort?
+
+    Three ways a run arrives at a crop, and only one of them is worth stating as fact. A person
+    chose it; the vision cross-check read it off the photograph (`observer.crop.*`); or the tile
+    probe voted, and that vote is measured wrong on 4 of 4 real photographs — often at a share
+    low enough that `crop_vote.resolve_crop` says so on the log before taking it anyway, for
+    want of anything better.
+
+    Read off `events[]` rather than passed down, the same trick `verifier.dominant_label` uses:
+    the Reporter re-derives what happened from what was written, so it stays correct when run
+    against a stored state.
+    """
+    if any(e.startswith("observer.crop.") for e in state.events):
+        return False
+    return any(
+        e.startswith(("diagnose.crop_uncertain.", "diagnose.crop_unresolved."))
+        for e in state.events
+    )
+
+
 def severity_band(pct: float) -> tuple[str, str]:
     """(english, hindi). What ties the Hindi brief to severity rather than just the raw number."""
     if pct >= 50:
@@ -225,8 +246,14 @@ def run_reporter(state: RunState) -> RunState:
     second_item = day0[1] if len(day0) > 1 else None
     rescan_days = _rescan_days(state)
 
+    # The opening clause, and only the clause — the sentence count is what makes this brief
+    # readable and a hedge is not worth one of six. Nothing else in the brief changes, and
+    # `state.crop` is untouched, so the schema field stays a real crop for everything downstream.
+    guessed = crop_is_guessed(state)
     en = [
-        f"Your {crop} field has {disease_en}.",
+        f"This looks like a {crop} field, and it has {disease_en}."
+        if guessed
+        else f"Your {crop} field has {disease_en}.",
         f"About {round(pct)} out of every 100 plants we checked are affected"
         + (f", spread across {clusters} patch{'es' if clusters != 1 else ''}." if clusters else "."),
     ]
@@ -241,8 +268,12 @@ def run_reporter(state: RunState) -> RunState:
     en.append(f"Check the field again in {rescan_days} days.")
     en = [s for s in en if s][:MAX_SENTENCES]
 
+    crop_hi = CROP_HI.get(crop, crop)
+    disease_hi = DISEASE_NAME_HI.get(disease_label, "पौधों की बीमारी")
     hi = [
-        f"आपके {CROP_HI.get(crop, crop)} खेत में {band_hi} {DISEASE_NAME_HI.get(disease_label, 'पौधों की बीमारी')} रोग है।",
+        f"यह {crop_hi} का खेत लगता है, जिसमें {band_hi} {disease_hi} रोग है।"
+        if guessed
+        else f"आपके {crop_hi} खेत में {band_hi} {disease_hi} रोग है।",
         f"जाँचे गए हर 100 पौधों में से लगभग {round(pct)} पौधे प्रभावित हैं"
         + (f", जो {clusters} जगह फैले हैं।" if clusters else "।"),
     ]
